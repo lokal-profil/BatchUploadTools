@@ -7,8 +7,10 @@ import WikiApi as wikiApi
 import prepUpload
 import json
 
+FILEEXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
 
-def openConnection(configPath=None):
+
+def openConnection(configPath=None, verbose=True):
     """
     Open a connection to Commons using the specified config file
     param configPath: path to config.json file
@@ -22,16 +24,16 @@ def openConnection(configPath=None):
                                          password=config['w_password'],
                                          site=config['com_site'],
                                          scriptidentify=u'batchUploader/0.1',
-                                         verbose=True)
+                                         verbose=verbose)
     return comApi
 
 
-def upAll(inPath, configPath, cutoff=None, fileExts=(u'.tif', u'.jpg'),
-          test=False, verbose=False):
+def upAll(inPath, configPath, cutoff=None, fileExts=None, test=False,
+          verbose=True):
     """
     Upload all matched files in the supplied directory
     """
-    comApi = openConnection(configPath)
+    comApi = openConnection(configPath, verbose=verbose)
 
     # Verify inPath
     if not os.path.isdir(inPath):
@@ -52,6 +54,10 @@ def upAll(inPath, configPath, cutoff=None, fileExts=(u'.tif', u'.jpg'),
     # logfile
     logfile = os.path.join(inPath, u'¤uploader.log')
     flog = codecs.open(logfile, 'a', 'utf-8')
+
+    # set filExts
+    if fileExts is None:
+        fileExts = FILEEXTS
 
     # find all content files
     foundFiles = prepUpload.findFiles(path=inPath, fileExts=fileExts,

@@ -7,11 +7,10 @@ import os
 import codecs
 import json
 
-# filename file
-FILENAMES = u'data/filenames.csv'
+FILEEXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
 
 
-def run(inPath, outPath, dataPath, fileExts=(u'.tif', u'.jpg')):
+def run(inPath, outPath, dataPath, fileExts=None):
     """
     Prepares an upload by:
         1. Finds files in inpath (with subdirs) with the right file extension,
@@ -26,6 +25,10 @@ def run(inPath, outPath, dataPath, fileExts=(u'.tif', u'.jpg')):
     """
     # Load data
     data = json.load(codecs.open(dataPath, 'r', 'utf-8'))
+
+    # set filExts
+    if fileExts is None:
+        fileExts = FILEEXTS
 
     # Find candidate files
     if not os.path.isdir(inPath):
@@ -92,7 +95,6 @@ def makeAndRename(hitlist, outPath):
     Given a hitlist create the info files and and rename the matched file
     param hitlist: the output of makeHitlist
     param outPath: the directory in which to store info + renamed files
-    @todo: some type of logging?
     """
     # create outPath if it doesn't exist
     if not os.path.isdir(outPath):
@@ -154,8 +156,8 @@ def makeInfoPage(data):
     txt = data['info']
 
     if len(data['metaCats']) > 0:
-        txt += u'<!-- Metadata categories -->\n'
         txt += catSeparator
+        txt += u'<!-- Metadata categories -->\n'
         for cat in data['metaCats']:
             txt += u'[[Category:%s]]\n' % cat
 
