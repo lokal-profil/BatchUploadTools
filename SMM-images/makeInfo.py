@@ -189,9 +189,9 @@ def handleLine(line):
     d['motiv_amnesord'] = helpers.trimList(d['motiv_amnesord'])
 
     # cleanup blacklisted
-    if d['date_foto'].lower() in badDate:
+    if d['date_foto'].strip('.').lower() in badDate:
         d['date_foto'] = ''
-    if d['date_produktion'].lower() in badDate:
+    if d['date_produktion'].strip('.').lower() in badDate:
         d['date_produktion'] = ''
     if d['namn_konstnar'].lower() in badNamn:
         d['namn_konstnar'] = ''

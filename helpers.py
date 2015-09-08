@@ -119,9 +119,10 @@ def cleanString(text):
     # Note that ":" is complicated as it has several different interpretaions.
     # Currently first replacing possesive case and sentence break then
     # dealing with stand alone :
+    # maybe also ? ' and &nbsp; symbol
     badChar = {u'\\': u'-', u'/': u'-', u'[': u'(', u']': u')', u'{': u'(',
                u'}': u')', u'|': u'-', u'#': u'-', u':s': u's', u'  ': u' ',
-               u'e´': u'é', u': ': u', '}  # maybe also ? ' and &nbsp; symbol
+               u'e´': u'é', u': ': u', ', u' ': u' '}
     for k, v in badChar.iteritems():
         text = text.replace(k, v)
     if u':' in text:
