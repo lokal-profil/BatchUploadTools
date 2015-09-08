@@ -270,7 +270,7 @@ def getFilenameId(item):
     """
     Convert the idno to the equivalent format used for the image files
     """
-    return item['idno'].replace(u':', u'_')
+    return item['idno'].replace(u':', u'_').replace(u'/', u'_')
 
 
 def getSourceCat(item):
