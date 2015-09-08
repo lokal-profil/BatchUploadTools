@@ -9,6 +9,7 @@ A known assumption is that in avbildad_namn any string containing exactly
 one comma is a person, and any others are assumed to be ships.
 
 @todo: Make this extend some base makeInfo class
+@todo: Deprecate/merge test() into run()
 """
 import helpers
 import listscraper

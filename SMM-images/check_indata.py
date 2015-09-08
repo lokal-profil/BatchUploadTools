@@ -7,10 +7,10 @@ Notes:
     P373 is Commonscat
     P1472 is Creator-template
 
+@todo: Deprecate and move last bits to makeInfo
 """
 
 import helpers  # must therefore run from parent dir
-import common  # shift some of this to helpers
 import codecs
 import os
 import listscraper
@@ -314,20 +314,20 @@ def testDate(date):
     '''
     date = date.lower().strip('ca ')
     item = date[:len('YYYY-MM-DD')].split('-')
-    if len(item) == 3 and all(common.is_int(x) for x in item) and \
+    if len(item) == 3 and all(helpers.is_int(x) for x in item) and \
             int(item[1][:len('MM')]) in range(1, 12+1) and \
             int(item[2][:len('DD')]) in range(1, 31+1):
         # 1921-09-17Z or 2014-07-11T08:14:46Z
         return None
-    elif len(item) == 1 and common.is_int(item[0][:len('YYYY')]):
+    elif len(item) == 1 and helpers.is_int(item[0][:len('YYYY')]):
         # 1921Z
         return None
     elif len(item) == 2 and \
-            all(common.is_int(x) for x in (item[0], item[1][:len('MM')])) and \
+            all(helpers.is_int(x) for x in (item[0], item[1][:len('MM')])) and \
             int(item[1][:len('MM')]) in range(1, 12+1):
         # 1921-09Z
         return None
-    elif len(item) == 2 and common.is_int(item[0][:len('YYYY')]) and \
+    elif len(item) == 2 and helpers.is_int(item[0][:len('YYYY')]) and \
             item[1] == u'talet':
         # 1900-talet
         return None

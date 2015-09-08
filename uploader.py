@@ -2,7 +2,7 @@
 # -*- coding: utf-8  -*-
 import codecs
 import os
-import common
+import common  # used for loadJsonConfig
 import WikiApi as wikiApi
 import prepUpload
 import json

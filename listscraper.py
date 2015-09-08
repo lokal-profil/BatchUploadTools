@@ -9,7 +9,7 @@
 #   import mappings output from py_makeMappings
 #
 import os
-import common
+import common  # used for loadJsonConfig, findUnit
 import codecs
 import json
 import WikiApi as wikiApi
