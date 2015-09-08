@@ -1,0 +1,7 @@
+{
+    "@meta": "Example settings file for a batch upload",
+    "com_site": "https://commons.wikimedia.org",
+    "wd_site": "https://www.wikidata.org",
+    "w_username": "SomeUsername",
+    "w_password": "SomePassword"
+}
