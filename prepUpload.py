@@ -115,7 +115,8 @@ def makeAndRename(hitlist, outPath):
         # rename/move matched file
         outfile = u'%s%s' % (baseName, hit['ext'])
         os.rename(hit['path'], outfile)
-        flog.write(u'%s|%s\n' % (hit['key'], os.path.basename(outfile)))
+        flog.write(u'%s|%s\n' % (os.path.basename(hit['path']),
+                                 os.path.basename(outfile)))
     flog.close()
     print u'Created %s' % logfile
 
