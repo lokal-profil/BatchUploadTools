@@ -5,6 +5,8 @@ Helper tools related to batchUploads
 """
 import operator
 import codecs
+import sys  # needed by convertFromCommandline()
+import locale  # needed by convertFromCommandline()
 
 # limitations on namelength
 # shorten if longer than GOODLENGTH cut if longer than MAXLENGTH
@@ -120,9 +122,12 @@ def cleanString(text):
     # Currently first replacing possesive case and sentence break then
     # dealing with stand alone :
     # maybe also ? ' and &nbsp; symbol
-    badChar = {u'\\': u'-', u'/': u'-', u'[': u'(', u']': u')', u'{': u'(',
-               u'}': u')', u'|': u'-', u'#': u'-', u':s': u's', u'  ': u' ',
-               u'e´': u'é', u': ': u', ', u' ': u' '}
+    badChar = {u'\\': u'-', u'/': u'-', u'|': u'-', u'#': u'-',
+               u'[': u'(', u']': u')', u'{': u'(', u'}': u')',
+               u':s': u's', u': ': u', ',
+               u' ': u' ', u' ': u' ', u'	': u' ',  # unusual whitespace
+               u'e´': u'é',
+               u'”': u' ', u'"': u' ', u'“': u' '}
     for k, v in badChar.iteritems():
         text = text.replace(k, v)
     if u':' in text:
@@ -152,7 +157,7 @@ def touchup(text):
 
 def shortenString(text):
     '''
-    If a string is larger than MAXLENGTH then this tries to
+    If a string is larger than GOODLENGTH then this tries to
     find a sensibel shortening
     '''
     badchar = u'-., '  # maybe also "?
@@ -316,3 +321,14 @@ def italicize(s):
     Given a string return the same string italicized (in wikitext)
     """
     return u'\'\'%s\'\'' % s
+
+
+def convertFromCommandline(s):
+    """
+    Converts a string read from the commandline to a standard unicode
+    format.
+    :param s: string to convert
+    :return: str
+    """
+    return s.decode(sys.stdin.encoding or
+                    locale.getpreferredencoding(True))
