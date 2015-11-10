@@ -6,6 +6,7 @@ Prepares files for upload by creating Information pages and renaming them
 import os
 import codecs
 import json
+import helpers
 
 FILEEXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
 
@@ -50,7 +51,7 @@ def findFiles(path, fileExts, subdir=True):
     """
     Identify all files with a given extension in a given directory
     param path: path to look in
-    param fileExts: tupple of allowed file extensions (case insensitive)
+    param fileExts: tuple of allowed file extensions (case insensitive)
     param subdir: Whether subdirs should also be searched
     return list of paths to found files
     """
@@ -123,8 +124,9 @@ def makeAndRename(hitlist, outPath):
 
 def removeEmptyDirectories(path, top=True):
     """
-    Remove any empty directories under a given directory
-    param top: set to True to not delete the current directory
+    Remove any empty directories and subdirectories
+    :param path: path to direcotry to start deleting from
+    :param top: set to True to not delete the starting directory
     """
     if not os.path.isdir(path):
         return
@@ -179,9 +181,9 @@ if __name__ == '__main__':
     argv = sys.argv[1:]
     if len(argv) == 3:
         # str to unicode
-        inPath = argv[0].decode(sys.getfilesystemencoding())
-        outPath = argv[1].decode(sys.getfilesystemencoding())
-        dataPath = argv[2].decode(sys.getfilesystemencoding())
+        inPath = helpers.convertFromCommandline(argv[0])
+        outPath = helpers.convertFromCommandline(argv[1])
+        dataPath = helpers.convertFromCommandline(argv[2])
         run(inPath, outPath, dataPath)
     else:
         print usage
