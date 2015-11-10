@@ -207,7 +207,7 @@ def mergeWithOld(sortedDictionary, pagename, outputWiki,
 
 def makeEntry(name, frequency, previous=None):
     """
-    Create a list entry in te relevant format, either from scratch or
+    Create a list entry in the relevant format, either from scratch or
     by reusing mappings.
     return entry
     """
