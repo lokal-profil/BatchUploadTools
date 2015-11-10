@@ -55,7 +55,7 @@ def upAll(inPath, configPath, cutoff=None, fileExts=None, test=False,
     logfile = os.path.join(inPath, u'¤uploader.log')
     flog = codecs.open(logfile, 'a', 'utf-8')
 
-    # set filExts
+    # set fileExts (cannot use GLOBAL as function default)
     if fileExts is None:
         fileExts = FILEEXTS
 
@@ -70,8 +70,7 @@ def upAll(inPath, configPath, cutoff=None, fileExts=None, test=False,
         infoFile = u'%s.info' % os.path.splitext(f)[0]
         baseName = os.path.basename(f)
         if not os.path.exists(infoFile):
-            flog.write(u'%s: Found tif/jpg without info' %
-                       baseName)
+            flog.write(u'%s: Found tif/jpg without info' % baseName)
             continue
 
         # prepare upload
@@ -85,26 +84,27 @@ def upAll(inPath, configPath, cutoff=None, fileExts=None, test=False,
             continue
 
         # stop here if testing
-        result = comApi.chunkupload(baseName, f, txt, txt)
+        result = comApi.chunkupload(baseName, f, txt, txt,
+                                    uploadifbadprefix=True)
 
         # parse results and move files
         baseInfoName = os.path.basename(infoFile)
         details = ''
         jresult = json.loads(result[result.find('{'):])
+        targetDir = None
         if 'error' in jresult.keys():
             details = json.dumps(jresult['error'], ensure_ascii=False)
-            os.rename(f, os.path.join(errorDir, baseName))
-            os.rename(infoFile, os.path.join(errorDir, baseInfoName))
+            targetDir = errorDir
         elif 'upload' in jresult.keys() and \
                 'warnings' in jresult['upload'].keys():
             details = json.dumps(jresult['upload'], ensure_ascii=False)
-            os.rename(f, os.path.join(warningsDir, baseName))
-            os.rename(infoFile, os.path.join(warningsDir, baseInfoName))
+            targetDir = warningsDir
         else:
             details = json.dumps(jresult['upload']['filename'],
                                  ensure_ascii=False)
-            os.rename(f, os.path.join(doneDir, baseName))
-            os.rename(infoFile, os.path.join(doneDir, baseInfoName))
+            targetDir = doneDir
+        os.rename(f, os.path.join(targetDir, baseName))
+        os.rename(infoFile, os.path.join(targetDir, baseInfoName))
 
         # logging
         counter += 1
