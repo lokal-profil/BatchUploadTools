@@ -405,8 +405,8 @@ def dumpToList(desc, dictionary):
         print 'dumpToList not implemented for: %s' % desc
         return
     listscraper.mergeWithOld(helpers.sortedDict(dictionary), desc,
-                             outputWiki, workingPath=CWD_PATH,
-                             outPath=OUT_PATH)
+                             outputWiki, working_path=CWD_PATH,
+                             out_path=OUT_PATH)
 
 
 def outputWikiKeyword(mapping):

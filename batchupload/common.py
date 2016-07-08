@@ -1,9 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 
-"""Shared methods"""
+"""
+Shared methods.
+
+To be merged with helpers.py
+"""
 import pywikibot
-import json  # for loadJsonConfig
+import json
+import codecs
 
 
 def loadJsonConfig(filename='config.json'):
@@ -30,6 +35,40 @@ def loadJsonConfig(filename='config.json'):
         else:
             raise
     return config
+
+
+def open_and_read_file(filename, codec='utf-8', json=False):
+    """
+    Open and read a file using the provided codec.
+
+    Automatically closes the file on return.
+
+    :param filename: the file to open
+    :param codec: the used encoding (defaults to "utf-8")
+    :param json: load as json instead of reading
+    """
+    with codecs.open(filename, 'r', codec) as f:
+        if json:
+            return json.load(f)
+        return f.read()
+
+
+def open_and_write_file(filename, text, codec='utf-8', json=False):
+    """
+    Open and write to a file using the provided codec.
+
+    Automatically closes the file on return.
+
+    :param filename: the file to open
+    :param text: the text to output to the file
+    :param codec: the used encoding (defaults to "utf-8")
+    :param json: text is an object which should be dumped as json
+    """
+    with codecs.open(filename, 'w', codec) as f:
+        if json:
+            json.dumps(text, ensure_ascii=False)
+        else:
+            f.write(text)
 
 
 def strip_dict_entries(dict_in):

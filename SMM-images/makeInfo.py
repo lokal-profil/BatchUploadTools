@@ -635,9 +635,9 @@ def loadMappings(update=True):
     pages = {'people': 'people', 'keywords': 'keywords',
              'places': 'places', 'materials': 'materials'}
     if update:
-        commonsPrefix = u'Commons:Statens maritima museer'
-        listscraper.scrape(pages, commonsPrefix, workingPath=CWD_PATH,
-                           outPath=OUT_PATH)
+        commons_prefix = u'Commons:Statens maritima museer/Batch upload'
+        listscraper.scrape(pages, commons_prefix, working_path=CWD_PATH,
+                           out_path=OUT_PATH)
 
     # read mappings
     for k, v in pages.iteritems():

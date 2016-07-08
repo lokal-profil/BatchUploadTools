@@ -11,3 +11,5 @@
 *.ods
 .coverage
 .tox
+*secretPasswords
+user-config.py
