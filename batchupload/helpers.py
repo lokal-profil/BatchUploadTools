@@ -303,6 +303,12 @@ def isoDate(date):
 
 
 def is_int(s):
+    """
+    Tests if a string is an integer.
+
+    :param s: test string
+    :return: bool
+    """
     try:
         int(s)
         return True

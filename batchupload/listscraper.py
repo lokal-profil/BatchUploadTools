@@ -9,65 +9,55 @@
 #   import mappings output from py_makeMappings
 #
 import os
-import common  # used for loadJsonConfig, findUnit
+import common  # used for get_all_template_entries, loadJsonConfig
 import codecs
 import json
 import WikiApi as wikiApi
+import pywikibot
 
 OUT_PATH = u'connections'
 
 
-# functions for scraping lists
 def parseEntries(contents,
-                 header_t=u'{{user:Lokal Profil/LSH2',
-                 row_t=u'{{User:Lokal Profil/LSH3'):
+                 row_t=u'User:Lokal Profil/LSH3',
+                 default_params=None):
     """
-    Given the contents of a wikipage this returns the entries listed in it
-    param content: wikicode
-    param header_t: header template
-    param row_t: row template
-    returns list: of entry-dict items
+    Return a list of all parameters for instances of a given template.
+
+    "/" in parameter values are interpreted as a separator for list entries.
+    For non-empty entries a list of values is always returned.
+    "<small>"-tags are striped from the input.
+
+    :param content: wikicode
+    :param row_t: row template
+    :default_params: dict of expected params and their default values
+    :return list: of entry-dict items
     """
+    default_params = default_params or {
+        u'name': '',
+        u'more': '',
+        u'frequency': '',
+        u'technique': '',
+        u'creator': '',
+        u'link': '',
+        u'category': '',
+        u'other': ''}
+
+    entries = common.get_all_template_entries(contents, row_t)
     units = []
-    while(True):
-        table, contents, lead_in = common.findUnit(contents, header_t, u'|}')
-        if not table:
-            break
-        while(True):
-            unit, table, dummy = common.findUnit(table, row_t, u'}}',
-                                                 brackets={u'{{': u'}}'})
-            if not unit:
-                break
-            params = {u'name': '',
-                      u'more': '',
-                      u'frequency': '',
-                      u'technique': '',
-                      u'creator': '',
-                      u'link': '',
-                      u'category': '',
-                      u'other': ''
-                      }
-            while(True):
-                part, unit, dummy = common.findUnit(
-                    unit, u'|', u'\n', brackets={u'[[': u']]', u'{{': u'}}'})
-                if not part:
-                    break
-                if u'=' in part:
-                    part = part.replace(u'<small>', '').replace(u'</small>', '')
-                    part = part.strip(' \n\t')
-                    # can't use split as coord uses second equality sign
-                    pos = part.find(u'=')
-                    key = part[:pos].strip()
-                    value = part[pos + 1:].strip()
-                    if len(value) > 0:
-                        if key in params.keys():
-                            params[key] = value.split(u'/')
-                        else:
-                            print u'Unrecognised parameter: %s = %s' % (
-                                key, value)
-            units.append(params.copy())
-            # end units
-        # end tables
+    for entry in entries:
+        params = default_params.copy()
+        for key, value in entry.iteritems():
+            value = value.replace(u'<small>', '').replace(u'</small>', '')
+            value = value.strip()  # in case of empty <small>-tags
+            if not value:
+                continue
+            if key in params.keys():
+                params[key] = value.split(u'/')
+            else:
+                pywikibot.output(u'Unrecognised parameter: %s = %s' % (
+                                 key, value))
+        units.append(params.copy())
     return units
 
 
