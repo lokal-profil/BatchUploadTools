@@ -10,10 +10,10 @@ Notes:
 @todo: Deprecate and move last bits to makeInfo
 """
 
-import helpers  # must therefore run from parent dir
+import batchupload.helpers as helpers  # must therefore run from parent dir
 import codecs
 import os
-import listscraper
+import batchupload.listscraper as listscraper
 import urllib2
 import json
 CWD_PATH = u'SMM-images'
@@ -315,8 +315,8 @@ def testDate(date):
     date = date.lower().strip('ca ')
     item = date[:len('YYYY-MM-DD')].split('-')
     if len(item) == 3 and all(helpers.is_int(x) for x in item) and \
-            int(item[1][:len('MM')]) in range(1, 12+1) and \
-            int(item[2][:len('DD')]) in range(1, 31+1):
+            int(item[1][:len('MM')]) in range(1, 12 + 1) and \
+            int(item[2][:len('DD')]) in range(1, 31 + 1):
         # 1921-09-17Z or 2014-07-11T08:14:46Z
         return None
     elif len(item) == 1 and helpers.is_int(item[0][:len('YYYY')]):
@@ -324,7 +324,7 @@ def testDate(date):
         return None
     elif len(item) == 2 and \
             all(helpers.is_int(x) for x in (item[0], item[1][:len('MM')])) and \
-            int(item[1][:len('MM')]) in range(1, 12+1):
+            int(item[1][:len('MM')]) in range(1, 12 + 1):
         # 1921-09Z
         return None
     elif len(item) == 2 and helpers.is_int(item[0][:len('YYYY')]) and \
@@ -355,12 +355,12 @@ def secondaryKeywordTest(lines):
         for k in keywords:
             k = k.lower()
             for i in range(offset, num + offset):
-                if not passed[i-offset] and keywordList[k] >= i:
-                    passNo[i-offset] += 1
-                    passed[i-offset] += True
+                if not passed[i - offset] and keywordList[k] >= i:
+                    passNo[i - offset] += 1
+                    passed[i - offset] += True
     txt = u'frekvens: bilder utan kategori\n'
     for i in range(offset, num + offset):
-        txt += u'%d: %d\n' % (i, len(lines)-passNo[i-offset])
+        txt += u'%d: %d\n' % (i, len(lines) - passNo[i - offset])
     txt += u'(utav %d filer)' % len(lines)
     return txt
 
@@ -612,7 +612,7 @@ def outputWikiPerson(mapping):
 
 def crunchKNavList():
     """
-    Lookup uuid connections in wikidata and return a dict with name as key
+    Lookup uuid connections in wikidata and return a dict with name as key.
     """
     queryurl = u'https://wdq.wmflabs.org/api?q=string[1248:"%s"]' \
                u'+AND+CLAIM[373]&props=373,1248,1472'
@@ -620,7 +620,7 @@ def crunchKNavList():
     props = {'P373': [], 'P1248': [], 'P1472': []}
     while i < len(kNavList):
         # Split up into 10 uuid chunks
-        ks = '",1248:"'.join(kNavList.keys()[i:i+10])
+        ks = '",1248:"'.join(kNavList.keys()[i:i + 10])
         i += 10
         recordPage = urllib2.urlopen(queryurl % ks)
         recordData = recordPage.read()

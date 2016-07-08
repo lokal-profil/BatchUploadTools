@@ -9,3 +9,5 @@
 *.xlsx
 *.tsv
 *.ods
+.coverage
+.tox

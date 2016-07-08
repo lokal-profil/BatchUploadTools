@@ -67,7 +67,7 @@ def openFile(filename, codec='utf-8'):
 def flipName(name):
     """
     Given a single name return any Last, First as First Last,
-    otherwise returns the input unchanged
+    otherwise returns the input unchanged.
     """
     p = name.split(',')
     if len(p) == 2:
@@ -77,9 +77,7 @@ def flipName(name):
 
 
 def trimList(oldList):
-    """
-    Given a list remove any empty entries
-    """
+    """Given a list remove any empty entries."""
     newList = []
     for l in oldList:
         if len(l.strip()) > 0:
@@ -88,7 +86,7 @@ def trimList(oldList):
 
 
 def sortedDict(ddict):
-    """turns a dict into a sorted list"""
+    """Turn a dict into a sorted list."""
     sorted_ddict = sorted(ddict.iteritems(),
                           key=operator.itemgetter(1),
                           reverse=True)
@@ -97,8 +95,9 @@ def sortedDict(ddict):
 
 def addOrIncrement(dictionary, val, key=None):
     """
-    adds a value to the dictionary or increments the
+    Add a value to the dictionary or increments the
     counter for the value.
+
     param key: the key holding the counter
     """
     if val in dictionary.keys():
@@ -114,9 +113,7 @@ def addOrIncrement(dictionary, val, key=None):
 
 
 def cleanString(text):
-    """
-    removes characters which are forbidden/undesired in filenames
-    """
+    """Remove characters which are forbidden/undesired in filenames."""
     # bad characters  - extend as more are identified
     # Note that ":" is complicated as it has several different interpretaions.
     # Currently first replacing possesive case and sentence break then
@@ -140,7 +137,7 @@ def cleanString(text):
 def touchup(text):
     """
     Tweaks a string by removing surrounding bracket or quotes as well as
-    some trailing punctuation
+    some trailing punctuation.
     """
     # If string starts and ends with bracket or quotes then remove
     brackets = {u'(': ')', u'[': ']', u'{': '}', u'"': '"'}
@@ -151,14 +148,14 @@ def touchup(text):
                 # slice in check is due to quote-bracket
                 text = text[1:-1]
     # Make sure first character is upper case
-    text = text[:1].upper()+text[1:]
+    text = text[:1].upper() + text[1:]
     return text.strip(' .,;')
 
 
 def shortenString(text):
     '''
     If a string is larger than GOODLENGTH then this tries to
-    find a sensibel shortening
+    find a sensibel shortening.
     '''
     badchar = u'-., '  # maybe also "?
     if u'<!>' in text:
@@ -183,7 +180,7 @@ def shortenString(text):
                 if pos < 0:
                     # try something else
                     if len(text) > MAXLENGTH:
-                        text = u'%s...' % text[:MAXLENGTH-3]
+                        text = u'%s...' % text[:MAXLENGTH - 3]
                     return text
     return shortenString(text[:pos].strip(badchar))
 
@@ -191,14 +188,13 @@ def shortenString(text):
 def stdDate(date):
     """
     Given a single date (not a range) this returns a standardised date
-    in ISO-form or using the Other_Date template
+    in ISO-form or using the Other_Date template.
 
     Note that care must be taken so that ranges are separated prior to
     this since YYYY-MM and YYYY-YY are otherwise indistinguisable.
 
     return string|None
     """
-
     # No date
     date = date.strip(u'.  ')
     if len(date) == 0 or date.lower() in badDates:
@@ -271,7 +267,7 @@ def stdDate(date):
             if date[-2:] == u'00':
                 v = u'century'
                 if len(date) == 4:
-                    return u'{{other date|%s|%r}}' % (v, int(date[:2])+1)
+                    return u'{{other date|%s|%r}}' % (v, int(date[:2]) + 1)
                 else:
                     return None
             else:
@@ -287,13 +283,11 @@ def stdDate(date):
 
 
 def isoDate(date):
-    """
-    Given a string this returns an isodate (if possible)
-    """
+    """Given a string this returns an iso date (if possible)."""
     item = date[:len('YYYY-MM-DD')].split('-')
     if len(item) == 3 and all(is_int(x) for x in item) and \
-            int(item[1][:len('MM')]) in range(1, 12+1) and \
-            int(item[2][:len('DD')]) in range(1, 31+1):
+            int(item[1][:len('MM')]) in range(1, 12 + 1) and \
+            int(item[2][:len('DD')]) in range(1, 31 + 1):
         # 1921-09-17Z or 2014-07-11T08:14:46Z
         return u'%s-%s-%s' % (item[0], item[1], item[2])
     elif len(item) == 1 and is_int(item[0][:len('YYYY')]):
@@ -301,7 +295,7 @@ def isoDate(date):
         return item[0]
     elif len(item) == 2 and \
             all(is_int(x) for x in (item[0], item[1][:len('MM')])) and \
-            int(item[1][:len('MM')]) in range(1, 12+1):
+            int(item[1][:len('MM')]) in range(1, 12 + 1):
         # 1921-09Z
         return u'%s-%s' % (item[0], item[1])
     else:
@@ -317,16 +311,14 @@ def is_int(s):
 
 
 def italicize(s):
-    """
-    Given a string return the same string italicized (in wikitext)
-    """
+    """Given a string return the same string italicized (in wikitext)."""
     return u'\'\'%s\'\'' % s
 
 
 def convertFromCommandline(s):
     """
-    Converts a string read from the commandline to a standard unicode
-    format.
+    Convert a string read from the commandline to a standard unicode format.
+
     :param s: string to convert
     :return: str
     """

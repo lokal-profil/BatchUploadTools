@@ -11,8 +11,8 @@ one comma is a person, and any others are assumed to be ships.
 @todo: Make this extend some base makeInfo class
 @todo: Deprecate/merge test() into run()
 """
-import helpers
-import listscraper
+import batchupload.helpers as helpers
+import batchupload.listscraper as listscraper
 import codecs
 import json
 import os

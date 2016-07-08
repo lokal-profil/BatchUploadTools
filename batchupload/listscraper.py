@@ -58,7 +58,7 @@ def parseEntries(contents,
                     # can't use split as coord uses second equality sign
                     pos = part.find(u'=')
                     key = part[:pos].strip()
-                    value = part[pos+1:].strip()
+                    value = part[pos + 1:].strip()
                     if len(value) > 0:
                         if key in params.keys():
                             params[key] = value.split(u'/')
