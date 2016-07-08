@@ -28,8 +28,7 @@ def run(inPath, outPath, dataPath, fileExts=None):
     data = json.load(codecs.open(dataPath, 'r', 'utf-8'))
 
     # set filExts
-    if fileExts is None:
-        fileExts = FILEEXTS
+    fileExts = fileExts or FILEEXTS
 
     # Find candidate files
     if not os.path.isdir(inPath):

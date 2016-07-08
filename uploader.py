@@ -122,7 +122,7 @@ if __name__ == '__main__':
             u'\tcutoff is optional and allows the upload to stop after ' \
             u'the specified number of files\n' \
             u'\tExamples:\n' \
-            u'\tpython prepUpload.py ../diskkopia ./SMM/config.json 100\n'
+            u'\tpython uploader.py ../diskkopia ./SMM/config.json 100\n'
     argv = sys.argv[1:]
     if len(argv) in (2, 3):
         # str to unicode
