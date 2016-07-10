@@ -49,10 +49,10 @@ def run(inPath, outPath, dataPath, fileExts=None):
 def findFiles(path, fileExts, subdir=True):
     """
     Identify all files with a given extension in a given directory
-    param path: path to look in
-    param fileExts: tuple of allowed file extensions (case insensitive)
-    param subdir: Whether subdirs should also be searched
-    return list of paths to found files
+    :param path: path to directory to look in
+    :param fileExts: tuple of allowed file extensions (case insensitive)
+    :param subdir: whether subdirs should also be searched
+    :return: list of paths to found files
     """
     files = []
     subdirs = []
