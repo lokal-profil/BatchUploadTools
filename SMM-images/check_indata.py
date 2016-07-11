@@ -12,6 +12,7 @@ Notes:
 
 import batchupload.helpers as helpers  # must therefore run from parent dir
 import batchupload.common as common  # temp before this is merged with helper
+import batchupload.csv_methods as csv_methods
 import codecs
 import os
 import batchupload.listscraper as listscraper
@@ -37,7 +38,7 @@ def run(filename):
     global infile
     infile = filename
     setCWD(filename)
-    header, lines = common.open_csv_file(infile)
+    header, lines = csv_methods.open_csv_file(infile)
     testLabels(header)
     logs = {}
     idnos = []

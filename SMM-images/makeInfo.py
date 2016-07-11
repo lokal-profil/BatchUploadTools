@@ -13,7 +13,7 @@ one comma is a person, and any others are assumed to be ships.
 """
 import batchupload.helpers as helpers
 import batchupload.listscraper as listscraper
-import batchupload.common as common  # temp before this is merged with helper
+import batchupload.csv_methods as csv_methods
 import codecs
 import json
 import os
@@ -105,7 +105,7 @@ def csvToDict(filename, keyColumn=0, codec='utf-8'):
 
     Cannot use helpers.csvToDict as keys are not unique
     """
-    header, lines = common.open_csv_file(filename, codec=codec)
+    header, lines = csv_methods.open_csv_file(filename, codec=codec)
     if header != headerCheck:
         print 'Header not same as comparison string!'
         exit()

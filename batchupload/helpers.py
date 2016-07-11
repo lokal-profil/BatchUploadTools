@@ -17,40 +17,6 @@ MAXLENGTH = 128
 badDates = (u'n.d', u'odaterad')
 
 
-def csvToDict(filename, keyColumn=0, codec='utf-8', headerCheck=None):
-    """
-    opens a pipe separated csv and returns a dict using the values in
-    the first row as keys. Requires each key be unique
-
-    param keyColumn: Which column to use as a key for the dictionary
-    param codec: codec used for infile
-    param headerCheck: A comparison string for the header
-    returns dict
-    """
-    header, lines = common.open_csv_file(filename, codec=codec)
-    labels = header.split('|')
-
-    # verify header works
-    if headerCheck is not None and headerCheck != header:
-        print 'Header not same as comparison string!'
-        exit()
-
-    # check that keyColumn is valid
-    if keyColumn > len(labels) - 1:
-        print 'keyColumn is invalid'
-        exit()
-
-    # populate dictionary
-    d = {}
-    for l in lines:
-        p = l.split('|')
-        d[p[keyColumn]] = {}
-        for i in range(len(p)):
-            d[p[keyColumn]][labels[i]] = p[i]
-
-    return d
-
-
 def flipName(name):
     """
     Given a single name return any Last, First as First Last,
@@ -114,8 +80,11 @@ def cleanString(text):
                u'”': u' ', u'"': u' ', u'“': u' '}
     for k, v in badChar.iteritems():
         text = text.replace(k, v)
+
+    # replace any remaining colons
     if u':' in text:
         text = text.replace(u':', u'-')
+
     # replace double space by single space
     text = text.replace('  ', ' ')
     return text.strip()
@@ -134,9 +103,13 @@ def touchup(text):
                 # so as to not remove non-matching brackets.
                 # slice in check is due to quote-bracket
                 text = text[1:-1]
+
+    # Get rid of leading/trailing punctuation
+    text = text.strip(' .,;')
+
     # Make sure first character is upper case
     text = text[:1].upper() + text[1:]
-    return text.strip(' .,;')
+    return text
 
 
 def shortenString(text):

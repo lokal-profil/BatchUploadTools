@@ -127,7 +127,7 @@ def scrape(pages, prefix, working_path=None, out_path=None, site=None):
                                  page_title)
         units = parseEntries(page.get())
         filename = os.path.join(out_path, u'commons-%s.json' % v)
-        common.open_and_write_file(filename, units, json=True)
+        common.open_and_write_file(filename, units, as_json=True)
 
         print u'Created %s' % filename
 
@@ -163,7 +163,7 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
     old_mapping = []
     mapping_file = os.path.join(out_path, u'commons-%s.json' % pagename)
     if os.path.exists(mapping_file):
-        old_mapping = common.open_and_read_file(mapping_file, json=True)
+        old_mapping = common.open_and_read_file(mapping_file, as_json=True)
 
     # reset frequency and turn into dict
     previous = {}

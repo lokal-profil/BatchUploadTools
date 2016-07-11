@@ -8,6 +8,7 @@ To be merged with helpers.py
 """
 import pywikibot
 import codecs
+import json
 
 
 def is_int(value):
@@ -36,21 +37,7 @@ def is_pos_int(value):
     return False
 
 
-def open_csv_file(filename, delimiter='|', codec='utf-8'):
-    """
-    Open a csv file and returns the header row plus following lines.
-
-    @param filename: the file to open
-    @param delimiter: the used delimiter (defaults to "|")
-    @param codec: the used encoding (defaults to "utf-8")
-    @return: tuple(array(str), array(str))
-    """
-    lines = open_and_read_file(filename, codec).strip().split('\n')
-    header = lines.pop(0).split(delimiter)
-    return header.strip(), lines
-
-
-def open_and_read_file(filename, codec='utf-8', json=False):
+def open_and_read_file(filename, codec='utf-8', as_json=False):
     """
     Open and read a file using the provided codec.
 
@@ -61,12 +48,12 @@ def open_and_read_file(filename, codec='utf-8', json=False):
     @param json: load as json instead of reading
     """
     with codecs.open(filename, 'r', codec) as f:
-        if json:
+        if as_json:
             return json.load(f)
         return f.read()
 
 
-def open_and_write_file(filename, text, codec='utf-8', json=False):
+def open_and_write_file(filename, text, codec='utf-8', as_json=False):
     """
     Open and write to a file using the provided codec.
 
@@ -78,8 +65,8 @@ def open_and_write_file(filename, text, codec='utf-8', json=False):
     @param json: text is an object which should be dumped as json
     """
     with codecs.open(filename, 'w', codec) as f:
-        if json:
-            json.dumps(text, ensure_ascii=False)
+        if as_json:
+            f.write(json.dumps(text, ensure_ascii=False))
         else:
             f.write(text)
 
@@ -87,15 +74,27 @@ def open_and_write_file(filename, text, codec='utf-8', json=False):
 def strip_dict_entries(dict_in):
     """Strip whitespace from all keys and (string) values in a dictionary."""
     dict_out = {}
-    try:
-        for k, v in dict_in.iteritems():
-            if isinstance(v, basestring):
-                v = v.strip()
-            dict_out[k.strip()] = v
-        return dict_out
-    except AttributeError:
+    if not isinstance(dict_in, dict):
         raise MyError('strip_dict_entries() expects a dictionary object'
                       'as input but found "%s"' % type(dict_in).__name__)
+    for k, v in dict_in.iteritems():
+        if isinstance(v, basestring):
+            v = v.strip()
+        dict_out[k.strip()] = v
+    return dict_out
+
+
+def strip_list_entries(list_in):
+    """Strip whitespace from all entries in a list."""
+    list_out = []
+    if not isinstance(list_in, list):
+        raise MyError('strip_list_entries() expects a list object'
+                      'as input but found "%s"' % type(list_in).__name__)
+    for l in list_in:
+        if isinstance(l, basestring):
+            l = l.strip()
+        list_out.append(l)
+    return list_out
 
 
 def get_all_template_entries(wikitext, template_name):
@@ -119,6 +118,9 @@ def get_all_template_entries_from_page(page, template_name):
 
 
 class MyError(Exception):
+
+    """Home made errors"""
+
     def __init__(self, value):
         self.value = value
 
