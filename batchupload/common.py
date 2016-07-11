@@ -7,34 +7,47 @@ Shared methods.
 To be merged with helpers.py
 """
 import pywikibot
-import json
 import codecs
 
 
-def loadJsonConfig(filename='config.json'):
-    """
-    Load and return json config file as a dict.
+def is_int(value):
+    """Check if the given value is an integer.
 
-    Looks in local directory first.
-    If file isn't there then looks in user directory.
-    If file is in neither location then error is raised
-    :param filename: name of json config file
-    :return: dict
+    @param value: The value to check
+    @type value: str, or int
+    @return bool
     """
     try:
-        with open(filename, 'r') as f:
-            config = json.load(f)
-            f.close()
-    except IOError, e:
-        if e.errno == 2:  # file not found
-            import os
-            path = os.getenv("HOME")
-            with open(os.path.join(path, filename), 'r') as f:
-                config = json.load(f)
-                f.close()
-        else:
-            raise
-    return config
+        int(value)
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
+def is_pos_int(value):
+    """Check if the given value is a positive integer.
+
+    @param value: The value to check
+    @type value: str, or int
+    @return bool
+    """
+    if is_int(value) and int(value) > 0:
+        return True
+    return False
+
+
+def open_csv_file(filename, delimiter='|', codec='utf-8'):
+    """
+    Open a csv file and returns the header row plus following lines.
+
+    @param filename: the file to open
+    @param delimiter: the used delimiter (defaults to "|")
+    @param codec: the used encoding (defaults to "utf-8")
+    @return: tuple(array(str), array(str))
+    """
+    lines = open_and_read_file(filename, codec).strip().split('\n')
+    header = lines.pop(0).split(delimiter)
+    return header.strip(), lines
 
 
 def open_and_read_file(filename, codec='utf-8', json=False):
@@ -43,9 +56,9 @@ def open_and_read_file(filename, codec='utf-8', json=False):
 
     Automatically closes the file on return.
 
-    :param filename: the file to open
-    :param codec: the used encoding (defaults to "utf-8")
-    :param json: load as json instead of reading
+    @param filename: the file to open
+    @param codec: the used encoding (defaults to "utf-8")
+    @param json: load as json instead of reading
     """
     with codecs.open(filename, 'r', codec) as f:
         if json:
@@ -59,10 +72,10 @@ def open_and_write_file(filename, text, codec='utf-8', json=False):
 
     Automatically closes the file on return.
 
-    :param filename: the file to open
-    :param text: the text to output to the file
-    :param codec: the used encoding (defaults to "utf-8")
-    :param json: text is an object which should be dumped as json
+    @param filename: the file to open
+    @param text: the text to output to the file
+    @param codec: the used encoding (defaults to "utf-8")
+    @param json: text is an object which should be dumped as json
     """
     with codecs.open(filename, 'w', codec) as f:
         if json:

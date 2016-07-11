@@ -1,55 +1,118 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
+#
 import codecs
 import os
-import common  # used for loadJsonConfig
-import WikiApi as wikiApi
 import prepUpload
-import json
+import common
+import pywikibot
 
 FILEEXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
 
 
-def openConnection(configPath=None, verbose=True):
+def upload_single_file(file_name, media_file, text, target_site,
+                       chunk_size=5, overwrite_page_exists=False,
+                       upload_if_duplicate=False, upload_if_badprefix=False,
+                       ignore_all_warnings=False):
     """
-    Open a connection to Commons using the specified config file
-    param configPath: path to config.json file
-    return wikiApi
+    Upload a single file in chunks.
+
+    @param file_name: sanitized filename to use for upload
+    @param media_file: path to media file to upload
+    @param text: file description page
+    @param target_site: pywikibot.Site object wo whih file should be uploaded
+    @param chunk_size: Size of chunks (in MB) in which to upload file
+    @param overwrite_page_exists: Ignore filepage already exists warning
+    @param upload_if_duplicate: Ignore duplicate file warning
+    @param upload_if_badprefix: Ignore bad-prefix warning
+    @param ignore_all_warnings: Ignore all warnings
     """
-    # load config
-    config = common.loadJsonConfig(filename=configPath)
+    def allow_warnings(warning_list):
+        """Handle the Warning response and return true/false
 
-    # open connections
-    comApi = wikiApi.CommonsApi.setUpApi(user=config['w_username'],
-                                         password=config['w_password'],
-                                         site=config['com_site'],
-                                         scriptidentify=u'batchUploader/0.1',
-                                         verbose=verbose)
-    return comApi
+        TODO: make this trigger later sorting. Can then also keep
+        file_page = pywikibot.FilePage(target_site, base_name) in upload_single
+        """
+        for w in warning_list:
+            if w.code not in ignored_warnings:
+                result['warning'] = w
+                return False
+        return True
+
+    result = {'warning': None, 'error': None, 'log': ''}
+
+    # handle warnings to ignore
+    ignore_warnings = False
+    ignored_warnings = []
+    if overwrite_page_exists:
+        ignored_warnings.append('page-exists')
+    if upload_if_duplicate:
+        ignored_warnings.append('duplicate')
+    if upload_if_badprefix:
+        ignored_warnings.append('bad-prefix')
+    if ignore_all_warnings:
+        ignore_warnings = True
+    elif ignored_warnings:
+        ignore_warnings = allow_warnings
+
+    # convert chunksize to Mb
+    chunk_size *= 1048576
+
+    # store description in filepage (used for comment and description)
+    file_page = pywikibot.FilePage(target_site, file_name)
+    file_page.text = text
+
+    try:
+        success = target_site.upload(
+            file_page, source_filename=media_file,
+            ignore_warnings=ignore_warnings,
+            report_success=False, chunk_size=chunk_size)
+    except pywikibot.data.api.APIError as error:
+        result['error'] = error
+        result['log'] = u'Error: %s: %s' % (file_page.title(), error)
+    except Exception as e:
+        result['error'] = e
+        result['log'] = u'Error: %s: Unhandled error: %s' % (
+                        file_page.title(), e)
+    else:
+        if result.get('warning'):
+            result['log'] = u'Warning: %s: %s' % (file_page.title(),
+                                                  result['warning'])
+        elif success:
+            result['log'] = u'%s: success\n' % file_page.title()
+        else:
+            result['error'] = u"No warning/error but '%s' didn't upload?" % \
+                              file_page.title()
+            result['log'] = u'Error: %s: %s\n' % (file_page.title(),
+                                                  result['error'])
+    finally:
+        return result
 
 
-def upAll(in_path, config_path, cutoff=None, target=u'Uploaded', file_exts=None,
-          test=False, verbose=True):
+def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
+           test=False, verbose=True, target_site=None):
     """
-    Upload all matched files in the supplied directory to Commons and
-    moves any processed files to the target folder.
-    :param in_path: path to directory with files to upload
-    :param config_path: path to JSON config file (defaults to config.json)
-    :param cutoff: number of files to upload (defaults to all)
-    :param target: sub-directory for uploaded files (defaults to Uploaded)
-    :param file_exts: tuple of allowed file extensions (defaults to FILEEXTS)
-    :param test: set to True to test but not upload
-    :param verbose: print out confirmations
-    :return: None
+    Upload all matched files in the supplied directory.
+
+    Moves any processed files to the target folders.
+
+    @param in_path: path to directory with files to upload
+    @param cutoff: number of files to upload (defaults to all)
+    @param target: sub-directory for uploaded files (defaults to "Uploaded")
+    @param file_exts: tuple of allowed file extensions (defaults to FILEEXTS)
+    @param test: set to True to test but not upload (deprecated?)
+    @param verbose: print out confirmations (deprecated?)
+    @param target_site: pywikibot.Site to which file should be uploaded,
+        defaults to Commons.
     """
     # set defaults unless overridden
     file_exts = file_exts or FILEEXTS
+    target_site = target_site or pywikibot.Site('commons', 'commons')
+    target_site.login()
 
-    comApi = openConnection(config_path, verbose=verbose)
-
-    # Verify inPath
+    # Verify in_path
     if not os.path.isdir(in_path):
-        print u'The provided inPath was not a valid directory: %s' % in_path
+        print u'The provided in_path was not a valid directory: %s' % in_path
         exit()
 
     # create target directories if they don't exist
@@ -77,69 +140,70 @@ def upAll(in_path, config_path, cutoff=None, target=u'Uploaded', file_exts=None,
         # verify that there is a matching info file
         info_file = u'%s.info' % os.path.splitext(f)[0]
         base_name = os.path.basename(f)
+        base_info_name = os.path.basename(info_file)
         if not os.path.exists(info_file):
-            flog.write(u'%s: Found tif/jpg without info' % base_name)
+            flog.write(u'%s: Found multimedia file without info\n' % base_name)
             continue
 
         # prepare upload
-        fin = codecs.open(info_file, 'r', 'utf-8')
-        txt = fin.read()
-        fin.close()
+        txt = common.open_and_read_file(info_file)
 
         if test:
-            print base_name
-            print txt
+            print u'Test upload "%s" with the following description: %s\n' % (
+                base_name, txt)
             continue
-
         # stop here if testing
-        result = comApi.chunkupload(base_name, f, txt, txt,
-                                    uploadifbadprefix=True)
 
-        # parse results and move files
-        base_info_name = os.path.basename(info_file)
-        details = ''
-        jresult = json.loads(result[result.find('{'):])
         target_dir = None
-        if 'error' in jresult.keys():
-            details = json.dumps(jresult['error'], ensure_ascii=False)
+        result = upload_single_file(base_name, f, txt, target_site,
+                                    upload_if_badprefix=True)
+        if result.get('error'):
             target_dir = error_dir
-        elif 'upload' in jresult.keys() and \
-                'warnings' in jresult['upload'].keys():
-            details = json.dumps(jresult['upload'], ensure_ascii=False)
+        elif result.get('warning'):
             target_dir = warnings_dir
         else:
-            details = json.dumps(jresult['upload']['filename'],
-                                 ensure_ascii=False)
             target_dir = done_dir
+
+        flog.write(u'%s\n' % result.get('log'))
         os.rename(f, os.path.join(target_dir, base_name))
         os.rename(info_file, os.path.join(target_dir, base_info_name))
-
-        # logging
         counter += 1
-        result_text = result[:result.find('{')].strip().decode('utf8')
-        flog.write(u'%s %s\n' % (result_text, details))
         flog.flush()
 
     flog.close()
     print u'Created %s' % logfile
 
 
-if __name__ == '__main__':
-    import sys
-    usage = u'Usage:\tpython uploader.py in_path, config_path cutoff\n' \
-            u'\tcutoff is optional and allows the upload to stop after ' \
-            u'the specified number of files\n' \
-            u'\tExamples:\n' \
-            u'\tpython uploader.py ../diskkopia ./SMM/config.json 100\n'
-    argv = sys.argv[1:]
-    if len(argv) in (2, 3):
-        # str to unicode
-        in_path = argv[0].decode(sys.getfilesystemencoding())
-        config_path = argv[1].decode(sys.getfilesystemencoding())
-        cutoff = None
-        if len(argv) == 3:
-            cutoff = int(argv[2])
-        upAll(in_path, config_path, cutoff=cutoff)
+def main(*args):
+    """Command line entry-point."""
+    usage = u'Usage:' \
+            u'\tpython uploader.py -in_path:PATH, -dir:PATH, -cutoff:NUM\n' \
+            u'\t-in_path:PATH path to the directory containing the media files\n' \
+            u'\t-dir:PATH specifies the path to the directory containing a ' \
+            u'user_config.py file (optional)\n' \
+            u'\t-cutoff:NUM stop the upload after the specified number of files ' \
+            u'(optional)\n' \
+            u'\tExample:\n' \
+            u'\tpython uploader.py -in_path:../diskkopia -cutoff:100\n'
+    cutoff = None
+    in_path = None
+    test = False
+
+    # Load pywikibot args and handle local args
+    for arg in pywikibot.handle_args(args):
+        option, sep, value = arg.partition(':')
+        if option == '-cutoff':
+            if common.is_pos_int(value):
+                cutoff = int(value)
+        if option == '-in_path':
+            in_path = value
+        if option == '-test':
+            test = True
+
+    if in_path:
+        up_all(in_path, cutoff=cutoff, test=test)
     else:
         print usage
-# EoF
+
+if __name__ == "__main__":
+    main()

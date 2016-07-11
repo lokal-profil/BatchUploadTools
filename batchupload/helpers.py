@@ -4,9 +4,9 @@
 Helper tools related to batchUploads
 """
 import operator
-import codecs
 import sys  # needed by convertFromCommandline()
 import locale  # needed by convertFromCommandline()
+import batchupload.common as common
 
 # limitations on namelength
 # shorten if longer than GOODLENGTH cut if longer than MAXLENGTH
@@ -27,7 +27,7 @@ def csvToDict(filename, keyColumn=0, codec='utf-8', headerCheck=None):
     param headerCheck: A comparison string for the header
     returns dict
     """
-    header, lines = openFile(filename, codec=codec)
+    header, lines = common.open_csv_file(filename, codec=codec)
     labels = header.split('|')
 
     # verify header works
@@ -49,19 +49,6 @@ def csvToDict(filename, keyColumn=0, codec='utf-8', headerCheck=None):
             d[p[keyColumn]][labels[i]] = p[i]
 
     return d
-
-
-def openFile(filename, codec='utf-8'):
-    """
-    opens a given file and returns the header row plus following lines
-    """
-    fin = codecs.open(filename, 'r', codec)
-    txt = fin.read()
-    fin.close()
-    lines = txt.split('\n')
-    header = lines.pop(0)
-    lines.pop()
-    return header.strip(), lines
 
 
 def flipName(name):
@@ -285,35 +272,21 @@ def stdDate(date):
 def isoDate(date):
     """Given a string this returns an iso date (if possible)."""
     item = date[:len('YYYY-MM-DD')].split('-')
-    if len(item) == 3 and all(is_int(x) for x in item) and \
+    if len(item) == 3 and all(common.is_pos_int(x) for x in item) and \
             int(item[1][:len('MM')]) in range(1, 12 + 1) and \
             int(item[2][:len('DD')]) in range(1, 31 + 1):
         # 1921-09-17Z or 2014-07-11T08:14:46Z
         return u'%s-%s-%s' % (item[0], item[1], item[2])
-    elif len(item) == 1 and is_int(item[0][:len('YYYY')]):
+    elif len(item) == 1 and common.is_pos_int(item[0][:len('YYYY')]):
         # 1921Z
         return item[0]
     elif len(item) == 2 and \
-            all(is_int(x) for x in (item[0], item[1][:len('MM')])) and \
+            all(common.is_pos_int(x) for x in (item[0], item[1][:len('MM')])) and \
             int(item[1][:len('MM')]) in range(1, 12 + 1):
         # 1921-09Z
         return u'%s-%s' % (item[0], item[1])
     else:
         return None
-
-
-def is_int(s):
-    """
-    Tests if a string is an integer.
-
-    :param s: test string
-    :return: bool
-    """
-    try:
-        int(s)
-        return True
-    except (ValueError, TypeError):
-        return False
 
 
 def italicize(s):
