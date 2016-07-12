@@ -5,7 +5,8 @@ from common import (
     MyError,
     open_and_read_file,
     open_and_write_file,
-    strip_list_entries
+    strip_list_entries,
+    trim_list
 )
 
 
@@ -23,15 +24,16 @@ def open_csv_file(filename, delimiter='|', codec='utf-8'):
     return strip_list_entries(header), strip_list_entries(lines)
 
 
-def validate_key_col(key_col, lists, non_unique, header_check):
+def validate_key_col(key_col, lists, non_unique, keep, header):
     """
     Validate key_col in terms of type and not being in any special column.
 
     @param key_col: the (label of the) column to use as a key in the dict
                    str or tuple of strs to combine (with a ":")
-    @param header_check: a list of expected column labels
-    @param non_unique: tuple of non-unique column headings
     @param lists: tuple of columns to treat as lists
+    @param non_unique: tuple of non-unique column headings
+    @param keep: tuple of columns to keep
+    @param header: list of column labels
     @raise MyError
     """
     # verify type is valid
@@ -52,8 +54,10 @@ def validate_key_col(key_col, lists, non_unique, header_check):
         if test_key in (lists or []) or key_col in (non_unique or []):
             raise MyError(u'no key_col must be a list column or a '
                           u'non-unique column')
-        if test_key not in header_check:
+        if test_key not in header:
             raise MyError(u'every key_col must be present in the header')
+        if test_key not in keep:
+            raise MyError(u'every key_col must be present in the kept columns')
 
 
 def find_cols(find, label, header, default_all=False):
@@ -97,7 +101,8 @@ def find_non_unique_cols(header, keep, non_unique):
     for i, v in enumerate(header):
         if v in handled.keys():
             continue
-        handled[v] = []
+        else:
+            handled[v] = [i, ]
         while True:
             try:
                 j = header.index(v, i + 1)
@@ -105,14 +110,13 @@ def find_non_unique_cols(header, keep, non_unique):
                 i = j
             except ValueError:
                 break
-        if handled[v]:
+        if len(handled[v]) > 1:
             cols[v] = tuple(handled[v])
 
     # raise error if we are not expecting these in the results
     if cols and not non_unique and any(k in cols.keys() for k in keep):
         raise MyError(u"Unexpected non-unique columns found: %s" %
                       ', '.join(cols.keys()))
-
     return cols
 
 
@@ -138,13 +142,6 @@ def csv_file_to_dict(filename, key_col, header_check, non_unique=False,
     @param codec: the used encoding (defaults to "utf-8")
     @return: dict
     """
-    if non_unique:
-        raise NotImplementedError("Please Implement csv_file_to_dict with "
-                                  "non_unique=True")
-
-    # verify key_col is valid
-    validate_key_col(key_col, lists, non_unique, header_check.split(delimiter))
-
     # load and parse file
     header, lines = open_csv_file(filename, delimiter=delimiter, codec=codec)
 
@@ -167,9 +164,12 @@ def csv_file_to_dict(filename, key_col, header_check, non_unique=False,
         raise MyError("key_col not found in header")
 
     # set up columns to keep and listify columns
-    non_unique_cols = find_non_unique_cols(header, keep, non_unique)
     cols = find_cols(keep, 'keep', header, default_all=True)
+    non_unique_cols = find_non_unique_cols(header, cols.keys(), non_unique)
     listify = find_cols(lists, 'lists', header, default_all=False)
+
+    # verify key_col is valid
+    validate_key_col(key_col, lists, non_unique_cols, cols.keys(), header)
 
     # load to dict
     d = {}
@@ -198,13 +198,13 @@ def csv_file_to_dict(filename, key_col, header_check, non_unique=False,
                 d[key][k] = []
                 for nv in non_unique_cols[k]:
                     if k in listify.keys():
-                        d[key][k] += strip_list_entries(
-                            parts[nv].strip().split(list_delimiter))
+                        d[key][k] += parts[nv].strip().split(list_delimiter)
                     else:
                         d[key][k].append(parts[nv].strip())
+                d[key][k] = trim_list(d[key][k])
             else:
                 if k in listify.keys():
-                    d[key][k] = strip_list_entries(
+                    d[key][k] = trim_list(
                         parts[v].strip().split(list_delimiter))
                 else:
                     d[key][k] = parts[v].strip()

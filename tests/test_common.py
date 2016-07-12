@@ -13,7 +13,9 @@ from batchupload.common import (
     is_pos_int,
     open_and_read_file,
     open_and_write_file,
-    MyError
+    trim_list,
+    MyError,
+    deep_sort
 )
 
 
@@ -206,7 +208,8 @@ class TestOpenReadFile(TestOpenFileBase):
     def test_read_json_data(self):
         expected_data = {'list': ['a', 'b', 'c'], u'två': '2', 'ett': 1}
         result = open_and_read_file(self.test_infile.name, as_json=True)
-        self.assertItemsEqual(result, expected_data)
+        self.assertEquals(deep_sort(result),
+                          deep_sort(expected_data))
 
 
 class TestOpenWriteFile(TestOpenFileBase):
@@ -222,5 +225,30 @@ class TestOpenWriteFile(TestOpenFileBase):
     def test_write_json_data(self):
         to_write = {'list': ['a', 'b', 'c'], u'två': '2', 'ett': 1}
         open_and_write_file(self.test_outfile.name, to_write, as_json=True)
-        self.assertItemsEqual(json.loads(self.test_outfile.read()),
-                              json.loads(self.test_data.encode('utf-8')))
+        json_out = json.loads(self.test_outfile.read())
+        json_in = json.loads(self.test_data.encode('utf-8'))
+        self.assertEquals(deep_sort(json_out),
+                          deep_sort(json_in))
+
+
+class TestTrimList(unittest.TestCase):
+
+    """Test trim_list()."""
+
+    def test_trim_list_empty_list(self):
+        self.assertEquals(trim_list([]), [])
+
+    def test_trim_list(self):
+        input_value = ['a', '', 'c']
+        expected = ['a', 'c']
+        self.assertEquals(trim_list(input_value), expected)
+
+    def test_trim_list_with_whitespace(self):
+        input_value = [' a\n', ' ', 'c']
+        expected = ['a', 'c']
+        self.assertEquals(trim_list(input_value), expected)
+
+    def test_trim_list_ignore_non_string_values(self):
+        input_value = [5, ['aa', ' aa']]
+        expected = [5, ['aa', ' aa']]
+        self.assertEquals(trim_list(input_value), expected)

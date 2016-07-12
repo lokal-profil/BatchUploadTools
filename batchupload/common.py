@@ -97,6 +97,32 @@ def strip_list_entries(list_in):
     return list_out
 
 
+def trim_list(old_list):
+    """Given a list remove any empty entries."""
+    old_list = strip_list_entries(old_list)
+    new_list = []
+    for l in old_list:
+        if l:
+            new_list.append(l)
+    return new_list
+
+
+def deep_sort(obj):
+    """Recursively sort list or dict of nested lists."""
+    if isinstance(obj, dict):
+        _sorted = {}
+        for key in sorted(obj):
+            _sorted[key] = deep_sort(obj[key])
+    elif isinstance(obj, list):
+        new_list = []
+        for val in obj:
+            new_list.append(deep_sort(val))
+        _sorted = sorted(new_list)
+    else:
+        _sorted = obj
+    return _sorted
+
+
 def get_all_template_entries(wikitext, template_name):
     """Return a list of all arguments for instances of a given template."""
     templates = pywikibot.textlib.extract_templates_and_params(wikitext)

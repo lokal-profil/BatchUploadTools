@@ -12,6 +12,7 @@ one comma is a person, and any others are assumed to be ships.
 @todo: Deprecate/merge test() into run()
 """
 import batchupload.helpers as helpers
+import batchupload.common as common  # temp before this is merged with helper
 import batchupload.listscraper as listscraper
 import batchupload.csv_methods as csv_methods
 import codecs
@@ -180,14 +181,14 @@ def handleLine(line):
     d['avbildad_namn'] = d['avbildad_person'] + d['avbildat_fartyg']
 
     # cleanup lists
-    d['material'] = helpers.trimList(d['material'])
-    d['namn_tillverkare'] = helpers.trimList(d['namn_tillverkare'])
-    d['avbildad_person'] = helpers.trimList(d['avbildad_person'])
-    d['avbildat_fartyg'] = helpers.trimList(d['avbildat_fartyg'])
-    d['avbildad_namn'] = helpers.trimList(d['avbildad_namn'])
-    d['namn_konstruktor'] = helpers.trimList(d['namn_konstruktor'])
-    d['amnesord'] = helpers.trimList(d['amnesord'])
-    d['motiv_amnesord'] = helpers.trimList(d['motiv_amnesord'])
+    d['material'] = common.trim_list(d['material'])
+    d['namn_tillverkare'] = common.trim_list(d['namn_tillverkare'])
+    d['avbildad_person'] = common.trim_list(d['avbildad_person'])
+    d['avbildat_fartyg'] = common.trim_list(d['avbildat_fartyg'])
+    d['avbildad_namn'] = common.trim_list(d['avbildad_namn'])
+    d['namn_konstruktor'] = common.trim_list(d['namn_konstruktor'])
+    d['amnesord'] = common.trim_list(d['amnesord'])
+    d['motiv_amnesord'] = common.trim_list(d['motiv_amnesord'])
 
     # cleanup blacklisted
     if d['date_foto'].strip('.').lower() in badDate:

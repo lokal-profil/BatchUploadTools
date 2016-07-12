@@ -29,15 +29,6 @@ def flipName(name):
         return name
 
 
-def trimList(oldList):
-    """Given a list remove any empty entries."""
-    newList = []
-    for l in oldList:
-        if len(l.strip()) > 0:
-            newList.append(l.strip())
-    return newList
-
-
 def sortedDict(ddict):
     """Turn a dict into a sorted list."""
     sorted_ddict = sorted(ddict.iteritems(),

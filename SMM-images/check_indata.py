@@ -121,12 +121,12 @@ def checkLine(line, idnos):
     dimukod = params[26].strip()
 
     # cleanup lists
-    material = helpers.trimList(material)
-    namn_tillverkare = helpers.trimList(namn_tillverkare)
-    avbildad_namn = helpers.trimList(avbildad_namn)
-    namn_konstruktor = helpers.trimList(namn_konstruktor)
-    amnesord = helpers.trimList(amnesord)
-    motiv_amnesord = helpers.trimList(motiv_amnesord)
+    material = common.trim_list(material)
+    namn_tillverkare = common.trim_list(namn_tillverkare)
+    avbildad_namn = common.trim_list(avbildad_namn)
+    namn_konstruktor = common.trim_list(namn_konstruktor)
+    amnesord = common.trim_list(amnesord)
+    motiv_amnesord = common.trim_list(motiv_amnesord)
 
     # kNav
     if len(namn_konstnar_knav) > 0:
@@ -213,7 +213,7 @@ def testCollection(samling):
 
 def testKeywords(amnesord, motiv_amnesord, benamning):
     keywords = amnesord + motiv_amnesord + [benamning, ]
-    keywords = helpers.trimList(keywords)
+    keywords = common.trim_list(keywords)
     if len(keywords) < 1:
         return u'Inga ämnesord'
 
@@ -353,7 +353,7 @@ def secondaryKeywordTest(lines):
         params = l.split('|')
         keywords = params[20].strip().split(',')
         keywords += params[22].strip().split(',')
-        keywords = helpers.trimList(keywords)
+        keywords = common.trim_list(keywords)
         for k in keywords:
             k = k.lower()
             for i in range(offset, num + offset):
