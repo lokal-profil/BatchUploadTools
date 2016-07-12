@@ -129,7 +129,7 @@ def scrape(pages, prefix, working_path=None, out_path=None, site=None):
         filename = os.path.join(out_path, u'commons-%s.json' % v)
         common.open_and_write_file(filename, units, as_json=True)
 
-        print u'Created %s' % filename
+        pywikibot.output(u'Created %s' % filename)
 
 
 # functions for producing lists

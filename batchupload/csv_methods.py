@@ -20,7 +20,7 @@ def open_csv_file(filename, delimiter='|', codec='utf-8'):
     """
     lines = open_and_read_file(filename, codec).strip().split('\n')
     header = lines.pop(0).split(delimiter)
-    return strip_list_entries(header), lines
+    return strip_list_entries(header), strip_list_entries(lines)
 
 
 def validate_key_col(key_col, lists, non_unique, header_check):
@@ -37,9 +37,9 @@ def validate_key_col(key_col, lists, non_unique, header_check):
     # verify type is valid
     if not isinstance(key_col, (tuple, str, unicode)):
         raise MyError('key_col must be tuple or str')
-    if isinstance(key_col, tuple):
-        if not all(isinstance(key, (str, unicode)) for key in key_col):
-            raise MyError('each key_col entry must be a str')
+    if isinstance(key_col, tuple) and \
+            not all(isinstance(key, (str, unicode)) for key in key_col):
+        raise MyError('each key_col entry must be a str')
 
     # verify no key_col is empty or any list or non_unique column
     test_key_col = key_col
@@ -109,10 +109,9 @@ def find_non_unique_cols(header, keep, non_unique):
             cols[v] = tuple(handled[v])
 
     # raise error if we are not expecting these in the results
-    if cols and not non_unique:
-        if any(k in cols.keys() for k in keep):
-            raise MyError(u"Unexpected non-unique columns found: %s" %
-                          ', '.join(cols.keys()))
+    if cols and not non_unique and any(k in cols.keys() for k in keep):
+        raise MyError(u"Unexpected non-unique columns found: %s" %
+                      ', '.join(cols.keys()))
 
     return cols
 
@@ -199,12 +198,14 @@ def csv_file_to_dict(filename, key_col, header_check, non_unique=False,
                 d[key][k] = []
                 for nv in non_unique_cols[k]:
                     if k in listify.keys():
-                        d[key][k] += parts[nv].strip().split(list_delimiter)
+                        d[key][k] += strip_list_entries(
+                            parts[nv].strip().split(list_delimiter))
                     else:
                         d[key][k].append(parts[nv].strip())
             else:
                 if k in listify.keys():
-                    d[key][k] = parts[v].strip().split(list_delimiter)
+                    d[key][k] = strip_list_entries(
+                        parts[v].strip().split(list_delimiter))
                 else:
                     d[key][k] = parts[v].strip()
 

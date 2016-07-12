@@ -10,7 +10,7 @@ TODO:
 import unittest
 import tempfile
 import os
-from batchupload.tmp import (
+from batchupload.csv_methods import (
     csv_file_to_dict,
     open_csv_file,
     dict_to_csv_file,
@@ -24,13 +24,20 @@ class TestCSVFileBase(unittest.TestCase):
     def setUp(self):
         # Create a temporary file
         self.test_header = u'ett|två|tre|fyra|fem|lista'
-        # the trailing newline reflects that this is added during a write+close
-        test_data = u'ett|två|tre|fyra|fem|lista\n' \
-                    u'1|2|3|4|5|1;2;3;4;5\n' \
-                    u'a1|a2|a3|a4|a5|a1;a2;a3;a4;a5\n'
+        # Testdata has the folowing features
+        # empty line at the end
+        # trailing and leading whitespace on the line
+        # trailing and leading whitespace in a cell
+        # trailing and leading whitespace in a list entry
+        test_in_data = u'ett|två|tre|fyra|fem|lista\n' \
+                       u' 1|2|3|4|5|1;2;3;4;5 \n' \
+                       u'a1|a2| a3 |a4|a5|a1;a2; a3 ;a4;a5\n'
+        self.test_out_data = u'ett|två|tre|fyra|fem|lista\n' \
+                             u'1|2|3|4|5|1;2;3;4;5\n' \
+                             u'a1|a2|a3|a4|a5|a1;a2;a3;a4;a5\n'
         self.test_infile = tempfile.NamedTemporaryFile()
         self.test_outfile = tempfile.NamedTemporaryFile(delete=False)
-        self.test_infile.write(test_data.encode('utf-8'))
+        self.test_infile.write(test_in_data.encode('utf-8'))
         self.test_infile.seek(0)
 
     def tearDown(self):
@@ -47,7 +54,7 @@ class TestOpenCSVFile(TestCSVFileBase):
         expected_header = self.test_header.split('|')
         expected_lines = [
             u'1|2|3|4|5|1;2;3;4;5',
-            u'a1|a2|a3|a4|a5|a1;a2;a3;a4;a5'
+            u'a1|a2| a3 |a4|a5|a1;a2; a3 ;a4;a5'
         ]
         result_header, result_lines = open_csv_file(self.test_infile.name)
         self.assertEquals(result_header, expected_header)
@@ -65,7 +72,7 @@ class TestCSVFileToDict(TestCSVFileBase):
                 u'ett': u'1', u'lista': u'1;2;3;4;5', u'fem': u'5',
                 u'tre': u'3', u'två': u'2', u'fyra': u'4'},
             u'a2': {
-                u'lista': u'a1;a2;a3;a4;a5',
+                u'lista': u'a1;a2; a3 ;a4;a5',
                 u'ett': u'a1', u'fem': u'a5', u'tre': u'a3',
                 u'två': u'a2', u'fyra': u'a4'}}
         result = csv_file_to_dict(self.test_infile.name, key_col,
@@ -95,7 +102,7 @@ class TestCSVFileToDict(TestCSVFileBase):
                 u'ett': u'1', u'lista': u'1;2;3;4;5', u'fem': u'5',
                 u'tre': u'3', u'två': u'2', u'fyra': u'4'},
             u'a1:a2': {
-                u'lista': u'a1;a2;a3;a4;a5',
+                u'lista': u'a1;a2; a3 ;a4;a5',
                 u'ett': u'a1', u'fem': u'a5', u'tre': u'a3',
                 u'två': u'a2', u'fyra': u'a4'}}
         result = csv_file_to_dict(self.test_infile.name, key_col,
@@ -135,7 +142,8 @@ class TestDictToCSVFile(TestCSVFileBase):
                 u'två': u'a2', u'fyra': u'a4'}}
         dict_to_csv_file(self.test_outfile.name,
                          test_data, self.test_header)
-        self.assertEquals(self.test_outfile.read(), self.test_infile.read())
+        self.assertEquals(self.test_outfile.read(),
+                          self.test_out_data.encode('utf-8'))
 
     def test_write_list_data(self):
         test_data = {
@@ -149,17 +157,5 @@ class TestDictToCSVFile(TestCSVFileBase):
                 u'två': u'a2', u'fyra': u'a4'}}
         dict_to_csv_file(self.test_outfile.name,
                          test_data, self.test_header)
-        self.assertEquals(self.test_outfile.read(), self.test_infile.read())
-
-
-class TestDictToCSVFileRountrip(TestCSVFileBase):
-
-    """Test csv_file_to_dict() and dict_to_csv_file() compatibility."""
-
-    def test_read_write_roundtrip(self):
-        key_col = self.test_header.split('|')[1]
-        read_data = csv_file_to_dict(self.test_infile.name, key_col,
-                                     self.test_header)
-        dict_to_csv_file(self.test_outfile.name,
-                         read_data, self.test_header)
-        self.assertEquals(self.test_outfile.read(), self.test_infile.read())
+        self.assertEquals(self.test_outfile.read(),
+                          self.test_out_data.encode('utf-8'))

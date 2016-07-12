@@ -28,11 +28,7 @@ def upload_single_file(file_name, media_file, text, target_site,
     @param ignore_all_warnings: Ignore all warnings
     """
     def allow_warnings(warning_list):
-        """Handle the Warning response and return true/false
-
-        TODO: make this trigger later sorting. Can then also keep
-        file_page = pywikibot.FilePage(target_site, base_name) in upload_single
-        """
+        """Given a list of warnings determine if all oare acceptable or not."""
         for w in warning_list:
             if w.code not in ignored_warnings:
                 result['warning'] = w
@@ -112,7 +108,8 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
 
     # Verify in_path
     if not os.path.isdir(in_path):
-        print u'The provided in_path was not a valid directory: %s' % in_path
+        pywikibot.output(u'The provided in_path was not a valid '
+                         u'directory: %s' % in_path)
         exit()
 
     # create target directories if they don't exist
@@ -149,8 +146,8 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
         txt = common.open_and_read_file(info_file)
 
         if test:
-            print u'Test upload "%s" with the following description: %s\n' % (
-                base_name, txt)
+            pywikibot.output(u'Test upload "%s" with the following '
+                             u'description: %s\n' % (base_name, txt))
             continue
         # stop here if testing
 
@@ -171,7 +168,7 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
         flog.flush()
 
     flog.close()
-    print u'Created %s' % logfile
+    pywikibot.output(u'Created %s' % logfile)
 
 
 def main(*args):
@@ -203,7 +200,7 @@ def main(*args):
     if in_path:
         up_all(in_path, cutoff=cutoff, test=test)
     else:
-        print usage
+        pywikibot.output(usage)
 
 if __name__ == "__main__":
     main()
