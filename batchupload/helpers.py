@@ -44,16 +44,15 @@ def addOrIncrement(dictionary, val, key=None):
 
     param key: the key holding the counter
     """
-    if val in dictionary.keys():
+    if val not in dictionary.keys():
         if key:
-            dictionary[val][key] += 1
+            dictionary[val] = {key: 0}
         else:
-            dictionary[val] += 1
+            dictionary[val] = 0
+    if key:
+        dictionary[val][key] += 1
     else:
-        if key:
-            dictionary[val] = {key: 1}
-        else:
-            dictionary[val] = 1
+        dictionary[val] += 1
 
 
 def cleanString(text):

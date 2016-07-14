@@ -9,6 +9,7 @@ To be merged with helpers.py
 import pywikibot
 import codecs
 import json
+import os
 
 
 def is_int(value):
@@ -141,6 +142,36 @@ def get_all_template_entries_from_page(page, template_name):
         if tp[0].title() == template_name:
             result.append(tp[1])
     return result
+
+
+def modify_path(base_path, out_path):
+    """
+    Modify a path by appending it to a base path, if one is given.
+
+    @param base_path: The prefixing path
+    @param out_path: The path to modify, prefix
+    @return: string, the modified base_path
+    """
+    if base_path:
+        if not os.path.isdir(base_path):
+            raise MyError(u'"%s" is not a directory.' % base_path)
+        out_path = os.path.join(base_path, out_path)
+    return out_path
+
+
+def create_dir(out_path):
+    """
+    Create a directory if it doesn't exist.
+
+    @param out_path: directory to create
+    """
+    if not out_path:
+        raise MyError(u'Cannot create directory without a name.')
+    if not os.path.exists(out_path):
+        os.mkdir(out_path)
+    elif os.path.isfile(out_path):
+        raise MyError(u'Cannot create the directory "%s" as a file with that '
+                      u'name already exists.' % out_path)
 
 
 class MyError(Exception):

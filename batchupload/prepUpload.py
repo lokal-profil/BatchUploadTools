@@ -7,6 +7,7 @@ import os
 import codecs
 import json
 import helpers
+import common
 
 FILEEXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
 
@@ -97,8 +98,7 @@ def makeAndRename(hitlist, outPath):
     param outPath: the directory in which to store info + renamed files
     """
     # create outPath if it doesn't exist
-    if not os.path.isdir(outPath):
-        os.mkdir(outPath)
+    common.create_dir(outPath)
 
     # logfile
     logfile = os.path.join(outPath, u'¤generator.log')

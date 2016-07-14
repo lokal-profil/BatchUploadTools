@@ -106,15 +106,10 @@ def scrape(pages, prefix, working_path=None, out_path=None, site=None):
     out_path = out_path or OUT_PATH
 
     # modify out_path by working_path if present
-    if working_path:
-        if not os.path.isdir(working_path):
-            raise common.MyError(u'working_path not a directory: %s' %
-                                 working_path)
-        out_path = os.path.join(working_path, out_path)
+    out_path = common.modify_path(working_path, out_path)
 
     # create out_path if it doesn't exist
-    if not os.path.isdir(out_path):
-        os.mkdir(out_path)
+    common.create_dir(out_path)
 
     site = site or pywikibot.Site('commons', 'commons')
 
@@ -149,15 +144,10 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
     out_path = out_path or OUT_PATH
 
     # modify out_path by working_path if present
-    if working_path:
-        if not os.path.isdir(working_path):
-            raise common.MyError(u'working_path not a directory: %s' %
-                                 working_path)
-        out_path = os.path.join(working_path, out_path)
+    out_path = common.modify_path(working_path, out_path)
 
     # create out_path if it doesn't exist
-    if not os.path.isdir(out_path):
-        os.mkdir(out_path)
+    common.create_dir(out_path)
 
     # load local json file (if any)
     old_mapping = []

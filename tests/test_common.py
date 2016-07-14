@@ -15,7 +15,9 @@ from batchupload.common import (
     open_and_write_file,
     trim_list,
     MyError,
-    deep_sort
+    deep_sort,
+    modify_path,
+    create_dir,
 )
 
 
@@ -252,3 +254,76 @@ class TestTrimList(unittest.TestCase):
         input_value = [5, ['aa', ' aa']]
         expected = [5, ['aa', ' aa']]
         self.assertEquals(trim_list(input_value), expected)
+
+
+class TestModifyDirBase(unittest.TestCase):
+
+    """Test base for modify_path() and create_dir()."""
+
+    def setUp(self):
+        # Create a temporary file
+        self.test_file = tempfile.NamedTemporaryFile()
+        self.test_dir = tempfile.mkdtemp()
+        self.out_path = 'out'
+
+    def tearDown(self):
+        # Closes and removes the file
+        self.test_file.close()
+        os.rmdir(self.test_dir)
+
+
+class TestModifyPath(TestModifyDirBase):
+
+    """Test modify_path()."""
+
+    def test_modify_path_with_empty_arg(self):
+        self.assertEqual(modify_path('', ''), '')
+
+    def test_modify_path_valid(self):
+        expected = os.path.join(self.test_dir, self.out_path)
+        self.assertEqual(modify_path(self.test_dir, self.out_path),
+                         expected)
+
+    def test_modify_path_no_valid_path(self):
+        with self.assertRaises(MyError) as cm:
+            modify_path('not_a_directory', self.out_path)
+        self.assertEquals(cm.exception.value,
+                          u'"not_a_directory" is not a directory.')
+
+    def test_modify_path_file_as_path(self):
+        with self.assertRaises(MyError) as cm:
+            modify_path(self.test_file.name, self.out_path)
+        self.assertEquals(cm.exception.value,
+                          u'"%s" is not a directory.' % self.test_file.name)
+
+
+class TestCreateDir(TestModifyDirBase):
+
+    """Test create_dir().
+
+    TODO: Could redo with mock to prevent accidental creation.
+    """
+
+    def test_create_dir_with_empty_arg(self):
+        with self.assertRaises(MyError) as cm:
+            create_dir('')
+        self.assertEquals(cm.exception.value,
+                          u'Cannot create directory without a name.')
+
+    def test_create_dir_valid(self):
+        in_data = os.path.join(self.test_dir, self.out_path)
+        create_dir(in_data)
+        self.assertTrue(os.path.isdir(in_data))
+
+        os.rmdir(in_data)
+
+    def test_create_dir_already_exists(self):
+        create_dir(self.test_dir)
+        self.assertTrue(os.path.isdir(self.test_dir))
+
+    def test_create_dir_file_already_exists(self):
+        with self.assertRaises(MyError) as cm:
+            create_dir(self.test_file.name)
+        self.assertEquals(cm.exception.value,
+                          u'Cannot create the directory "%s" as a file with '
+                          u'that name already exists.' % self.test_file.name)

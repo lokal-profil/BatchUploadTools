@@ -116,12 +116,9 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
     done_dir = os.path.join(in_path, target)
     error_dir = u'%s_errors' % done_dir
     warnings_dir = u'%s_warnings' % done_dir
-    if not os.path.isdir(done_dir):
-        os.mkdir(done_dir)
-    if not os.path.isdir(error_dir):
-        os.mkdir(error_dir)
-    if not os.path.isdir(warnings_dir):
-        os.mkdir(warnings_dir)
+    common.create_dir(done_dir)
+    common.create_dir(error_dir)
+    common.create_dir(warnings_dir)
 
     # logfile
     logfile = os.path.join(in_path, u'¤uploader.log')
