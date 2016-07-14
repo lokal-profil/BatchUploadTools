@@ -186,7 +186,7 @@ def testLabels(line):
              u'Avbildade namn|Avbildade namn|Avbildade - orter|' + \
              u'Ämnesord|Beskrivning|Motiv-ämnesord|Motiv-beskrivning|' + \
              u'Rättigheter|Samling|Dimukode'
-    if line != labels:
+    if line != labels.split('|'):
         print u'The labels or their order have changed, please update checker'
         exit(1)
 

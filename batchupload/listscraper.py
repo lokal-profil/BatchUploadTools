@@ -177,8 +177,7 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
 
     # create output and write to .wiki
     wiki = output_wiki(new_mapping)
-    wikifile = os.path.join(
-        out_path, u'%s.wiki' % mapping_file[:-len('.json')])
+    wikifile = u'%s.wiki' % mapping_file[:-len('.json')]
     common.open_and_write_file(wikifile, wiki)
 
 
