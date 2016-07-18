@@ -67,7 +67,7 @@ def open_and_write_file(filename, text, codec='utf-8', as_json=False):
     """
     with codecs.open(filename, 'w', codec) as f:
         if as_json:
-            f.write(json.dumps(text, ensure_ascii=False))
+            f.write(json.dumps(text, indent=4, ensure_ascii=False))
         else:
             f.write(text)
 

@@ -48,7 +48,6 @@ def setCWD(filename):
     global CWD_PATH
     CWD_PATH = os.path.split(filename)[0]
 
-
 def test(infile):
     setCWD(infile)
     d = csvToDict(infile)
@@ -65,15 +64,16 @@ def test(infile):
         filenames[v['idno']] = filename
 
     # store filenames
-    outFile = u'%s.filenames.txt' % infile
+    base_name, ext = os.path.splitext(infile)
+    outFile = u'%s.filenames.txt' % base_name
     out = codecs.open(outFile, 'w', 'utf-8')
     for k, v in filenames.iteritems():
-        out.write(u'%s\t%s\n' % (k, v))
+        out.write(u'%s|%s\n' % (k, v))
     out.close()
     print u'Created %s' % outFile
 
     # store output
-    outFile = u'%s.json' % infile
+    outFile = u'%s.json' % base_name
     out = codecs.open(outFile, 'w', 'utf-8')
     out.write(json.dumps(outdata, indent=4, ensure_ascii=False))
     out.close()
@@ -107,7 +107,7 @@ def csvToDict(filename, keyColumn=0, codec='utf-8'):
     Cannot use helpers.csvToDict as keys are not unique
     """
     header, lines = csv_methods.open_csv_file(filename, codec=codec)
-    if header != headerCheck:
+    if header != headerCheck.split('|'):
         print 'Header not same as comparison string!'
         exit()
 
