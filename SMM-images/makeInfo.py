@@ -48,9 +48,6 @@ class SMMInfo(makeBaseInfo):
         # handle kultur_nav connections
         self.k_nav_list = {}
 
-        # path to directory in which to work (if not current)
-        self.cwd_path = u''
-
         # black-listed values
         self.bad_namn = (u'okänd fotograf', u'okänd konstnär')
         self.bad_date = (u'odaterad', )
@@ -65,9 +62,6 @@ class SMMInfo(makeBaseInfo):
         @param in_data: the path to the metadata file
         @return: dict
         """
-        # determine base directory, for future use
-        self.cwd_path = os.path.split(in_file)[0]
-
         key_col = u'Identifikationsnr'
         lists = (u'Ämnesord', u'Material', u'Motiv-ämnesord')
         return csv_methods.csv_file_to_dict(in_file, key_col, EXPECTED_HEADER,

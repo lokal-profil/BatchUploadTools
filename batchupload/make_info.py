@@ -47,9 +47,9 @@ class makeBaseInfo(object):
         @param base_meta_cat: base_name for maintanance categories
         @param batch_label: label for this particular batch
         """
-        #what else is needed
         self.data = {}  # the processed metadata
         self.mappings = {}  # any loaded mappings
+        self.cwd_path = u''  # path to directory in which to work
         self.base_meta_cat = base_meta_cat
         self.batch_cat = self.make_maintanance_cat(batch_label)
 
@@ -199,6 +199,7 @@ class makeBaseInfo(object):
                     u'A base name must be provided if multiple in_files '
                     u'are provided')
 
+        self.cwd_path = os.path.split(base_name)[0]
         raw_data = self.load_data(in_file)
         self.process_data(raw_data)
         self.load_mappings()
