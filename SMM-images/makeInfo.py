@@ -8,12 +8,7 @@ first mapping file generation could be separated (and if so also knav stuff)
 A known assumption is that in avbildad_namn any string containing exactly
 one comma is a person, and any others are assumed to be ships.
 
-@todo: Make this extend some base makeInfo class
-@todo: Deprecate/merge test() into run()
 @todo: Replace any print
-
-@Rebuild rather than repair
-
 """
 import batchupload.helpers as helpers
 import batchupload.common as common  # temp before this is merged with helper
@@ -234,20 +229,20 @@ class SMMInfo(makeBaseInfo):
 
     @staticmethod
     def get_depicted_ship_field(value):
-        """..."""
+        """Add the template field for depicted ships."""
         return u' |other_fields_2       = {{depicted ship' \
                u'|style=information field|%s}}\n' % '|'.join(value)
 
     @staticmethod
     def get_manufacturer_field(value):
-        """..."""
+        """Add the template field for manufacturer."""
         return u' |other_fields_1       = {{Information field' \
                u'|name={{LSH artwork/i18n|manufacturer}}' \
                u'|value=%s}}\n' % value
 
     @staticmethod
     def get_original_caption_field(value):
-        """..."""
+        """Add the template field for original caption."""
         return u' |other_fields_2       = {{Information field' \
                u'|name={{original caption/i18n|header}}' \
                u'|value=%s}}\n' % value
