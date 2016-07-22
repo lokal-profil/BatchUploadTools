@@ -7,6 +7,8 @@ TODO: add an entry point to make/update mappings
 """
 import common
 import os
+import pywikibot
+import helpers
 from abc import ABCMeta, abstractmethod
 
 
@@ -212,12 +214,40 @@ class makeBaseInfo(object):
         filenames = {}
         for k, v in self.data.iteritems():
             filename = self.generate_filename(v)
-            filenames[v['idno']] = filename  #not generic enough
+            filenames[v.idno] = filename  #not generic enough
 
         # store filenames
         out_file = u'%s.filenames.txt' % base_name
         out = u''
-        for k, v in filenames.iteritems():
-            out += u'%s|%s\n' % (k, v)
+        for k in sorted(filenames.keys()):
+            out += u'%s|%s\n' % (k, filenames[k])
         common.open_and_write_file(out_file, out)
-        print u'Created %s' % out_file
+        pywikibot.output(u'Created %s' % out_file)
+
+    @classmethod
+    def main(cls, usage=None, *args):
+        """Command line entry-point."""
+        usage = usage or \
+            u'Usage:' \
+            u'\tpython make_info.py -in_file:PATH, -dir:PATH\n' \
+            u'\t-in_file:PATH path to metadata file\n' \
+            u'\t-dir:PATH specifies the path to the directory containing a ' \
+            u'user_config.py file (optional)\n' \
+            u'\tExample:\n' \
+            u'\tpython make_info.py -in_file:SMM/metadata.csv -dir:SMM\n'
+        in_file = None
+
+        # Load pywikibot args and handle local args
+        for arg in pywikibot.handle_args(args):
+            option, sep, value = arg.partition(':')
+            if option == '-in_file':
+                in_file = helpers.convertFromCommandline(value)
+
+        if in_file:
+            info = cls()
+            info.run(in_file)
+        else:
+            pywikibot.output(usage)
+
+if __name__ == "__main__":
+    makeBaseInfo.main()
