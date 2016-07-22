@@ -1,0 +1,223 @@
+#!/usr/bin/python
+# -*- coding: utf-8  -*-
+"""
+Abstract class for producing mapping tables and file description pages
+
+TODO: add an entry point to make/update mappings
+"""
+import common
+import os
+from abc import ABCMeta, abstractmethod
+
+
+def make_info_page(data):
+    """
+    Given a data entry from a make_info output, create a file description page.
+
+    @param data: dict with the keys {cats, meta_cats, info, filename}
+    @return: str
+    """
+    separator = u'\n\n'  # standard separation before categories
+    txt = data['info']
+
+    if data['meta_cats']:
+        txt += separator
+        txt += u'<!-- Metadata categories -->\n'
+        for cat in data['meta_cats']:
+            txt += u'[[Category:%s]]\n' % cat
+
+    if data['cats']:
+        txt += separator
+        txt += u'<!-- Content categories -->\n'
+        for cat in data['cats']:
+            txt += u'[[Category:%s]]\n' % cat
+
+    return txt
+
+
+class makeBaseInfo(object):
+    __metaclass__ = ABCMeta
+
+    def __init__(self, base_meta_cat, batch_label):
+        """
+        Initialise a makeBaseInfo object.
+
+        @param base_meta_cat: base_name for maintanance categories
+        @param batch_label: label for this particular batch
+        """
+        #what else is needed
+        self.data = {}  # the processed metadata
+        self.mappings = {}  # any loaded mappings
+        self.base_meta_cat = base_meta_cat
+        self.batch_cat = self.make_maintanance_cat(batch_label)
+
+    @abstractmethod
+    def load_data(self, in_file):
+        """
+        Load the provided data (in whichever format) and produce a dict with an
+        entry per file which can be used for further processing.
+
+        @param in_file: the path to the metadata file or list of such paths
+        @return: dict
+        """
+        pass
+
+    @abstractmethod
+    def load_mappings(self, update=True):
+        """
+        Load the mapping files and package them appropriately.
+
+        The loaded mappings are stored as self.mappings
+
+        @param update: whether to first download the latest mappings
+        """
+        #should this actually carry code
+        #improve docstring
+        pass
+
+    @abstractmethod
+    def process_data(self, raw_data):
+        """
+        Process the raw data from load_data into the format usable by
+        make_info_template.
+
+        The processed data is stored in self.data, a dict of items or objects.
+
+        @param raw_data: output from load_data()
+        @return: dict
+        """
+        pass
+
+    @abstractmethod
+    def make_info_template(self, item):
+        """
+        Make a filled in information (or similar) template for a single file.
+
+        @param item: the metadata for the media file in question
+        @return: str
+        """
+        pass
+
+    @abstractmethod
+    def generate_filename(self, item):
+        """
+        Produce a descriptive filename for a single media file.
+
+        This method is responsible for identifying the components which
+        should be passed through helpers.format_filename().
+
+        @param item: the metadata for the media file in question
+        @return: str
+        """
+        pass
+
+    @abstractmethod
+    def generate_content_cats(self, item):
+        """
+        Produce categories related to the media file contents.
+
+        @param item: the metadata for the media file in question
+        @return: list of categories (without "Category:" prefix)
+        """
+        pass
+
+    @abstractmethod
+    def generate_meta_cats(self, item, content_cats):
+        """
+        Produce maintanance categories related to a media file.
+
+        @param item: the metadata for the media file in question
+        @param content_cats: any content categories for the file
+        @return: list of categories (without "Category:" prefix)
+        """
+        pass
+
+    @abstractmethod
+    def get_original_filename(self, item):
+        """
+        Return the original filename of a media file.
+
+        This can either consist of returning a particular data field or require
+        processing the metadata.
+
+        @param item: the metadata for the media file in question
+        @return: str
+        """
+        pass
+
+    def make_maintanance_cat(self, cat):
+        """
+        Return a category name with the base_meta_cat prefix.
+
+        @param cat: the string to prefix
+        @return: str
+        """
+        return u'%s: %s' % (self.base_meta_cat, cat)
+
+    def make_info(self):
+        """
+        Make an object containing the processed info related to a media file.
+
+        The returned object is a dict where the keys are the (extension-less)
+        original filenames and the values are:
+        info: A filled in information (or similar) template
+        filename: the filename to be used on Commons (without file extension)
+        cats: a list of content categories (without "Category" prefix)
+        meta_cats: a list of meta categories (without "Category" prefix)
+
+        @return dict:
+        """
+        out_data = {}
+        for k, v in self.data.iteritems():
+            original_filename = self.get_original_filename(v)
+            info = self.make_info_template(v)
+            filename = self.generate_filename(v)
+            cats = self.generate_content_cats(v)
+            meta_cats = self.generate_meta_cats(v, cats)
+            out_data[original_filename] = {
+                u'info': info, u'filename': filename,
+                u'cats': cats, u'meta_cats': meta_cats}
+        return out_data
+
+    def run(self, in_file, base_name=None):
+        """
+        Entry point for outputting info data.
+
+        Loads indata and any mappings to produce a make_info json file.
+
+        @param in_file: filename (or tuple of such) containing the metadata
+        @param base_name: base name to use for output
+            (defaults to same as in_file)
+        """
+        if not base_name:
+            if isinstance(in_file, (str, unicode)):
+                base_name, ext = os.path.splitext(in_file)
+            else:
+                raise common.MyError(
+                    u'A base name must be provided if multiple in_files '
+                    u'are provided')
+
+        raw_data = self.load_data(in_file)
+        self.process_data(raw_data)
+        self.load_mappings()
+        out_data = self.make_info()
+
+        # store output
+        out_file = u'%s.json' % base_name
+        common.open_and_write_file(out_file, out_data, as_json=True)
+        print u'Created %s' % out_file
+
+        #is there a need for this
+        #(at this stage, or rather only during initial mapping?)
+        filenames = {}
+        for k, v in self.data.iteritems():
+            filename = self.generate_filename(v)
+            filenames[v['idno']] = filename  #not generic enough
+
+        # store filenames
+        out_file = u'%s.filenames.txt' % base_name
+        out = u''
+        for k, v in filenames.iteritems():
+            out += u'%s|%s\n' % (k, v)
+        common.open_and_write_file(out_file, out)
+        print u'Created %s' % out_file

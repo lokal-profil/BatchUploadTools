@@ -17,16 +17,35 @@ MAXLENGTH = 128
 badDates = (u'n.d', u'odaterad')
 
 
-def flipName(name):
+def flip_name(name):
     """
-    Given a single name return any Last, First as First Last,
-    otherwise returns the input unchanged.
+    Given a single name return any "Last, First" as "First Last".
+
+    Strings with more or less than one comma are returned unchanged.
+
+    @param name: string to be flipped
+    @return: list
     """
     p = name.split(',')
     if len(p) == 2:
         return u'%s %s' % (p[1].strip(), p[0].strip())
     else:
         return name
+
+
+def flip_names(names):
+    """
+    Given a list of strings send each on through flip_name().
+
+    Any strings not of the form "Last, First" are returned unchanged.
+
+    @param names: list of strings to be flipped
+    @return: list
+    """
+    flipped = []
+    for name in names:
+        flipped.append(flip_name(name))
+    return flipped
 
 
 def sortedDict(ddict):
@@ -53,6 +72,25 @@ def addOrIncrement(dictionary, val, key=None):
         dictionary[val][key] += 1
     else:
         dictionary[val] += 1
+
+
+def format_filename(descr, institution, idno):
+    """
+    Given the three components of a filename return the final string.
+
+    Does not include file extension.
+
+    @param descr: a short description of the file contents
+    @param institution: the institution name or abbreviation
+    @param idno: the unique identifier
+    @return: str
+    """
+    #todo: should possibly live elsewhere?
+    descr = shortenString(touchup(cleanString(descr)))
+    institution = cleanString(institution)
+    idno = cleanString(idno)
+    filename = u'%s - %s - %s' % (descr, institution, idno)
+    return filename.replace(' ', '_')
 
 
 def cleanString(text):
@@ -135,15 +173,50 @@ def shortenString(text):
     return shortenString(text[:pos].strip(badchar))
 
 
+def std_date_range(date, range_delimiter=' - '):
+    """
+    Given a date, which could be a range, return a standardised Commons date.
+
+    Note that care must be taken so that the delimiter only denotes ranges.
+    If only one date is found, or the dates are the same then only that is
+    returned.
+
+    Main logic is found in stdDate().
+
+    @param date: the string to be parsed as a range of dates
+    @param range_delimiter: delimiter used between two dates
+    @return string|None
+    """
+    # is this a range?
+    dates = date.split(range_delimiter)
+    if len(dates) == 2:
+        d1 = stdDate(dates[0])
+        d2 = stdDate(dates[1])
+        if d1 is not None and d2 is not None:
+            if d1 == d2:
+                return d1
+            else:
+                return u'{{other date|-|%s|%s}}' % (d1, d2)
+    else:
+        d = stdDate(date)
+        if d is not None:
+            return d
+    #if you get here you have failed
+    print u'Unhandled date: %s' % date
+
+
 def stdDate(date):
     """
-    Given a single date (not a range) this returns a standardised date
-    in ISO-form or using the Other_Date template.
+    Given a single date, not a range, return a standardised Commons date.
+
+    Standardised Commons date means either ISO-form or using the Other_date
+    template.
 
     Note that care must be taken so that ranges are separated prior to
     this since YYYY-MM and YYYY-YY are otherwise indistinguisable.
 
-    return string|None
+    @param date: the string to be parsed as a date
+    @return string|None
     """
     # No date
     date = date.strip(u'.  ')

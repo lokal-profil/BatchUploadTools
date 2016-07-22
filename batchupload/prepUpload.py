@@ -1,11 +1,9 @@
 #!/usr/bin/python
 # -*- coding: UTF-8  -*-
-"""
-Prepares files for upload by creating Information pages and renaming them
-"""
+"""Prepare files for upload by creating Information pages and renaming them."""
 import os
 import codecs
-import json
+from make_info import make_info_page
 import helpers
 import common
 
@@ -14,7 +12,9 @@ FILEEXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
 
 def run(inPath, outPath, dataPath, fileExts=None):
     """
-    Prepares an upload by:
+    Prepare an upload.
+
+    Prepare an upload by:
         1. Finds files in inpath (with subdirs) with the right file extension,
         2. Matching these against the keys in the makeInfo output data
         3. Making info files and renaming found file (in new target folder)
@@ -26,7 +26,7 @@ def run(inPath, outPath, dataPath, fileExts=None):
     @todo: throw errors on failed file read/write
     """
     # Load data
-    data = json.load(codecs.open(dataPath, 'r', 'utf-8'))
+    data = common.open_and_read_file(dataPath, codec='utf-8', as_json=True)
 
     # set filExts
     fileExts = fileExts or FILEEXTS
@@ -49,7 +49,8 @@ def run(inPath, outPath, dataPath, fileExts=None):
 
 def findFiles(path, fileExts, subdir=True):
     """
-    Identify all files with a given extension in a given directory
+    Identify all files with a given extension in a given directory.
+
     :param path: path to directory to look in
     :param fileExts: tuple of allowed file extensions (case insensitive)
     :param subdir: whether subdirs should also be searched
@@ -93,7 +94,8 @@ def makeHitlist(files, data):
 
 def makeAndRename(hitlist, outPath):
     """
-    Given a hitlist create the info files and and rename the matched file
+    Given a hitlist create the info files and and rename the matched file.
+
     param hitlist: the output of makeHitlist
     param outPath: the directory in which to store info + renamed files
     """
@@ -108,9 +110,8 @@ def makeAndRename(hitlist, outPath):
         baseName = os.path.join(outPath, hit['data']['filename'])
 
         # output info file
-        f = codecs.open(u'%s.info' % baseName, 'w', 'utf-8')
-        f.write(makeInfoPage(hit['data']))
-        f.close()
+        common.open_and_write_file(u'%s.info' % baseName,
+                                   make_info_page(hit['data']))
 
         # rename/move matched file
         outfile = u'%s%s' % (baseName, hit['ext'])
@@ -123,7 +124,8 @@ def makeAndRename(hitlist, outPath):
 
 def removeEmptyDirectories(path, top=True):
     """
-    Remove any empty directories and subdirectories
+    Remove any empty directories and subdirectories.
+
     :param path: path to direcotry to start deleting from
     :param top: set to True to not delete the starting directory
     """
@@ -146,37 +148,11 @@ def removeEmptyDirectories(path, top=True):
             print 'Not removing non-empty directory: %s' % path
 
 
-def makeInfoPage(data):
-    """
-    Given the data from a makeInfo output item create a complete Info page
-    param data: dict with {cats, metaCats, info, filename}
-    @todo: make this a function in generic makeInfo
-
-    return str the Info page
-    """
-    catSeparator = u'\n\n'  # standard separation before categories
-    txt = data['info']
-
-    if len(data['metaCats']) > 0:
-        txt += catSeparator
-        txt += u'<!-- Metadata categories -->\n'
-        for cat in data['metaCats']:
-            txt += u'[[Category:%s]]\n' % cat
-
-    if len(data['cats']) > 0:
-        txt += catSeparator
-        txt += u'<!-- Content categories -->\n'
-        for cat in data['cats']:
-            txt += u'[[Category:%s]]\n' % cat
-
-    return txt
-
-
 if __name__ == '__main__':
     import sys
     usage = u'Usage:\tpython prepUpload.py inPath, outPath, dataPath\n' \
         u'\tExamples:\n' \
-        u'\tpython prepUpload.py ../diskkopia ./toUpload ./datafil.json \n'
+        u'\tpython prepUpload.py ../diskkopia ./toUpload ./datafile.json \n'
     argv = sys.argv[1:]
     if len(argv) == 3:
         # str to unicode
