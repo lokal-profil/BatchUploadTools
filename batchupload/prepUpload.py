@@ -6,6 +6,7 @@ import codecs
 from make_info import make_info_page
 import helpers
 import common
+import pywikibot
 
 FILEEXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
 
@@ -33,8 +34,8 @@ def run(inPath, outPath, dataPath, fileExts=None):
 
     # Find candidate files
     if not os.path.isdir(inPath):
-        print u'The provided inPath was not a valid directory: %s' % inPath
-        exit()
+        raise common.MyError(
+            u'The provided inPath was not a valid directory: %s' % inPath)
     foundFiles = findFiles(path=inPath, fileExts=fileExts)
 
     # Find matches
@@ -83,9 +84,7 @@ def makeHitlist(files, data):
         if key not in data.keys():
             continue
         elif key in processedKeys:
-            # @todo: throw error
-            print 'non-unique file key: %s' % key
-            exit(1)
+            raise common.MyError(u'non-unique file key: %s' % key)
         processedKeys.append(key)
         hitlist.append({'path': f, 'ext': ext.lower(),
                         'data': data[key], 'key': key})
@@ -119,7 +118,7 @@ def makeAndRename(hitlist, outPath):
         flog.write(u'%s|%s\n' % (os.path.basename(hit['path']),
                                  os.path.basename(outfile)))
     flog.close()
-    print u'Created %s' % logfile
+    pywikibot.output(u'Created %s' % logfile)
 
 
 def removeEmptyDirectories(path, top=True):
@@ -145,21 +144,34 @@ def removeEmptyDirectories(path, top=True):
         if len(files) == 0:
             os.rmdir(path)
         else:
-            print 'Not removing non-empty directory: %s' % path
+            pywikibot.output('Not removing non-empty directory: %s' % path)
 
 
-if __name__ == '__main__':
-    import sys
-    usage = u'Usage:\tpython prepUpload.py inPath, outPath, dataPath\n' \
+def main(*args):
+    """Command line entry-point."""
+    usage = \
+        u'Usage:\tpython prepUpload.py -in_path:PATH, -out_path:PATH, -data_path:PATH\n' \
         u'\tExamples:\n' \
-        u'\tpython prepUpload.py ../diskkopia ./toUpload ./datafile.json \n'
-    argv = sys.argv[1:]
-    if len(argv) == 3:
-        # str to unicode
-        inPath = helpers.convertFromCommandline(argv[0])
-        outPath = helpers.convertFromCommandline(argv[1])
-        dataPath = helpers.convertFromCommandline(argv[2])
-        run(inPath, outPath, dataPath)
+        u'\tpython prepUpload.py -in_path:../diskkopia -out_path:./toUpload ' \
+        u'-data_path:./datafile.json \n'
+    in_path = None
+    out_path = None
+    data_path = None
+
+    # Load pywikibot args and handle local args
+    for arg in pywikibot.handle_args(args):
+        option, sep, value = arg.partition(':')
+        if option == '-in_path':
+            in_path = helpers.convertFromCommandline(value)
+        elif option == '-out_path':
+            out_path = helpers.convertFromCommandline(value)
+        elif option == '-data_path':
+            data_path = helpers.convertFromCommandline(value)
+
+    if in_path and out_path and data_path:
+        run(in_path, out_path, data_path)
     else:
-        print usage
-# EoF
+        pywikibot.output(usage)
+
+if __name__ == "__main__":
+    main()

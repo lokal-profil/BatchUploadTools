@@ -86,7 +86,7 @@ def upload_single_file(file_name, media_file, text, target_site,
 
 
 def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
-           test=False, verbose=True, target_site=None):
+           test=False, target_site=None):
     """
     Upload all matched files in the supplied directory.
 
@@ -97,7 +97,6 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
     @param target: sub-directory for uploaded files (defaults to "Uploaded")
     @param file_exts: tuple of allowed file extensions (defaults to FILEEXTS)
     @param test: set to True to test but not upload (deprecated?)
-    @param verbose: print out confirmations (deprecated?)
     @param target_site: pywikibot.Site to which file should be uploaded,
         defaults to Commons.
     """

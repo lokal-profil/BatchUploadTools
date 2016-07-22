@@ -208,7 +208,7 @@ class makeBaseInfo(object):
         # store output
         out_file = u'%s.json' % base_name
         common.open_and_write_file(out_file, out_data, as_json=True)
-        print u'Created %s' % out_file
+        pywikibot.output(u'Created %s' % out_file)
 
         #is there a need for this
         #(at this stage, or rather only during initial mapping?)

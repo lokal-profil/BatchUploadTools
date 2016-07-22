@@ -201,8 +201,9 @@ def std_date_range(date, range_delimiter=' - '):
         d = stdDate(date)
         if d is not None:
             return d
-    #if you get here you have failed
-    print u'Unhandled date: %s' % date
+
+    # if you get here you have failed
+    return None
 
 
 def stdDate(date):
