@@ -125,7 +125,7 @@ def removeEmptyDirectories(path, top=True):
     """
     Remove any empty directories and subdirectories.
 
-    :param path: path to direcotry to start deleting from
+    :param path: path to directory to start deleting from
     :param top: set to True to not delete the starting directory
     """
     if not os.path.isdir(path):
@@ -150,7 +150,7 @@ def removeEmptyDirectories(path, top=True):
 def main(*args):
     """Command line entry-point."""
     usage = \
-        u'Usage:\tpython prepUpload.py -in_path:PATH, -out_path:PATH, -data_path:PATH\n' \
+        u'Usage:\tpython prepUpload.py -in_path:PATH -out_path:PATH -data_path:PATH\n' \
         u'\tExamples:\n' \
         u'\tpython prepUpload.py -in_path:../diskkopia -out_path:./toUpload ' \
         u'-data_path:./datafile.json \n'

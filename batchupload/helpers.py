@@ -74,7 +74,8 @@ def addOrIncrement(dictionary, val, key=None):
         dictionary[val] += 1
 
 
-def format_filename(descr, institution, idno):
+# methods for handling filenames
+def format_filename(descr, institution, idno, delimiter=None):
     """
     Given the three components of a filename return the final string.
 
@@ -83,13 +84,15 @@ def format_filename(descr, institution, idno):
     @param descr: a short description of the file contents
     @param institution: the institution name or abbreviation
     @param idno: the unique identifier
+    @param delimiter: the delimiter to use between the parts
     @return: str
     """
+    delimiter = delimiter or u' - '
     #todo: should possibly live elsewhere?
-    descr = shortenString(touchup(cleanString(descr)))
+    descr = shortenString(touchup(cleanString(descr), delimiter))
     institution = cleanString(institution)
     idno = cleanString(idno)
-    filename = u'%s - %s - %s' % (descr, institution, idno)
+    filename = delimiter.join((descr, institution, idno))
     return filename.replace(' ', '_')
 
 
@@ -118,11 +121,17 @@ def cleanString(text):
     return text.strip()
 
 
-def touchup(text):
+def touchup(text, delimiter=None, delimiter_replacement=None):
     """
     Tweaks a string by removing surrounding bracket or quotes as well as
     some trailing punctuation.
+
+    @param text: the text to touch up
+    @param delimiter: a delimiter to replace
+    @param delimiter_replacement: what to replace the delimiter by
     """
+    delimiter_replacement = delimiter_replacement or ', '
+
     # If string starts and ends with bracket or quotes then remove
     brackets = {u'(': ')', u'[': ']', u'{': '}', u'"': '"'}
     for k, v in brackets.iteritems():
@@ -137,6 +146,11 @@ def touchup(text):
 
     # Make sure first character is upper case
     text = text[:1].upper() + text[1:]
+
+    # Replace any use of the institution/id delimiter
+    if delimiter:
+        text = text.replace(delimiter, delimiter_replacement)
+
     return text
 
 
@@ -173,6 +187,7 @@ def shortenString(text):
     return shortenString(text[:pos].strip(badchar))
 
 
+# methods for handling dates
 def std_date_range(date, range_delimiter=' - '):
     """
     Given a date, which could be a range, return a standardised Commons date.

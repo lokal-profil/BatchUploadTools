@@ -75,18 +75,18 @@ def upload_single_file(file_name, media_file, text, target_site,
             result['log'] = u'Warning: %s: %s' % (file_page.title(),
                                                   result['warning'])
         elif success:
-            result['log'] = u'%s: success\n' % file_page.title()
+            result['log'] = u'%s: success' % file_page.title()
         else:
             result['error'] = u"No warning/error but '%s' didn't upload?" % \
                               file_page.title()
-            result['log'] = u'Error: %s: %s\n' % (file_page.title(),
-                                                  result['error'])
+            result['log'] = u'Error: %s: %s' % (file_page.title(),
+                                                result['error'])
     finally:
         return result
 
 
 def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
-           test=False, target_site=None):
+           verbose=False, test=False, target_site=None):
     """
     Upload all matched files in the supplied directory.
 
@@ -96,6 +96,7 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
     @param cutoff: number of files to upload (defaults to all)
     @param target: sub-directory for uploaded files (defaults to "Uploaded")
     @param file_exts: tuple of allowed file extensions (defaults to FILEEXTS)
+    @param verbose: whether to output confirmation after each upload
     @param test: set to True to test but not upload (deprecated?)
     @param target_site: pywikibot.Site to which file should be uploaded,
         defaults to Commons.
@@ -156,6 +157,8 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
             target_dir = warnings_dir
         else:
             target_dir = done_dir
+        if verbose:
+            pywikibot.output(result.get('log'))
 
         flog.write(u'%s\n' % result.get('log'))
         os.rename(f, os.path.join(target_dir, base_name))
@@ -170,17 +173,20 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
 def main(*args):
     """Command line entry-point."""
     usage = u'Usage:' \
-            u'\tpython uploader.py -in_path:PATH, -dir:PATH, -cutoff:NUM\n' \
+            u'\tpython uploader.py -in_path:PATH -dir:PATH -cutoff:NUM\n' \
             u'\t-in_path:PATH path to the directory containing the media files\n' \
             u'\t-dir:PATH specifies the path to the directory containing a ' \
             u'user_config.py file (optional)\n' \
             u'\t-cutoff:NUM stop the upload after the specified number of files ' \
             u'(optional)\n' \
+            u'\t-confirm Whether to output a confirmation after each upload ' \
+            u'attempt (optional)\n' \
             u'\tExample:\n' \
             u'\tpython uploader.py -in_path:../diskkopia -cutoff:100\n'
     cutoff = None
     in_path = None
     test = False
+    confirm = False
 
     # Load pywikibot args and handle local args
     for arg in pywikibot.handle_args(args):
@@ -192,9 +198,11 @@ def main(*args):
             in_path = value
         if option == '-test':
             test = True
+        if option == '-confirm':
+            confirm = True
 
     if in_path:
-        up_all(in_path, cutoff=cutoff, test=test)
+        up_all(in_path, cutoff=cutoff, test=test, verbose=confirm)
     else:
         pywikibot.output(usage)
 

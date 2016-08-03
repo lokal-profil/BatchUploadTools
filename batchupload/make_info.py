@@ -230,7 +230,7 @@ class makeBaseInfo(object):
         """Command line entry-point."""
         usage = usage or \
             u'Usage:' \
-            u'\tpython make_info.py -in_file:PATH, -dir:PATH\n' \
+            u'\tpython make_info.py -in_file:PATH -dir:PATH\n' \
             u'\t-in_file:PATH path to metadata file\n' \
             u'\t-dir:PATH specifies the path to the directory containing a ' \
             u'user_config.py file (optional)\n' \
