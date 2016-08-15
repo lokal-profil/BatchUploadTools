@@ -81,6 +81,8 @@ def format_filename(descr, institution, idno, delimiter=None):
 
     Does not include file extension.
 
+    @Todo: should possibly live elsewhere?
+
     @param descr: a short description of the file contents
     @param institution: the institution name or abbreviation
     @param idno: the unique identifier
@@ -88,7 +90,6 @@ def format_filename(descr, institution, idno, delimiter=None):
     @return: str
     """
     delimiter = delimiter or u' - '
-    #todo: should possibly live elsewhere?
     descr = shortenString(touchup(cleanString(descr), delimiter))
     institution = cleanString(institution)
     idno = cleanString(idno)

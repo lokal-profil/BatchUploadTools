@@ -15,3 +15,24 @@ To use a different user for a particular batchupload place the `user-config.py`
 in the subdirectory and run the script with `-dir:<sub-driectory>`.
 Remember to set `password_file = "<sub-driectory>/secretPasswords"` in the
 `user-config`.
+
+## Protocol for a batch upload
+1. Load indata to a dictionary
+2. Process the indata to generate mapping lists
+3. Load the indata and the mappings to produce a list of original filenames
+   (of media files) and their final filenames as well as json holding the
+   following for each file:
+    a. Maintanance categories
+    b. Content categories
+    c. File description
+    d. Output filename
+    e. Input filename (as key)
+4. Run the prep-uploader to rename the media files and create the text file
+   for the associated file description page.
+5. Run the upoader to upload it all
+
+## When creating a new batch upload
+Extend make_info to create own methods for reading and processing the indata.
+Any method marked as abstract must be implemented locally. You can make use
+of the various helper functions in the other classes.
+

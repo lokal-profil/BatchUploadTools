@@ -73,8 +73,8 @@ class makeBaseInfo(object):
 
         @param update: whether to first download the latest mappings
         """
-        #should this actually carry code
-        #improve docstring
+        # should this actually carry code
+        # improve docstring
         pass
 
     @abstractmethod
@@ -210,18 +210,11 @@ class makeBaseInfo(object):
         common.open_and_write_file(out_file, out_data, as_json=True)
         pywikibot.output(u'Created %s' % out_file)
 
-        #is there a need for this
-        #(at this stage, or rather only during initial mapping?)
-        filenames = {}
-        for k, v in self.data.iteritems():
-            filename = self.generate_filename(v)
-            filenames[v.idno] = filename  #not generic enough
-
         # store filenames
         out_file = u'%s.filenames.txt' % base_name
         out = u''
-        for k in sorted(filenames.keys()):
-            out += u'%s|%s\n' % (k, filenames[k])
+        for k in sorted(out_data.keys()):
+            out += u'%s|%s\n' % (k, out_data[k][u'filename'])
         common.open_and_write_file(out_file, out)
         pywikibot.output(u'Created %s' % out_file)
 
