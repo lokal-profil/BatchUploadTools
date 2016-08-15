@@ -13,6 +13,7 @@ import os
 from batchupload.common import (
     MyError,
     deep_sort,
+    strip_list_entries
 )
 from batchupload.csv_methods import (
     csv_file_to_dict,
@@ -172,11 +173,16 @@ class TestCSVFileToDictNonUnique(TestCSVFileBase):
 
     def test_read_non_unique_data_unexpected_error(self):
         key_col = u'tre'
+        expected_msg = 'Unexpected non-unique columns found'
+        expected_items = sorted(['lista', 'ett'])
         with self.assertRaises(MyError) as cm:
             csv_file_to_dict(self.test_infile.name, key_col,
                              self.test_header, non_unique=False)
-        self.assertEquals(cm.exception.value,
-                          'Unexpected non-unique columns found: lista, ett')
+        # ensure error message is the same
+        result_msg, _, result_items = cm.exception.value.partition(':')
+        result_items = strip_list_entries(result_items.split(','))
+        self.assertEquals(result_msg, expected_msg)
+        self.assertEquals(sorted(result_items), expected_items)
 
 
 class TestDictToCSVFile(TestCSVFileBase, CustomAssertions):
