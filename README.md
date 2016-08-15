@@ -1,4 +1,4 @@
-BatchUploadTools
+BatchUploadTools [![Build Status](https://travis-ci.org/lokal-profil/BatchUploadTools.svg?branch=master)](https://travis-ci.org/lokal-profil/BatchUploadTools)
 =======
 
 An attempt of unifying the various tools for batch uploads under one repo.
