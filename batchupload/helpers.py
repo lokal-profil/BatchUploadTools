@@ -4,9 +4,9 @@
 Helper tools related to batchUploads
 """
 import operator
-import codecs
 import sys  # needed by convertFromCommandline()
 import locale  # needed by convertFromCommandline()
+import batchupload.common as common
 
 # limitations on namelength
 # shorten if longer than GOODLENGTH cut if longer than MAXLENGTH
@@ -14,60 +14,17 @@ GOODLENGTH = 100
 MAXLENGTH = 128
 
 # black-lists
-badDates = (u'n.d', u'odaterad')
+bad_dates = (u'n.d', u'odaterad')
 
 
-def csvToDict(filename, keyColumn=0, codec='utf-8', headerCheck=None):
+def flip_name(name):
     """
-    opens a pipe separated csv and returns a dict using the values in
-    the first row as keys. Requires each key be unique
+    Given a single name return any "Last, First" as "First Last".
 
-    param keyColumn: Which column to use as a key for the dictionary
-    param codec: codec used for infile
-    param headerCheck: A comparison string for the header
-    returns dict
-    """
-    header, lines = openFile(filename, codec=codec)
-    labels = header.split('|')
+    Strings with more or less than one comma are returned unchanged.
 
-    # verify header works
-    if headerCheck is not None and headerCheck != header:
-        print 'Header not same as comparison string!'
-        exit()
-
-    # check that keyColumn is valid
-    if keyColumn > len(labels) - 1:
-        print 'keyColumn is invalid'
-        exit()
-
-    # populate dictionary
-    d = {}
-    for l in lines:
-        p = l.split('|')
-        d[p[keyColumn]] = {}
-        for i in range(len(p)):
-            d[p[keyColumn]][labels[i]] = p[i]
-
-    return d
-
-
-def openFile(filename, codec='utf-8'):
-    """
-    opens a given file and returns the header row plus following lines
-    """
-    fin = codecs.open(filename, 'r', codec)
-    txt = fin.read()
-    fin.close()
-    lines = txt.split('\n')
-    header = lines.pop(0)
-    lines.pop()
-    return header.strip(), lines
-
-
-def flipName(name):
-    """
-    Given a single name return any Last, First as First Last,
-    otherwise returns the input unchanged
+    @param name: string to be flipped
+    @return: list
     """
     p = name.split(',')
     if len(p) == 2:
@@ -76,19 +33,23 @@ def flipName(name):
         return name
 
 
-def trimList(oldList):
+def flip_names(names):
     """
-    Given a list remove any empty entries
+    Given a list of strings send each on through flip_name().
+
+    Any strings not of the form "Last, First" are returned unchanged.
+
+    @param names: list of strings to be flipped
+    @return: list
     """
-    newList = []
-    for l in oldList:
-        if len(l.strip()) > 0:
-            newList.append(l.strip())
-    return newList
+    flipped = []
+    for name in names:
+        flipped.append(flip_name(name))
+    return flipped
 
 
 def sortedDict(ddict):
-    """turns a dict into a sorted list"""
+    """Turn a dict into a sorted list."""
     sorted_ddict = sorted(ddict.iteritems(),
                           key=operator.itemgetter(1),
                           reverse=True)
@@ -97,68 +58,107 @@ def sortedDict(ddict):
 
 def addOrIncrement(dictionary, val, key=None):
     """
-    adds a value to the dictionary or increments the
+    Add a value to the dictionary or increments the
     counter for the value.
+
     param key: the key holding the counter
     """
-    if val in dictionary.keys():
+    if val not in dictionary.keys():
         if key:
-            dictionary[val][key] += 1
+            dictionary[val] = {key: 0}
         else:
-            dictionary[val] += 1
+            dictionary[val] = 0
+    if key:
+        dictionary[val][key] += 1
     else:
-        if key:
-            dictionary[val] = {key: 1}
-        else:
-            dictionary[val] = 1
+        dictionary[val] += 1
+
+
+# methods for handling filenames
+def format_filename(descr, institution, idno, delimiter=None):
+    """
+    Given the three components of a filename return the final string.
+
+    Does not include file extension.
+
+    @Todo: should possibly live elsewhere?
+
+    @param descr: a short description of the file contents
+    @param institution: the institution name or abbreviation
+    @param idno: the unique identifier
+    @param delimiter: the delimiter to use between the parts
+    @return: str
+    """
+    delimiter = delimiter or u' - '
+    descr = shortenString(touchup(cleanString(descr), delimiter))
+    institution = cleanString(institution)
+    idno = cleanString(idno)
+    filename = delimiter.join((descr, institution, idno))
+    return filename.replace(' ', '_')
 
 
 def cleanString(text):
-    """
-    removes characters which are forbidden/undesired in filenames
-    """
+    """Remove characters which are forbidden/undesired in filenames."""
     # bad characters  - extend as more are identified
     # Note that ":" is complicated as it has several different interpretaions.
     # Currently first replacing possesive case and sentence break then
     # dealing with stand alone :
     # maybe also ? ' and &nbsp; symbol
-    badChar = {u'\\': u'-', u'/': u'-', u'|': u'-', u'#': u'-',
-               u'[': u'(', u']': u')', u'{': u'(', u'}': u')',
-               u':s': u's', u': ': u', ',
-               u' ': u' ', u' ': u' ', u'	': u' ',  # unusual whitespace
-               u'e´': u'é',
-               u'”': u' ', u'"': u' ', u'“': u' '}
-    for k, v in badChar.iteritems():
+    bad_char = {u'\\': u'-', u'/': u'-', u'|': u'-', u'#': u'-',
+                u'[': u'(', u']': u')', u'{': u'(', u'}': u')',
+                u':s': u's', u': ': u', ',
+                u' ': u' ', u' ': u' ', u'	': u' ',  # unusual whitespace
+                u'e´': u'é',
+                u'”': u' ', u'"': u' ', u'“': u' '}
+    for k, v in bad_char.iteritems():
         text = text.replace(k, v)
+
+    # replace any remaining colons
     if u':' in text:
         text = text.replace(u':', u'-')
+
     # replace double space by single space
     text = text.replace('  ', ' ')
     return text.strip()
 
 
-def touchup(text):
+def touchup(text, delimiter=None, delimiter_replacement=None):
     """
     Tweaks a string by removing surrounding bracket or quotes as well as
-    some trailing punctuation
+    some trailing punctuation.
+
+    @param text: the text to touch up
+    @param delimiter: a delimiter to replace
+    @param delimiter_replacement: what to replace the delimiter by
     """
+    delimiter_replacement = delimiter_replacement or ', '
+
     # If string starts and ends with bracket or quotes then remove
     brackets = {u'(': ')', u'[': ']', u'{': '}', u'"': '"'}
     for k, v in brackets.iteritems():
-        if text.startswith(k) and text.endswith(v):
-            if text[:-1].count(k) == 1:
-                # so as to not remove non-matching brackets.
-                # slice in check is due to quote-bracket
-                text = text[1:-1]
+        if text.startswith(k) and text.endswith(v) and \
+                text[:-1].count(k) == 1:
+            # Last check is so as to not remove non-matching brackets
+            # with slice in use is due to cases where k=v.
+            text = text[1:-1]
+
+    # Get rid of leading/trailing punctuation
+    text = text.strip(' .,;')
+
     # Make sure first character is upper case
-    text = text[:1].upper()+text[1:]
-    return text.strip(' .,;')
+    text = text[:1].upper() + text[1:]
+
+    # Replace any use of the institution/id delimiter
+    if delimiter:
+        text = text.replace(delimiter, delimiter_replacement)
+
+    return text
 
 
 def shortenString(text):
     '''
     If a string is larger than GOODLENGTH then this tries to
-    find a sensibel shortening
+    find a sensibel shortening.
     '''
     badchar = u'-., '  # maybe also "?
     if u'<!>' in text:
@@ -183,25 +183,61 @@ def shortenString(text):
                 if pos < 0:
                     # try something else
                     if len(text) > MAXLENGTH:
-                        text = u'%s...' % text[:MAXLENGTH-3]
+                        text = u'%s...' % text[:MAXLENGTH - 3]
                     return text
     return shortenString(text[:pos].strip(badchar))
 
 
+# methods for handling dates
+def std_date_range(date, range_delimiter=' - '):
+    """
+    Given a date, which could be a range, return a standardised Commons date.
+
+    Note that care must be taken so that the delimiter only denotes ranges.
+    If only one date is found, or the dates are the same then only that is
+    returned.
+
+    Main logic is found in stdDate().
+
+    @param date: the string to be parsed as a range of dates
+    @param range_delimiter: delimiter used between two dates
+    @return string|None
+    """
+    # is this a range?
+    dates = date.split(range_delimiter)
+    if len(dates) == 2:
+        d1 = stdDate(dates[0])
+        d2 = stdDate(dates[1])
+        if d1 is not None and d2 is not None:
+            if d1 == d2:
+                return d1
+            else:
+                return u'{{other date|-|%s|%s}}' % (d1, d2)
+    else:
+        d = stdDate(date)
+        if d is not None:
+            return d
+
+    # if you get here you have failed
+    return None
+
+
 def stdDate(date):
     """
-    Given a single date (not a range) this returns a standardised date
-    in ISO-form or using the Other_Date template
+    Given a single date, not a range, return a standardised Commons date.
+
+    Standardised Commons date means either ISO-form or using the Other_date
+    template.
 
     Note that care must be taken so that ranges are separated prior to
     this since YYYY-MM and YYYY-YY are otherwise indistinguisable.
 
-    return string|None
+    @param date: the string to be parsed as a date
+    @return string|None
     """
-
     # No date
     date = date.strip(u'.  ')
-    if len(date) == 0 or date.lower() in badDates:
+    if len(date) == 0 or date.lower() in bad_dates:
         return u''  # this is equivalent to u'{{other date|unknown}}'
     date = date.replace(u' - ', u'-')
 
@@ -241,8 +277,8 @@ def stdDate(date):
         u'före': u'<',
         u'efter': u'>',
         u'-': u'<'}
-    talEndings = (u'-talets', u'-tal', u'-talet', u' talets')
-    modalityEndings = (u'troligen', u'sannolikt')
+    tal_endings = (u'-talets', u'-tal', u'-talet', u' talets')
+    modality_endings = (u'troligen', u'sannolikt')
     for k, v in starts.iteritems():
         if date.lower().startswith(k):
             again = stdDate(date[len(k):])
@@ -257,7 +293,7 @@ def stdDate(date):
                 return u'{{other date|%s|%s}}' % (v, again)
             else:
                 return None
-    for k in modalityEndings:
+    for k in modality_endings:
         if date.lower().endswith(k):
             date = date[:-len(k)].strip(u'.,  ')
             again = stdDate(date)
@@ -265,13 +301,13 @@ def stdDate(date):
                 return u'%s {{Probably}}' % again
             else:
                 return None
-    for k in talEndings:
+    for k in tal_endings:
         if date.lower().endswith(k):
             date = date[:-len(k)].strip(u'.  ')
             if date[-2:] == u'00':
                 v = u'century'
                 if len(date) == 4:
-                    return u'{{other date|%s|%r}}' % (v, int(date[:2])+1)
+                    return u'{{other date|%s|%r}}' % (v, int(date[:2]) + 1)
                 else:
                     return None
             else:
@@ -287,46 +323,34 @@ def stdDate(date):
 
 
 def isoDate(date):
-    """
-    Given a string this returns an isodate (if possible)
-    """
+    """Given a string this returns an iso date (if possible)."""
     item = date[:len('YYYY-MM-DD')].split('-')
-    if len(item) == 3 and all(is_int(x) for x in item) and \
-            int(item[1][:len('MM')]) in range(1, 12+1) and \
-            int(item[2][:len('DD')]) in range(1, 31+1):
+    if len(item) == 3 and all(common.is_pos_int(x) for x in item) and \
+            int(item[1][:len('MM')]) in range(1, 12 + 1) and \
+            int(item[2][:len('DD')]) in range(1, 31 + 1):
         # 1921-09-17Z or 2014-07-11T08:14:46Z
         return u'%s-%s-%s' % (item[0], item[1], item[2])
-    elif len(item) == 1 and is_int(item[0][:len('YYYY')]):
+    elif len(item) == 1 and common.is_pos_int(item[0][:len('YYYY')]):
         # 1921Z
         return item[0]
     elif len(item) == 2 and \
-            all(is_int(x) for x in (item[0], item[1][:len('MM')])) and \
-            int(item[1][:len('MM')]) in range(1, 12+1):
+            all(common.is_pos_int(x) for x in (item[0], item[1][:len('MM')])) and \
+            int(item[1][:len('MM')]) in range(1, 12 + 1):
         # 1921-09Z
         return u'%s-%s' % (item[0], item[1])
     else:
         return None
 
 
-def is_int(s):
-    try:
-        int(s)
-        return True
-    except (ValueError, TypeError):
-        return False
-
-
 def italicize(s):
-    """
-    Given a string return the same string italicized (in wikitext)
-    """
+    """Given a string return the same string italicized (in wikitext)."""
     return u'\'\'%s\'\'' % s
 
 
 def convertFromCommandline(s):
     """
-    Converts a string read from the commandline to a standard unicode
-    format.
+    Convert a string read from the commandline to a standard unicode format.
+
     :param s: string to convert
     :return: str
     """

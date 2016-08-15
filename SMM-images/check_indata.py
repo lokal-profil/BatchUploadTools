@@ -8,12 +8,17 @@ Notes:
     P1472 is Creator-template
 
 @todo: Deprecate and move last bits to makeInfo
+
+This is largely deprecated but still contains some bits for making mapping lists
+which should be preserved.
 """
 
-import helpers  # must therefore run from parent dir
+import batchupload.helpers as helpers  # must therefore run from parent dir
+import batchupload.common as common  # temp before this is merged with helper
+import batchupload.csv_methods as csv_methods
 import codecs
 import os
-import listscraper
+import batchupload.listscraper as listscraper
 import urllib2
 import json
 CWD_PATH = u'SMM-images'
@@ -36,7 +41,7 @@ def run(filename):
     global infile
     infile = filename
     setCWD(filename)
-    header, lines = helpers.openFile(infile)
+    header, lines = csv_methods.open_csv_file(infile)
     testLabels(header)
     logs = {}
     idnos = []
@@ -94,7 +99,7 @@ def checkLine(line, idnos):
     typ = params[1].strip()
     benamning = params[2].strip()
     material = params[3].strip().split(',')
-    namn_konstnar = helpers.flipName(params[4].strip())
+    namn_konstnar = helpers.flip_name(params[4].strip())
     namn_konstnar_knav = params[5].strip()
     namn_konstruktor = [params[6].strip(), ]
     namn_konstruktor_knav = params[7].strip()
@@ -105,7 +110,7 @@ def checkLine(line, idnos):
     namn_tillverkare.append(params[12].strip())
     date_foto = params[13].strip()
     date_produktion = params[14].strip()
-    avbildad_namn = [helpers.flipName(params[15].strip()), ]
+    avbildad_namn = [helpers.flip_name(params[15].strip()), ]
     avbildad_namn_knav = params[16].strip()
     avbildad_namn.append(params[17].strip())
     avbildad_namn.append(params[18].strip())
@@ -119,12 +124,12 @@ def checkLine(line, idnos):
     dimukod = params[26].strip()
 
     # cleanup lists
-    material = helpers.trimList(material)
-    namn_tillverkare = helpers.trimList(namn_tillverkare)
-    avbildad_namn = helpers.trimList(avbildad_namn)
-    namn_konstruktor = helpers.trimList(namn_konstruktor)
-    amnesord = helpers.trimList(amnesord)
-    motiv_amnesord = helpers.trimList(motiv_amnesord)
+    material = common.trim_list(material)
+    namn_tillverkare = common.trim_list(namn_tillverkare)
+    avbildad_namn = common.trim_list(avbildad_namn)
+    namn_konstruktor = common.trim_list(namn_konstruktor)
+    amnesord = common.trim_list(amnesord)
+    motiv_amnesord = common.trim_list(motiv_amnesord)
 
     # kNav
     if len(namn_konstnar_knav) > 0:
@@ -133,7 +138,7 @@ def checkLine(line, idnos):
         addTokNavList(avbildad_namn_knav, avbildad_namn[0])
     if len(namn_konstruktor_knav) > 0:
         addTokNavList(avbildad_namn_knav,
-                      helpers.flipName(namn_konstruktor[0]))
+                      helpers.flip_name(namn_konstruktor[0]))
 
     log.append(testId(idno, idnos))
     log.append(checkType(typ))
@@ -184,7 +189,7 @@ def testLabels(line):
              u'Avbildade namn|Avbildade namn|Avbildade - orter|' + \
              u'Ämnesord|Beskrivning|Motiv-ämnesord|Motiv-beskrivning|' + \
              u'Rättigheter|Samling|Dimukode'
-    if line != labels:
+    if line != labels.split('|'):
         print u'The labels or their order have changed, please update checker'
         exit(1)
 
@@ -211,7 +216,7 @@ def testCollection(samling):
 
 def testKeywords(amnesord, motiv_amnesord, benamning):
     keywords = amnesord + motiv_amnesord + [benamning, ]
-    keywords = helpers.trimList(keywords)
+    keywords = common.trim_list(keywords)
     if len(keywords) < 1:
         return u'Inga ämnesord'
 
@@ -229,7 +234,7 @@ def testNameGeneration(idno, typ, benamning, motiv_beskrivning,
     txt = u''
     if typ == u'Foto':
         if len(avbildad_namn) > 0:
-            txt += ', '.join(flipNames(avbildad_namn))
+            txt += ', '.join(helpers.flip_names(avbildad_namn))
             if len(txt) > 0 and len(avbildad_ort) > 0:
                 txt += u'. '
             txt += avbildad_ort
@@ -251,7 +256,7 @@ def testNameGeneration(idno, typ, benamning, motiv_beskrivning,
         elif benamning in need_more:
             txt2 = ''
             if len(avbildad_namn) > 0:
-                txt2 += ', '.join(flipNames(avbildad_namn))
+                txt2 += ', '.join(helpers.flip_names(avbildad_namn))
             elif len(motiv_beskrivning) > 0:
                 txt2 += motiv_beskrivning
             else:
@@ -284,7 +289,7 @@ def testName(namn):
         return u'För många komman i ett namn: %s' % namn
     elif namn.endswith(','):
         return u'Namn slutar med komma: %s' % namn
-    helpers.addOrIncrement(personList, helpers.flipName(namn))
+    helpers.addOrIncrement(personList, helpers.flip_name(namn))
 
 
 def testDateRange(date):
@@ -314,20 +319,20 @@ def testDate(date):
     '''
     date = date.lower().strip('ca ')
     item = date[:len('YYYY-MM-DD')].split('-')
-    if len(item) == 3 and all(helpers.is_int(x) for x in item) and \
-            int(item[1][:len('MM')]) in range(1, 12+1) and \
-            int(item[2][:len('DD')]) in range(1, 31+1):
+    if len(item) == 3 and all(common.is_pos_int(x) for x in item) and \
+            int(item[1][:len('MM')]) in range(1, 12 + 1) and \
+            int(item[2][:len('DD')]) in range(1, 31 + 1):
         # 1921-09-17Z or 2014-07-11T08:14:46Z
         return None
-    elif len(item) == 1 and helpers.is_int(item[0][:len('YYYY')]):
+    elif len(item) == 1 and common.is_pos_int(item[0][:len('YYYY')]):
         # 1921Z
         return None
     elif len(item) == 2 and \
-            all(helpers.is_int(x) for x in (item[0], item[1][:len('MM')])) and \
-            int(item[1][:len('MM')]) in range(1, 12+1):
+            all(common.is_pos_int(x) for x in (item[0], item[1][:len('MM')])) and \
+            int(item[1][:len('MM')]) in range(1, 12 + 1):
         # 1921-09Z
         return None
-    elif len(item) == 2 and helpers.is_int(item[0][:len('YYYY')]) and \
+    elif len(item) == 2 and common.is_pos_int(item[0][:len('YYYY')]) and \
             item[1] == u'talet':
         # 1900-talet
         return None
@@ -351,16 +356,16 @@ def secondaryKeywordTest(lines):
         params = l.split('|')
         keywords = params[20].strip().split(',')
         keywords += params[22].strip().split(',')
-        keywords = helpers.trimList(keywords)
+        keywords = common.trim_list(keywords)
         for k in keywords:
             k = k.lower()
             for i in range(offset, num + offset):
-                if not passed[i-offset] and keywordList[k] >= i:
-                    passNo[i-offset] += 1
-                    passed[i-offset] += True
+                if not passed[i - offset] and keywordList[k] >= i:
+                    passNo[i - offset] += 1
+                    passed[i - offset] += True
     txt = u'frekvens: bilder utan kategori\n'
     for i in range(offset, num + offset):
-        txt += u'%d: %d\n' % (i, len(lines)-passNo[i-offset])
+        txt += u'%d: %d\n' % (i, len(lines) - passNo[i - offset])
     txt += u'(utav %d filer)' % len(lines)
     return txt
 
@@ -380,17 +385,6 @@ def addTokNavList(uuid, namn):
             kNavList[uuid] = {'namn': [namn, ]}
 
 
-def flipNames(names):
-    """
-    Given a list of names return the list with any Last, First as First Last,
-    otherwise returns the input unchanged
-    """
-    flipped = []
-    for name in names:
-        flipped.append(helpers.flipName(name))
-    return flipped
-
-
 def dumpToList(desc, dictionary):
     outputWiki = None
     if desc == 'keywords':
@@ -405,8 +399,8 @@ def dumpToList(desc, dictionary):
         print 'dumpToList not implemented for: %s' % desc
         return
     listscraper.mergeWithOld(helpers.sortedDict(dictionary), desc,
-                             outputWiki, workingPath=CWD_PATH,
-                             outPath=OUT_PATH)
+                             outputWiki, working_path=CWD_PATH,
+                             out_path=OUT_PATH)
 
 
 def outputWikiKeyword(mapping):
@@ -612,7 +606,7 @@ def outputWikiPerson(mapping):
 
 def crunchKNavList():
     """
-    Lookup uuid connections in wikidata and return a dict with name as key
+    Lookup uuid connections in wikidata and return a dict with name as key.
     """
     queryurl = u'https://wdq.wmflabs.org/api?q=string[1248:"%s"]' \
                u'+AND+CLAIM[373]&props=373,1248,1472'
@@ -620,7 +614,7 @@ def crunchKNavList():
     props = {'P373': [], 'P1248': [], 'P1472': []}
     while i < len(kNavList):
         # Split up into 10 uuid chunks
-        ks = '",1248:"'.join(kNavList.keys()[i:i+10])
+        ks = '",1248:"'.join(kNavList.keys()[i:i + 10])
         i += 10
         recordPage = urllib2.urlopen(queryurl % ks)
         recordData = recordPage.read()
