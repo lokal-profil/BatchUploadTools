@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
-"""Methods and helper functions for csv handling."""
+"""Methods and helpers for csv handling."""
 from common import (
     MyError,
     open_and_read_file,
@@ -212,7 +212,7 @@ def csv_file_to_dict(filename, key_col, header_check, non_unique=False,
     return d
 
 
-def dict_to_csv_file(filename, d, header, delimiter='|', listDelimiter=';',
+def dict_to_csv_file(filename, d, header, delimiter='|', list_delimiter=';',
                      codec='utf-8'):
     """
     Save a dict as csv file given a header string encoding the columns.
@@ -221,7 +221,7 @@ def dict_to_csv_file(filename, d, header, delimiter='|', listDelimiter=';',
     @param d: the dictionary to convert
     @param header: a string giving parameters to output and their order
     @param delimiter: the used delimiter (defaults to "|")
-    @param listDelimiter: the used delimiter when encountering a list
+    @param list_delimiter: the used delimiter when encountering a list
     @param codec: the used encoding (defaults to "utf-8")
     @return: None
     """
@@ -241,7 +241,7 @@ def dict_to_csv_file(filename, d, header, delimiter='|', listDelimiter=';',
         row = []
         for h in header:
             if isinstance(v[h], list):
-                row.append(listDelimiter.join(v[h]))
+                row.append(list_delimiter.join(v[h]))
             else:
                 row.append(v[h])
         output += u'%s\n' % delimiter.join(row)

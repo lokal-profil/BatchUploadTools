@@ -276,8 +276,14 @@ class TestModifyPath(TestModifyDirBase):
 
     """Test modify_path()."""
 
-    def test_modify_path_with_empty_arg(self):
+    def test_modify_path_with_empty_args(self):
         self.assertEqual(modify_path('', ''), '')
+
+    def test_modify_path_with_empty_dir(self):
+        self.assertEqual(modify_path('', self.out_path), self.out_path)
+
+    def test_modify_path_with_empty_none_dir(self):
+        self.assertEqual(modify_path(None, self.out_path), self.out_path)
 
     def test_modify_path_valid(self):
         expected = os.path.join(self.test_dir, self.out_path)

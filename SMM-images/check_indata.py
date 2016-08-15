@@ -8,6 +8,9 @@ Notes:
     P1472 is Creator-template
 
 @todo: Deprecate and move last bits to makeInfo
+
+This is largely deprecated but still contains some bits for making mapping lists
+which should be preserved.
 """
 
 import batchupload.helpers as helpers  # must therefore run from parent dir
@@ -96,7 +99,7 @@ def checkLine(line, idnos):
     typ = params[1].strip()
     benamning = params[2].strip()
     material = params[3].strip().split(',')
-    namn_konstnar = helpers.flipName(params[4].strip())
+    namn_konstnar = helpers.flip_name(params[4].strip())
     namn_konstnar_knav = params[5].strip()
     namn_konstruktor = [params[6].strip(), ]
     namn_konstruktor_knav = params[7].strip()
@@ -107,7 +110,7 @@ def checkLine(line, idnos):
     namn_tillverkare.append(params[12].strip())
     date_foto = params[13].strip()
     date_produktion = params[14].strip()
-    avbildad_namn = [helpers.flipName(params[15].strip()), ]
+    avbildad_namn = [helpers.flip_name(params[15].strip()), ]
     avbildad_namn_knav = params[16].strip()
     avbildad_namn.append(params[17].strip())
     avbildad_namn.append(params[18].strip())
@@ -135,7 +138,7 @@ def checkLine(line, idnos):
         addTokNavList(avbildad_namn_knav, avbildad_namn[0])
     if len(namn_konstruktor_knav) > 0:
         addTokNavList(avbildad_namn_knav,
-                      helpers.flipName(namn_konstruktor[0]))
+                      helpers.flip_name(namn_konstruktor[0]))
 
     log.append(testId(idno, idnos))
     log.append(checkType(typ))
@@ -186,7 +189,7 @@ def testLabels(line):
              u'Avbildade namn|Avbildade namn|Avbildade - orter|' + \
              u'Ämnesord|Beskrivning|Motiv-ämnesord|Motiv-beskrivning|' + \
              u'Rättigheter|Samling|Dimukode'
-    if line != labels:
+    if line != labels.split('|'):
         print u'The labels or their order have changed, please update checker'
         exit(1)
 
@@ -231,7 +234,7 @@ def testNameGeneration(idno, typ, benamning, motiv_beskrivning,
     txt = u''
     if typ == u'Foto':
         if len(avbildad_namn) > 0:
-            txt += ', '.join(flipNames(avbildad_namn))
+            txt += ', '.join(helpers.flip_names(avbildad_namn))
             if len(txt) > 0 and len(avbildad_ort) > 0:
                 txt += u'. '
             txt += avbildad_ort
@@ -253,7 +256,7 @@ def testNameGeneration(idno, typ, benamning, motiv_beskrivning,
         elif benamning in need_more:
             txt2 = ''
             if len(avbildad_namn) > 0:
-                txt2 += ', '.join(flipNames(avbildad_namn))
+                txt2 += ', '.join(helpers.flip_names(avbildad_namn))
             elif len(motiv_beskrivning) > 0:
                 txt2 += motiv_beskrivning
             else:
@@ -286,7 +289,7 @@ def testName(namn):
         return u'För många komman i ett namn: %s' % namn
     elif namn.endswith(','):
         return u'Namn slutar med komma: %s' % namn
-    helpers.addOrIncrement(personList, helpers.flipName(namn))
+    helpers.addOrIncrement(personList, helpers.flip_name(namn))
 
 
 def testDateRange(date):
@@ -380,17 +383,6 @@ def addTokNavList(uuid, namn):
                 kNavList[uuid]['namn'].append(namn)
         else:
             kNavList[uuid] = {'namn': [namn, ]}
-
-
-def flipNames(names):
-    """
-    Given a list of names return the list with any Last, First as First Last,
-    otherwise returns the input unchanged
-    """
-    flipped = []
-    for name in names:
-        flipped.append(helpers.flipName(name))
-    return flipped
 
 
 def dumpToList(desc, dictionary):

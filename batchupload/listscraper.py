@@ -58,15 +58,17 @@ def parseEntries(contents,
     return units
 
 
-def formatEntry(u):
+def formatEntry(u, typ=u'category'):
     """
     Given an mapping unit remove skipped entries, leave only category as a list
-    and make frequency a number
+    and make frequency a number.
+
+    :param typ: which parameter to return (defaults to "category")
     """
     # remove any -, make frequency and int
     for k, v in u.iteritems():
         # handle lists
-        if k == 'category':
+        if k == typ:
             if v == '':
                 v = []
         elif isinstance(v, list):
@@ -86,7 +88,7 @@ def formatEntry(u):
 
 def scrape(pages, prefix, working_path=None, out_path=None, site=None):
     """
-    Scrape lists on commons and overwrite local files
+    Scrape lists on commons and overwrite local files.
 
     :param pages: A mapping of Commons pages to output files
         where Commons pages get the format prefix*
@@ -127,7 +129,7 @@ def scrape(pages, prefix, working_path=None, out_path=None, site=None):
         pywikibot.output(u'Created %s' % filename)
 
 
-# functions for producing lists
+# methods for producing lists
 def mergeWithOld(sorted_dict, pagename, output_wiki,
                  working_path=None, out_path=None):
     """
@@ -136,7 +138,7 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
     :param sorted_dict prefix under which lists are found
         example: u'Commons:Batch uploading/LSH'
     :param pagename: name of the list
-    :param output_wiki: function for outputting wikitext
+    :param output_wiki: method for outputting wikitext
     :param working_path: path to directory in which to work (if not current)
         modifies out_path
     :param out_path: path to directory in which output files are put
@@ -177,16 +179,18 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
 
     # create output and write to .wiki
     wiki = output_wiki(new_mapping)
-    wikifile = os.path.join(
-        out_path, u'%s.wiki' % mapping_file[:-len('.json')])
+    wikifile = u'%s.wiki' % mapping_file[:-len('.json')]
     common.open_and_write_file(wikifile, wiki)
 
 
 def makeEntry(name, frequency, previous=None):
     """
-    Create a list entry in the relevant format, either from scratch or
-    by reusing mappings.
-    return entry
+    Create a list entry in the relevant format.
+
+    It is either created from scratch or by reusing mappings.
+    :param frequency: frequency of the entry
+    :param previous: previous mapping for the entry
+    :return: entry
     """
     if frequency > 0:
         if previous:
