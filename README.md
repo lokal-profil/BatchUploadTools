@@ -22,11 +22,11 @@ Remember to set `password_file = "<sub-driectory>/secretPasswords"` in the
 3. Load the indata and the mappings to produce a list of original filenames
    (of media files) and their final filenames as well as json holding the
    following for each file:
-    a. Maintanance categories
-    b. Content categories
-    c. File description
-    d. Output filename
-    e. Input filename (as key)
+    - Maintanance categories
+    - Content categories
+    - File description
+    - Output filename
+    - Input filename (as key)
 4. Run the prep-uploader to rename the media files and create the text file
    for the associated file description page.
 5. Run the upoader to upload it all
