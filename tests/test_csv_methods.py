@@ -21,6 +21,26 @@ from batchupload.csv_methods import (
 )
 
 
+class CustomAssertions:
+    """Custom assertions."""
+
+    @staticmethod
+    def sort_lines(text):
+        """Sort the lines of a text."""
+        return '\n'.join(sorted(text.split('\n')))
+
+    def assert_equal_with_unordered_lines(self, first, second, msg=None):
+        """
+        Assert that two strings are equal, up to the order of any lines.
+
+        :param first: a string
+        :param second: a string
+        """
+        self.assertEquals(CustomAssertions.sort_lines(first),
+                          CustomAssertions.sort_lines(second),
+                          msg=msg)
+
+
 class TestCSVFileBase(unittest.TestCase):
 
     """Test base for open_csv_file, csv_file_to_dict and dict_to_csv_file."""
@@ -159,7 +179,7 @@ class TestCSVFileToDictNonUnique(TestCSVFileBase):
                           'Unexpected non-unique columns found: lista, ett')
 
 
-class TestDictToCSVFile(TestCSVFileBase):
+class TestDictToCSVFile(TestCSVFileBase, CustomAssertions):
 
     """Test dict_to_csv_file()."""
 
@@ -174,8 +194,9 @@ class TestDictToCSVFile(TestCSVFileBase):
                 u'två': u'a2', u'fyra': u'a4'}}
         dict_to_csv_file(self.test_outfile.name,
                          test_data, self.test_header)
-        self.assertEquals(self.test_outfile.read(),
-                          self.test_out_data.encode('utf-8'))
+        self.assert_equal_with_unordered_lines(
+            self.test_outfile.read(),
+            self.test_out_data.encode('utf-8'))
 
     def test_write_list_data(self):
         test_data = {
@@ -189,5 +210,6 @@ class TestDictToCSVFile(TestCSVFileBase):
                 u'två': u'a2', u'fyra': u'a4'}}
         dict_to_csv_file(self.test_outfile.name,
                          test_data, self.test_header)
-        self.assertEquals(self.test_outfile.read(),
-                          self.test_out_data.encode('utf-8'))
+        self.assert_equal_with_unordered_lines(
+            self.test_outfile.read(),
+            self.test_out_data.encode('utf-8'))
