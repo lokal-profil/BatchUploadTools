@@ -7,7 +7,7 @@ import prepUpload
 import common
 import pywikibot
 
-FILEEXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
+FILE_EXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
 
 
 def upload_single_file(file_name, media_file, text, target_site,
@@ -95,14 +95,14 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
     @param in_path: path to directory with files to upload
     @param cutoff: number of files to upload (defaults to all)
     @param target: sub-directory for uploaded files (defaults to "Uploaded")
-    @param file_exts: tuple of allowed file extensions (defaults to FILEEXTS)
+    @param file_exts: tuple of allowed file extensions (defaults to FILE_EXTS)
     @param verbose: whether to output confirmation after each upload
     @param test: set to True to test but not upload (deprecated?)
     @param target_site: pywikibot.Site to which file should be uploaded,
         defaults to Commons.
     """
     # set defaults unless overridden
-    file_exts = file_exts or FILEEXTS
+    file_exts = file_exts or FILE_EXTS
     target_site = target_site or pywikibot.Site('commons', 'commons')
     target_site.login()
 
@@ -125,8 +125,8 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
     flog = codecs.open(logfile, 'a', 'utf-8')
 
     # find all content files
-    found_files = prepUpload.findFiles(path=in_path, fileExts=file_exts,
-                                       subdir=False)
+    found_files = prepUpload.find_files(path=in_path, file_exts=file_exts,
+                                        subdir=False)
     counter = 1
     for f in found_files:
         if cutoff and counter > cutoff:
@@ -194,11 +194,11 @@ def main(*args):
         if option == '-cutoff':
             if common.is_pos_int(value):
                 cutoff = int(value)
-        if option == '-in_path':
+        elif option == '-in_path':
             in_path = value
-        if option == '-test':
+        elif option == '-test':
             test = True
-        if option == '-confirm':
+        elif option == '-confirm':
             confirm = True
 
     if in_path:

@@ -14,7 +14,7 @@ GOODLENGTH = 100
 MAXLENGTH = 128
 
 # black-lists
-badDates = (u'n.d', u'odaterad')
+bad_dates = (u'n.d', u'odaterad')
 
 
 def flip_name(name):
@@ -104,13 +104,13 @@ def cleanString(text):
     # Currently first replacing possesive case and sentence break then
     # dealing with stand alone :
     # maybe also ? ' and &nbsp; symbol
-    badChar = {u'\\': u'-', u'/': u'-', u'|': u'-', u'#': u'-',
-               u'[': u'(', u']': u')', u'{': u'(', u'}': u')',
-               u':s': u's', u': ': u', ',
-               u' ': u' ', u' ': u' ', u'	': u' ',  # unusual whitespace
-               u'e´': u'é',
-               u'”': u' ', u'"': u' ', u'“': u' '}
-    for k, v in badChar.iteritems():
+    bad_char = {u'\\': u'-', u'/': u'-', u'|': u'-', u'#': u'-',
+                u'[': u'(', u']': u')', u'{': u'(', u'}': u')',
+                u':s': u's', u': ': u', ',
+                u' ': u' ', u' ': u' ', u'	': u' ',  # unusual whitespace
+                u'e´': u'é',
+                u'”': u' ', u'"': u' ', u'“': u' '}
+    for k, v in bad_char.iteritems():
         text = text.replace(k, v)
 
     # replace any remaining colons
@@ -136,11 +136,11 @@ def touchup(text, delimiter=None, delimiter_replacement=None):
     # If string starts and ends with bracket or quotes then remove
     brackets = {u'(': ')', u'[': ']', u'{': '}', u'"': '"'}
     for k, v in brackets.iteritems():
-        if text.startswith(k) and text.endswith(v):
-            if text[:-1].count(k) == 1:
-                # so as to not remove non-matching brackets.
-                # slice in check is due to quote-bracket
-                text = text[1:-1]
+        if text.startswith(k) and text.endswith(v) and \
+                text[:-1].count(k) == 1:
+            # Last check is so as to not remove non-matching brackets
+            # with slice in use is due to cases where k=v.
+            text = text[1:-1]
 
     # Get rid of leading/trailing punctuation
     text = text.strip(' .,;')
@@ -237,7 +237,7 @@ def stdDate(date):
     """
     # No date
     date = date.strip(u'.  ')
-    if len(date) == 0 or date.lower() in badDates:
+    if len(date) == 0 or date.lower() in bad_dates:
         return u''  # this is equivalent to u'{{other date|unknown}}'
     date = date.replace(u' - ', u'-')
 
@@ -277,8 +277,8 @@ def stdDate(date):
         u'före': u'<',
         u'efter': u'>',
         u'-': u'<'}
-    talEndings = (u'-talets', u'-tal', u'-talet', u' talets')
-    modalityEndings = (u'troligen', u'sannolikt')
+    tal_endings = (u'-talets', u'-tal', u'-talet', u' talets')
+    modality_endings = (u'troligen', u'sannolikt')
     for k, v in starts.iteritems():
         if date.lower().startswith(k):
             again = stdDate(date[len(k):])
@@ -293,7 +293,7 @@ def stdDate(date):
                 return u'{{other date|%s|%s}}' % (v, again)
             else:
                 return None
-    for k in modalityEndings:
+    for k in modality_endings:
         if date.lower().endswith(k):
             date = date[:-len(k)].strip(u'.,  ')
             again = stdDate(date)
@@ -301,7 +301,7 @@ def stdDate(date):
                 return u'%s {{Probably}}' % again
             else:
                 return None
-    for k in talEndings:
+    for k in tal_endings:
         if date.lower().endswith(k):
             date = date[:-len(k)].strip(u'.  ')
             if date[-2:] == u'00':

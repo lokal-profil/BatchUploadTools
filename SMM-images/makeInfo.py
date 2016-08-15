@@ -14,7 +14,7 @@ import batchupload.helpers as helpers
 import batchupload.common as common  # temp before this is merged with helper
 import batchupload.listscraper as listscraper
 import batchupload.csv_methods as csv_methods
-from batchupload.make_info import makeBaseInfo
+from batchupload.make_info import MakeBaseInfo
 import os
 import pywikibot
 
@@ -31,7 +31,8 @@ EXPECTED_HEADER = u'Identifikationsnr|Typ av objekt|Benämning|Material|' + \
                   u'Motiv-beskrivning|Rättigheter|Samling|Dimukode'
 
 
-class SMMInfo(makeBaseInfo):
+class SMMInfo(MakeBaseInfo):
+    """Construct file descriptions and filenames for the SMM batch upload."""
 
     def __init__(self):
         """
@@ -569,17 +570,17 @@ class SMMItem(object):
         """
         given an item get a linked version of the materials
         """
-        linkedMaterials = []
+        linked_materials = []
         for material in self.material:
             material = material.lower()
             if material in mappings['materials'] and \
                     mappings['materials'][material]['technique']:
-                linkedMaterials.append(
+                linked_materials.append(
                     u'{{technique|%s}}' %
                     mappings['materials'][material]['technique'])
             else:
-                linkedMaterials.append(material)
-        return ', '.join(linkedMaterials)
+                linked_materials.append(material)
+        return ', '.join(linked_materials)
 
     def generate_filename_descr(self):
         """

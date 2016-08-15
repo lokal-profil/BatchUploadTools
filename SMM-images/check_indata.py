@@ -8,6 +8,9 @@ Notes:
     P1472 is Creator-template
 
 @todo: Deprecate and move last bits to makeInfo
+
+This is largely deprecated but still contains some bits for making mapping lists
+which should be preserved.
 """
 
 import batchupload.helpers as helpers  # must therefore run from parent dir
