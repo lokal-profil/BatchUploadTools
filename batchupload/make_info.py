@@ -37,7 +37,10 @@ def make_info_page(data):
     return txt
 
 
-class makeBaseInfo(object):
+class MakeBaseInfo(object):
+
+    """Abstract class for generating descriptions and filenames for a batch."""
+
     __metaclass__ = ABCMeta
 
     def __init__(self, base_meta_cat, batch_label):
@@ -244,4 +247,4 @@ class makeBaseInfo(object):
             pywikibot.output(usage)
 
 if __name__ == "__main__":
-    makeBaseInfo.main()
+    MakeBaseInfo.main()
