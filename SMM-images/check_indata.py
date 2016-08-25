@@ -7,7 +7,7 @@ Notes:
     P373 is Commonscat
     P1472 is Creator-template
 
-@todo: Deprecate and move last bits to makeInfo
+@todo: Deprecate and move last bits to make_SMM_info
 
 This is largely deprecated but still contains some bits for making mapping lists
 which should be preserved.
