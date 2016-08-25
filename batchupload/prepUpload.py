@@ -3,9 +3,9 @@
 """Prepare files for upload by creating Information pages and renaming them."""
 import os
 import codecs
-from make_info import make_info_page
-import helpers
-import common
+from batchupload.make_info import make_info_page
+import batchupload.helpers as helpers
+import batchupload.common as common
 import pywikibot
 
 FILE_EXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')

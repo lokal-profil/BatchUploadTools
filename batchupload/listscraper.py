@@ -9,7 +9,7 @@
 #   import mappings output from py_makeMappings
 #
 import os
-import common
+import batchupload.common as common
 import pywikibot
 
 OUT_PATH = u'connections'

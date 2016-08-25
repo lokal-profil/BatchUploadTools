@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 #
+import batchupload.common as common
+import batchupload.prepUpload as prepUpload
 import codecs
 import os
-import prepUpload
-import common
 import pywikibot
 
 FILE_EXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')

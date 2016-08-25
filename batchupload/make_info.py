@@ -5,10 +5,10 @@ Abstract class for producing mapping tables and file description pages
 
 TODO: add an entry point to make/update mappings
 """
-import common
+import batchupload.common as common
+import batchupload.helpers as helpers
 import os
 import pywikibot
-import helpers
 from abc import ABCMeta, abstractmethod
 
 

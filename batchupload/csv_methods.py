@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """Methods and helpers for csv handling."""
-from common import (
+from batchupload.common import (
     MyError,
     open_and_read_file,
     open_and_write_file,
