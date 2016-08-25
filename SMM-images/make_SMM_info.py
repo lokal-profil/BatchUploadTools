@@ -7,8 +7,6 @@ first mapping file generation could be separated (and if so also knav stuff)
 
 A known assumption is that in avbildad_namn any string containing exactly
 one comma is a person, and any others are assumed to be ships.
-
-@todo: Replace any print
 """
 import batchupload.helpers as helpers
 import batchupload.common as common  # temp before this is merged with helper
@@ -353,7 +351,7 @@ class SMMInfo(MakeBaseInfo):
         elif typ == 'all':
             label = item.avbildad_namn
         else:
-            print u'get_depicted_object() called with invalid type'
+            pywikibot.output(u'get_depicted_object() called with invalid type')
             return
 
         # extract links
@@ -534,7 +532,7 @@ class SMMItem(object):
         elif self.samling == u'Vasamuseet':
             return u'{{Institution:Vasamuseet}}'
         else:
-            print u'No Institution'
+            pywikibot.output(u'No Institution')
 
     def get_license(self):
         """
@@ -547,12 +545,14 @@ class SMMItem(object):
             if self.typ == u'Foto':
                 if len(self.date_foto) > 0 and \
                         int(self.date_foto[:4]) > 1969:
-                    print '%s: PD-Sweden-photo with year > 1969' % self.idno
+                    pywikibot.output(
+                        '%s: PD-Sweden-photo with year > 1969' % self.idno)
                 return u'{{PD-Sweden-photo}}'
             elif self.typ == u'Föremål':
                 testdate = self.date_produktion.lower().strip('ca efter')
                 if len(self.date_produktion) > 0 and int(testdate[:4]) > 1945:
-                    print '%s: PD-old-70 with year > 1945' % self.idno
+                    pywikibot.output(
+                        '%s: PD-old-70 with year > 1945' % self.idno)
                 return u'{{PD-old-70}}'
 
     def get_depicted_place(self, mappings):
@@ -622,7 +622,7 @@ class SMMItem(object):
         elif self.samling == u'Vasamuseet':
             return u'Images from Vasamuseet'
         else:
-            print u'No Institution-catalog'
+            pywikibot.output(u'No Institution-catalog')
 
 
 if __name__ == "__main__":
