@@ -53,7 +53,7 @@ class SMMInfo(MakeBaseInfo):
         Load the provided data (in whichever format) and produce a dict with an
         entry per file which can be used for further processing.
 
-        @param in_data: the path to the metadata file
+        @param in_file: the path to the metadata file
         @return: dict
         """
         key_col = u'Identifikationsnr'
