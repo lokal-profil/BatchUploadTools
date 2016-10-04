@@ -132,9 +132,10 @@ class SMMInfo(MakeBaseInfo):
 
     def generate_filename(self, item):
         """
-        Given an item (dict) generate an appropriate filename of the shape
-        descr - Collection - id
-        does not include fieltype
+        Given an item (dict) generate an appropriate filename.
+
+        The filename has the shape: descr - Collection - id
+        and does not include filetype
         """
         descr = item.generate_filename_descr()
         return helpers.format_filename(descr, item.samling, item.idno)
@@ -391,7 +392,9 @@ class SMMItem(object):
 
     def __init__(self, initial_data):
         """
-        Given a dictionary set each key as an attribute.
+        Create a SMMItem item from a dict where each key is an attribute.
+
+        @param initial_data: dict of data to set up item with
         """
         for key, value in initial_data.iteritems():
             setattr(self, key, value)
@@ -401,7 +404,7 @@ class SMMItem(object):
         """
         Given the raw metadata for an item, construct an SMMItem.
 
-        @param entry: the raw metadata entrye as a dict
+        @param entry: the raw metadata entry as a dict
         @param smm_info: the parent smm_info instance
         @return: SMMItem
         """

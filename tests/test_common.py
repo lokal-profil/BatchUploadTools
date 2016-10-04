@@ -238,7 +238,7 @@ class TestTrimList(unittest.TestCase):
 
     """Test trim_list()."""
 
-    def test_trim_list_None(self):
+    def test_trim_list_none(self):
         self.assertEquals(trim_list(None), None)
 
     def test_trim_list_empty_list(self):
@@ -264,7 +264,7 @@ class TestListify(unittest.TestCase):
 
     """Test listify()."""
 
-    def test_listify_None(self):
+    def test_listify_none(self):
         self.assertEquals(listify(None), None)
 
     def test_listify_empty_list(self):
