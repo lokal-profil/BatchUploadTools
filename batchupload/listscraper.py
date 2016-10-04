@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
+"""Toolkit for scraping (wikitext) lists on a wiki."""
 #
 # Tool for scraping existing wiki lists from commons and
 # storing these as correctly formatted local files
@@ -25,10 +26,10 @@ def parseEntries(contents,
     For non-empty entries a list of values is always returned.
     "<small>"-tags are striped from the input.
 
-    :param content: wikicode
-    :param row_t: row template
-    :default_params: dict of expected params and their default values
-    :return list: of entry-dict items
+    @param content: wikicode
+    @param row_t: row template
+    @param default_params: dict of expected params and their default values
+    @return list: of entry-dict items
     """
     default_params = default_params or {
         u'name': '',
@@ -58,15 +59,17 @@ def parseEntries(contents,
     return units
 
 
-def formatEntry(u, typ=u'category'):
+def formatEntry(unit, typ=u'category'):
     """
-    Given an mapping unit remove skipped entries, leave only category as a list
-    and make frequency a number.
+    Extract a given value from a list together with its frequency.
 
-    :param typ: which parameter to return (defaults to "category")
+    Given an mapping unit remove skipped entries, leave only the named entry
+    as a list and make frequency a number.
+
+    @param typ: which parameter to return (defaults to "category")
     """
     # remove any -, make frequency and int
-    for k, v in u.iteritems():
+    for k, v in unit.iteritems():
         # handle lists
         if k == typ:
             if v == '':
@@ -82,15 +85,15 @@ def formatEntry(u, typ=u'category'):
                 v = ''
             elif isinstance(v, list) and v[0] == '-':
                 v = []
-        u[k] = v
-    return u
+        unit[k] = v
+    return unit
 
 
 def scrape(pages, prefix, working_path=None, out_path=None, site=None):
     """
     Scrape lists on commons and overwrite local files.
 
-    :param pages: A mapping of Commons pages to output files
+    @param pages: A mapping of Commons pages to output files
         where Commons pages get the format prefix*
         and output file the format: commons-*.json
         example: {u'People': u'People',
@@ -98,12 +101,12 @@ def scrape(pages, prefix, working_path=None, out_path=None, site=None):
                   u'Materials': u'Materials',
                   u'Places': u'Places'}
 
-    :param prefix: prefix under which lists are found
+    @param prefix: prefix under which lists are found
         example: u'Commons:Batch uploading/LSH'
-    :param working_path: path to directory in which to work (if not current)
+    @param working_path: path to directory in which to work (if not current)
         modifies out_path
-    :param out_path: path to directory in which output files are put
-    :param site: pywikibot.site object, default Commons
+    @param out_path: path to directory in which output files are put
+    @param site: pywikibot.site object, default Commons
     """
     out_path = out_path or OUT_PATH
 
@@ -135,13 +138,13 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
     """
     Output mapping lists in wiki format, merging with any existing.
 
-    :param sorted_dict prefix under which lists are found
+    @param sorted_dict prefix under which lists are found
         example: u'Commons:Batch uploading/LSH'
-    :param pagename: name of the list
-    :param output_wiki: method for outputting wikitext
-    :param working_path: path to directory in which to work (if not current)
+    @param pagename: name of the list
+    @param output_wiki: method for outputting wikitext
+    @param working_path: path to directory in which to work (if not current)
         modifies out_path
-    :param out_path: path to directory in which output files are put
+    @param out_path: path to directory in which output files are put
     """
     out_path = out_path or OUT_PATH
 
@@ -188,9 +191,9 @@ def makeEntry(name, frequency, previous=None):
     Create a list entry in the relevant format.
 
     It is either created from scratch or by reusing mappings.
-    :param frequency: frequency of the entry
-    :param previous: previous mapping for the entry
-    :return: entry
+    @param frequency: frequency of the entry
+    @param previous: previous mapping for the entry
+    @return: entry
     """
     if frequency > 0:
         if previous:

@@ -19,10 +19,10 @@ def run(in_path, out_path, data_path, file_exts=None):
         1. Finds files in inpath (with subdirs) with the right file extension,
         2. Matching these against the keys in the makeInfo output data
         3. Making info files and renaming found file (in new target folder)
-    :param in_path: path to directory where unprocessed files live
-    :param outPath: path to directory where renamed files and info should live
-    :param dataPath: path to .json containing makeInfo output data
-    :param file_exts: tupple of allowed file extensions (case insensitive)
+    @param in_path: path to directory where unprocessed files live
+    @param outPath: path to directory where renamed files and info should live
+    @param dataPath: path to .json containing makeInfo output data
+    @param file_exts: tupple of allowed file extensions (case insensitive)
 
     @todo: throw errors on failed file read/write
     """
@@ -52,10 +52,10 @@ def find_files(path, file_exts, subdir=True):
     """
     Identify all files with a given extension in a given directory.
 
-    :param path: path to directory to look in
-    :param file_exts: tuple of allowed file extensions (case insensitive)
-    :param subdir: whether subdirs should also be searched
-    :return: list of paths to found files
+    @param path: path to directory to look in
+    @param file_exts: tuple of allowed file extensions (case insensitive)
+    @param subdir: whether subdirs should also be searched
+    @return: list of paths to found files
     """
     files = []
     subdirs = []
@@ -72,10 +72,17 @@ def find_files(path, file_exts, subdir=True):
 
 def makeHitlist(files, data):
     """
-    Given a list of paths to files extract the extension (lower case) and the
-    extensionless basename.
-    param files: list of file paths
-    return list of hitList[key] = {ext, path, data}
+    Given a list of paths to file and target filenames construct a hitlist.
+
+    The hitlist is made up by the (lower case) extension and the
+    extensionless basename of the file.
+
+    The data file should be a dict where the keys are the (extensionless)
+    target filenames.
+
+    @param files: list of file paths
+    @param data: dict containing target filenames as keys
+    @return: list of hitList[key] = {ext, path, data}
     """
     hitlist = []
     processed_keys = []  # stay paranoid
@@ -95,8 +102,8 @@ def makeAndRename(hitlist, outPath):
     """
     Given a hitlist create the info files and and rename the matched file.
 
-    param hitlist: the output of makeHitlist
-    param outPath: the directory in which to store info + renamed files
+    @param hitlist: the output of makeHitlist
+    @param outPath: the directory in which to store info + renamed files
     """
     # create outPath if it doesn't exist
     common.create_dir(outPath)
@@ -125,8 +132,8 @@ def removeEmptyDirectories(path, top=True):
     """
     Remove any empty directories and subdirectories.
 
-    :param path: path to directory to start deleting from
-    :param top: set to True to not delete the starting directory
+    @param path: path to directory to start deleting from
+    @param top: set to True to not delete the starting directory
     """
     if not os.path.isdir(path):
         return

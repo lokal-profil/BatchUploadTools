@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """
-Abstract class for producing mapping tables and file description pages
+Abstract class for producing mapping tables and file description pages.
 
-TODO: add an entry point to make/update mappings
+@TODO: add an entry point to make/update mappings
 """
 import batchupload.common as common
 import batchupload.helpers as helpers
@@ -38,7 +38,6 @@ def make_info_page(data):
 
 
 class MakeBaseInfo(object):
-
     """Abstract class for generating descriptions and filenames for a batch."""
 
     __metaclass__ = ABCMeta
@@ -59,11 +58,13 @@ class MakeBaseInfo(object):
     @abstractmethod
     def load_data(self, in_file):
         """
-        Load the provided data (in whichever format) and produce a dict with an
-        entry per file which can be used for further processing.
+        Load the provided data and make suitable for input to process_data().
+
+        The provided data can be in any format and include more than one file.
+        The output format can likewise be anything which is accepted by
+        process_data().
 
         @param in_file: the path to the metadata file or list of such paths
-        @return: dict
         """
         pass
 
@@ -83,13 +84,11 @@ class MakeBaseInfo(object):
     @abstractmethod
     def process_data(self, raw_data):
         """
-        Process the raw data from load_data into the format usable by
-        make_info_template.
+        Process the output of load_data into a format usable by make_info().
 
         The processed data is stored in self.data, a dict of items or objects.
 
         @param raw_data: output from load_data()
-        @return: dict
         """
         pass
 

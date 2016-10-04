@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
-"""
-Helper tools related to batchUploads
-"""
+"""Helper tools related to batchUploads."""
 import operator
 import sys  # needed by convertFromCommandline()
 import locale  # needed by convertFromCommandline()
@@ -58,10 +56,11 @@ def sortedDict(ddict):
 
 def addOrIncrement(dictionary, val, key=None):
     """
-    Add a value to the dictionary or increments the
-    counter for the value.
+    Add a value to the dictionary or increments the counter for the value.
 
-    param key: the key holding the counter
+    @param dictionary: the dictionary to update
+    @param val: the value to look for in the dictionary
+    @param key: the key holding the counter
     """
     if val not in dictionary.keys():
         if key:
@@ -124,12 +123,16 @@ def cleanString(text):
 
 def touchup(text, delimiter=None, delimiter_replacement=None):
     """
-    Tweaks a string by removing surrounding bracket or quotes as well as
-    some trailing punctuation.
+    Perform various cleanup processes on a string.
+
+    Tweaks a string by:
+    * removing surrounding bracket or quotes
+    * remove some trailing punctuation.
 
     @param text: the text to touch up
     @param delimiter: a delimiter to replace
     @param delimiter_replacement: what to replace the delimiter by
+    @return string
     """
     delimiter_replacement = delimiter_replacement or ', '
 
@@ -156,10 +159,12 @@ def touchup(text, delimiter=None, delimiter_replacement=None):
 
 
 def shortenString(text):
-    '''
-    If a string is larger than GOODLENGTH then this tries to
-    find a sensibel shortening.
-    '''
+    """
+    Shorten strings longer than GOODLENGTH.
+
+    @param text: the text to shorten
+    @return string
+    """
     badchar = u'-., '  # maybe also "?
     if u'<!>' in text:
         text = text[:text.find(u'<!>')]
