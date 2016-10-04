@@ -221,6 +221,31 @@ class MakeBaseInfo(object):
         common.open_and_write_file(out_file, out)
         pywikibot.output(u'Created %s' % out_file)
 
+    @staticmethod
+    def handle_args(args):
+        """Parse and load all of the basic arguments.
+
+        Also passes any needed arguments on to pywikibot and sets any defaults.
+
+        @param args: arguments to be handled
+        @type args: list of strings
+        @return: list of options
+        @rtype: dict
+        """
+        options = {
+            'in_file': None,
+            'base_name': None,
+        }
+
+        for arg in pywikibot.handle_args(args):
+            option, sep, value = arg.partition(':')
+            if option == '-in_file':
+                options['in_file'] = helpers.convertFromCommandline(value)
+            elif option == '-base_name':
+                options['base_name'] = helpers.convertFromCommandline(value)
+
+        return options
+
     @classmethod
     def main(cls, usage=None, *args):
         """Command line entry-point."""
@@ -232,17 +257,13 @@ class MakeBaseInfo(object):
             u'user_config.py file (optional)\n' \
             u'\tExample:\n' \
             u'\tpython make_info.py -in_file:SMM/metadata.csv -dir:SMM\n'
-        in_file = None
 
         # Load pywikibot args and handle local args
-        for arg in pywikibot.handle_args(args):
-            option, sep, value = arg.partition(':')
-            if option == '-in_file':
-                in_file = helpers.convertFromCommandline(value)
+        options = cls.handle_args(args)
 
-        if in_file:
+        if options['in_file']:
             info = cls()
-            info.run(in_file)
+            info.run(options['in_file'], options['base_name'])
         else:
             pywikibot.output(usage)
 
