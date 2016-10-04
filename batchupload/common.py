@@ -63,7 +63,7 @@ def open_and_write_file(filename, text, codec='utf-8', as_json=False):
     @param filename: the file to open
     @param text: the text to output to the file
     @param codec: the used encoding (defaults to "utf-8")
-    @param json: text is an object which should be dumped as json
+    @param json: if text is an object which should be dumped as json
     """
     with codecs.open(filename, 'w', codec) as f:
         if as_json:
@@ -100,12 +100,31 @@ def strip_list_entries(list_in):
 
 def trim_list(old_list):
     """Given a list remove any empty entries."""
+    # return any empty or None
+    if not old_list:
+        return old_list
+
     old_list = strip_list_entries(old_list)
     new_list = []
     for l in old_list:
         if l:
             new_list.append(l)
     return new_list
+
+
+def listify(value):
+    """Turn the given value, which might or might not be a list, into a list.
+
+    @param value: The value to listify
+    @type value: any
+    @rtype: list, or None
+    """
+    if value is None:
+        return None
+    elif isinstance(value, list):
+        return value
+    else:
+        return [value, ]
 
 
 def deep_sort(obj):

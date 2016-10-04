@@ -18,6 +18,7 @@ from batchupload.common import (
     deep_sort,
     modify_path,
     create_dir,
+    listify,
 )
 
 
@@ -237,6 +238,9 @@ class TestTrimList(unittest.TestCase):
 
     """Test trim_list()."""
 
+    def test_trim_list_None(self):
+        self.assertEquals(trim_list(None), None)
+
     def test_trim_list_empty_list(self):
         self.assertEquals(trim_list([]), [])
 
@@ -254,6 +258,27 @@ class TestTrimList(unittest.TestCase):
         input_value = [5, ['aa', ' aa']]
         expected = [5, ['aa', ' aa']]
         self.assertEquals(trim_list(input_value), expected)
+
+
+class TestListify(unittest.TestCase):
+
+    """Test listify()."""
+
+    def test_listify_None(self):
+        self.assertEquals(listify(None), None)
+
+    def test_listify_empty_list(self):
+        self.assertEquals(listify([]), [])
+
+    def test_listify_list(self):
+        input_value = ['a', 'c']
+        expected = ['a', 'c']
+        self.assertEquals(listify(input_value), expected)
+
+    def test_listify_string(self):
+        input_value = 'a string'
+        expected = ['a string']
+        self.assertEquals(listify(input_value), expected)
 
 
 class TestModifyDirBase(unittest.TestCase):
