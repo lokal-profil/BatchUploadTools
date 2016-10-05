@@ -42,7 +42,7 @@ class MakeBaseInfo(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, base_meta_cat, batch_label):
+    def __init__(self, base_meta_cat, batch_label, **options):
         """
         Initialise a makeBaseInfo object.
 
@@ -139,7 +139,7 @@ class MakeBaseInfo(object):
     @abstractmethod
     def get_original_filename(self, item):
         """
-        Return the original filename of a media file.
+        Return the original filename, without file extension, of a media file.
 
         This can either consist of returning a particular data field or require
         processing the metadata.
@@ -261,7 +261,7 @@ class MakeBaseInfo(object):
         options = cls.handle_args(args)
 
         if options['in_file']:
-            info = cls()
+            info = cls(**options)
             info.run(options['in_file'], options['base_name'])
         else:
             pywikibot.output(usage)
