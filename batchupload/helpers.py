@@ -283,7 +283,7 @@ def stdDate(date):
         u'efter': u'>',
         u'-': u'<'}
     tal_endings = (u'-talets', u'-tal', u'-talet', u' talets')
-    modality_endings = (u'troligen', u'sannolikt')
+    modality = (u'troligen', u'sannolikt')
     for k, v in starts.iteritems():
         if date.lower().startswith(k):
             again = stdDate(date[len(k):])
@@ -298,9 +298,15 @@ def stdDate(date):
                 return u'{{other date|%s|%s}}' % (v, again)
             else:
                 return None
-    for k in modality_endings:
+    for k in modality:
+        found = False
         if date.lower().endswith(k):
             date = date[:-len(k)].strip(u'.,  ')
+            found = True
+        elif date.lower().startswith(k):
+            date = date[len(k):].strip(u'.,  ')
+            found = True
+        if found:
             again = stdDate(date)
             if again:
                 return u'%s {{Probably}}' % again
