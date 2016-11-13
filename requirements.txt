@@ -1,3 +1,2 @@
-pywikibot
-requests
 mwparserfromhell
+git+https://github.com/wikimedia/pywikibot-core.git

@@ -20,7 +20,7 @@ def upload_single_file(file_name, media_file, text, target_site,
     @param file_name: sanitized filename to use for upload
     @param media_file: path to media file to upload
     @param text: file description page
-    @param target_site: pywikibot.Site object wo whih file should be uploaded
+    @param target_site: pywikibot.Site object to which file should be uploaded
     @param chunk_size: Size of chunks (in MB) in which to upload file
     @param overwrite_page_exists: Ignore filepage already exists warning
     @param upload_if_duplicate: Ignore duplicate file warning
