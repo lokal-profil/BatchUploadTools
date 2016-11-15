@@ -266,5 +266,6 @@ class MakeBaseInfo(object):
         else:
             pywikibot.output(usage)
 
+
 if __name__ == "__main__":
     MakeBaseInfo.main()

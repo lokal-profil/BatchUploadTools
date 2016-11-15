@@ -180,5 +180,6 @@ def main(*args):
     else:
         pywikibot.output(usage)
 
+
 if __name__ == "__main__":
     main()
