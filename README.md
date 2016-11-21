@@ -12,9 +12,7 @@ To run as a different user to your standard pywikibot simply place a
 modified `user-config.py`-file in the top directory.
 
 To use a different user for a particular batchupload place the `user-config.py`
-in the subdirectory and run the script with `-dir:<sub-driectory>`.
-Remember to set `password_file = "<sub-driectory>/secretPasswords"` in the
-`user-config`.
+in the subdirectory and run the script with `-dir:<sub-directory>`.
 
 ## Protocol for a batch upload
 1. Load indata to a dictionary
@@ -22,14 +20,14 @@ Remember to set `password_file = "<sub-driectory>/secretPasswords"` in the
 3. Load the indata and the mappings to produce a list of original filenames
    (of media files) and their final filenames as well as json holding the
    following for each file:
-    - Maintanance categories
+    - Maintenance categories
     - Content categories
     - File description
     - Output filename
     - Input filename (as key)
 4. Run the prep-uploader to rename the media files and create the text file
    for the associated file description page.
-5. Run the upoader to upload it all
+5. Run the uploader to upload it all
 
 ## When creating a new batch upload
 Extend make_info to create own methods for reading and processing the indata.
