@@ -57,6 +57,10 @@ def find_files(path, file_exts, subdir=True):
     @param subdir: whether subdirs should also be searched
     @return: list of paths to found files
     """
+    # os.listdir cannot handle unicode filenames unless the path is unicode
+    if isinstance(path, str):
+        path = unicode(path)
+
     files = []
     subdirs = []
     for filename in os.listdir(path):
