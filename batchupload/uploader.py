@@ -41,14 +41,14 @@ def upload_single_file(file_name, media_file, text, target_site,
     ignore_warnings = False
     ignored_warnings = []
     if overwrite_page_exists:
-        ignored_warnings.append('page-exists')
+        ignored_warnings.append('exists')
     if upload_if_duplicate:
         ignored_warnings.append('duplicate')
     if upload_if_badprefix:
         ignored_warnings.append('bad-prefix')
     if ignore_all_warnings:
         ignore_warnings = True
-    elif ignored_warnings:
+    else:
         ignore_warnings = allow_warnings
 
     # convert chunksize to Mb
@@ -66,9 +66,11 @@ def upload_single_file(file_name, media_file, text, target_site,
     except pywikibot.data.api.APIError as error:
         result['error'] = error
         result['log'] = u'Error: %s: %s' % (file_page.title(), error)
+    except KeyboardInterrupt:
+        raise
     except Exception as e:
-        result['error'] = e
-        result['log'] = u'Error: %s: Unhandled error: %s' % (
+        result['error'] = u'%r' % e
+        result['log'] = u'Error: %s: Unhandled error: %' % (
                         file_page.title(), e)
     else:
         if result.get('warning'):
