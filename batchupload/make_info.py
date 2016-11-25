@@ -194,7 +194,7 @@ class MakeBaseInfo(object):
             (defaults to same as in_file)
         """
         if not base_name:
-            if isinstance(in_file, (str, unicode)):
+            if isinstance(in_file, basestring):
                 base_name, ext = os.path.splitext(in_file)
             else:
                 raise common.MyError(

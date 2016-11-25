@@ -81,7 +81,7 @@ def formatEntry(unit, typ=u'category'):
         if v:
             if k == 'frequency':
                 v = int(v)
-            elif isinstance(v, (str, unicode)) and v == '-':
+            elif isinstance(v, basestring) and v == '-':
                 v = ''
             elif isinstance(v, list) and v[0] == '-':
                 v = []
