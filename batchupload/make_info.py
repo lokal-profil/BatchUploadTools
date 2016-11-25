@@ -5,11 +5,14 @@ Abstract class for producing mapping tables and file description pages.
 
 @TODO: add an entry point to make/update mappings
 """
+from past.builtins import basestring
+from builtins import dict, object
 import batchupload.common as common
 import batchupload.helpers as helpers
 import os
 import pywikibot
 from abc import ABCMeta, abstractmethod
+from future.utils import with_metaclass
 
 
 def make_info_page(data):
@@ -37,10 +40,8 @@ def make_info_page(data):
     return txt
 
 
-class MakeBaseInfo(object):
+class MakeBaseInfo(with_metaclass(ABCMeta, object)):
     """Abstract class for generating descriptions and filenames for a batch."""
-
-    __metaclass__ = ABCMeta
 
     def __init__(self, base_meta_cat, batch_label, **options):
         """
@@ -49,8 +50,8 @@ class MakeBaseInfo(object):
         @param base_meta_cat: base_name for maintanance categories
         @param batch_label: label for this particular batch
         """
-        self.data = {}  # the processed metadata
-        self.mappings = {}  # any loaded mappings
+        self.data = dict()  # the processed metadata
+        self.mappings = dict()  # any loaded mappings
         self.cwd_path = u''  # path to directory in which to work
         self.base_meta_cat = base_meta_cat
         self.batch_cat = self.make_maintanance_cat(batch_label)
@@ -171,8 +172,8 @@ class MakeBaseInfo(object):
 
         @return dict:
         """
-        out_data = {}
-        for k, v in self.data.iteritems():
+        out_data = dict()
+        for k, v in self.data.items():
             original_filename = self.get_original_filename(v)
             info = self.make_info_template(v)
             filename = self.generate_filename(v)

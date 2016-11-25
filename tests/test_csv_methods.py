@@ -7,6 +7,7 @@ TODO:
 ** mocking open_and_read_file() and open_and_write_file()
 """
 
+from builtins import object
 import unittest
 import tempfile
 import os
@@ -22,7 +23,7 @@ from batchupload.csv_methods import (
 )
 
 
-class CustomAssertions:
+class CustomAssertions(object):
     """Custom assertions."""
 
     @staticmethod

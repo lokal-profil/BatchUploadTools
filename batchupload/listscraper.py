@@ -9,6 +9,8 @@
 # TODO:
 #   import mappings output from py_makeMappings
 #
+from past.builtins import basestring
+from builtins import dict
 import os
 import batchupload.common as common
 import pywikibot
@@ -45,12 +47,12 @@ def parseEntries(contents,
     units = []
     for entry in entries:
         params = default_params.copy()
-        for key, value in entry.iteritems():
+        for key, value in entry.items():
             value = value.replace(u'<small>', '').replace(u'</small>', '')
             value = value.strip()  # in case of empty <small>-tags
             if not value:
                 continue
-            if key in params.keys():
+            if key in params:
                 params[key] = value.split(u'/')
             else:
                 pywikibot.output(u'Unrecognised parameter: %s = %s' % (
@@ -69,7 +71,7 @@ def formatEntry(unit, typ=u'category'):
     @param typ: which parameter to return (defaults to "category")
     """
     # remove any -, make frequency and int
-    for k, v in unit.iteritems():
+    for k, v in unit.items():
         # handle lists
         if k == typ:
             if v == '':
@@ -119,7 +121,7 @@ def scrape(pages, prefix, working_path=None, out_path=None, site=None):
     site = site or pywikibot.Site('commons', 'commons')
 
     # fetch, parse and save each page
-    for k, v in pages.iteritems():
+    for k, v in pages.items():
         page_title = u'%s/%s' % (prefix, k)
         page = pywikibot.Page(site, title=page_title)
         if not page.exists():
@@ -161,7 +163,7 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
         old_mapping = common.open_and_read_file(mapping_file, as_json=True)
 
     # reset frequency and turn into dict
-    previous = {}
+    previous = dict()
     for entry in old_mapping:
         entry['frequency'] = 0
         previous[entry['name'][0]] = entry  # since these are all lists
@@ -169,7 +171,7 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
     # add frequency + any new objects
     new_mapping = []
     for entry in sorted_dict:
-        if entry[0] in previous.keys():
+        if entry[0] in previous:
             new_mapping.append(
                 makeEntry(entry[0], entry[1], previous[entry[0]]))
             del previous[entry[0]]
@@ -177,7 +179,7 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
             new_mapping.append(makeEntry(entry[0], entry[1]))
 
     # preserve any remaining mappings
-    for k, v in previous.iteritems():
+    for k, v in previous.items():
         new_mapping.append(makeEntry(k, 0, v))
 
     # create output and write to .wiki
@@ -209,7 +211,7 @@ def makeEntry(name, frequency, previous=None):
                     u'category': '',
                     u'other': ''}
     if previous:
-        for k, v in previous.iteritems():
+        for k, v in previous.items():
             # if any entry is non-empty
             if k not in (u'name', u'frequency') and v:
                 return previous

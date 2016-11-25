@@ -58,8 +58,7 @@ def find_files(path, file_exts, subdir=True):
     @return: list of paths to found files
     """
     # os.listdir cannot handle unicode filenames unless the path is unicode
-    if isinstance(path, str):
-        path = unicode(path)
+    path = common.to_unicode(path)
 
     files = []
     subdirs = []
@@ -92,7 +91,7 @@ def makeHitlist(files, data):
     processed_keys = []  # stay paranoid
     for f in files:
         key, ext = os.path.splitext(os.path.basename(f))
-        if key not in data.keys():
+        if key not in data:
             continue
         elif key in processed_keys:
             raise common.MyError(u'non-unique file key: %s' % key)

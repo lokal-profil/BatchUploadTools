@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """Helper tools related to batchUploads."""
+from builtins import dict, range
 import operator
 import sys  # needed by convertFromCommandline()
 import locale  # needed by convertFromCommandline()
@@ -48,7 +49,7 @@ def flip_names(names):
 
 def sortedDict(ddict):
     """Turn a dict into a sorted list."""
-    sorted_ddict = sorted(ddict.iteritems(),
+    sorted_ddict = sorted(ddict.items(),
                           key=operator.itemgetter(1),
                           reverse=True)
     return sorted_ddict
@@ -62,7 +63,7 @@ def addOrIncrement(dictionary, val, key=None):
     @param val: the value to look for in the dictionary
     @param key: the key holding the counter
     """
-    if val not in dictionary.keys():
+    if val not in dictionary:
         if key:
             dictionary[val] = {key: 0}
         else:
@@ -109,7 +110,7 @@ def cleanString(text):
                 u' ': u' ', u' ': u' ', u'	': u' ',  # unusual whitespace
                 u'e´': u'é',
                 u'”': u' ', u'"': u' ', u'“': u' '}
-    for k, v in bad_char.iteritems():
+    for k, v in bad_char.items():
         text = text.replace(k, v)
 
     # replace any remaining colons
@@ -138,7 +139,7 @@ def touchup(text, delimiter=None, delimiter_replacement=None):
 
     # If string starts and ends with bracket or quotes then remove
     brackets = {u'(': ')', u'[': ']', u'{': '}', u'"': '"'}
-    for k, v in brackets.iteritems():
+    for k, v in brackets.items():
         if text.startswith(k) and text.endswith(v) and \
                 text[:-1].count(k) == 1:
             # Last check is so as to not remove non-matching brackets
@@ -294,14 +295,14 @@ def stdDate(date):
         u'-': u'<'}
     tal_endings = (u'-talets', u'-tal', u'-talet', u' talets')
     modality = (u'troligen', u'sannolikt')
-    for k, v in starts.iteritems():
+    for k, v in starts.items():
         if date.lower().startswith(k):
             again = stdDate(date[len(k):])
             if again:
                 return u'{{other date|%s|%s}}' % (v, again)
             else:
                 return None
-    for k, v in endings.iteritems():
+    for k, v in endings.items():
         if date.lower().endswith(k):
             again = stdDate(date[:-len(k)])
             if again:

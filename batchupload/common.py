@@ -6,6 +6,8 @@ Shared methods.
 
 To be merged with helpers.py
 """
+from past.builtins import basestring
+from builtins import dict
 import pywikibot
 import codecs
 import json
@@ -74,11 +76,11 @@ def open_and_write_file(filename, text, codec='utf-8', as_json=False):
 
 def strip_dict_entries(dict_in):
     """Strip whitespace from all keys and (string) values in a dictionary."""
-    dict_out = {}
+    dict_out = dict()
     if not isinstance(dict_in, dict):
         raise MyError('strip_dict_entries() expects a dictionary object'
                       'as input but found "%s"' % type(dict_in).__name__)
-    for k, v in dict_in.iteritems():
+    for k, v in dict_in.items():
         if isinstance(v, basestring):
             v = v.strip()
         dict_out[k.strip()] = v
@@ -130,7 +132,7 @@ def listify(value):
 def deep_sort(obj):
     """Recursively sort list or dict of nested lists."""
     if isinstance(obj, dict):
-        _sorted = {}
+        _sorted = dict()
         for key in sorted(obj):
             _sorted[key] = deep_sort(obj[key])
     elif isinstance(obj, list):
@@ -191,6 +193,24 @@ def create_dir(out_path):
     elif os.path.isfile(out_path):
         raise MyError(u'Cannot create the directory "%s" as a file with that '
                       u'name already exists.' % out_path)
+
+
+def to_unicode(text):
+    """
+    Converts a str to unicode (if python2).
+
+    @param text: text to convert
+    @return: unicode string
+    """
+    try:
+        unicode
+    except NameError:
+        # python 3 so don't worry
+        pass
+    else:
+        if isinstance(text, str):
+            text = unicode(text)
+    return text
 
 
 class MyError(Exception):

@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """Methods and helpers for csv handling."""
+from past.builtins import basestring
+from builtins import dict
 from batchupload.common import (
     MyError,
     open_and_read_file,
@@ -72,7 +74,7 @@ def find_cols(find, label, header, default_all=False):
     @return dict
     """
     # set up columns to keep
-    cols = {}
+    cols = dict()
     if find is None:
         if default_all:
             cols = dict.fromkeys(header)
@@ -81,7 +83,7 @@ def find_cols(find, label, header, default_all=False):
         if any(f not in header for f in find):
             raise MyError("All '%s'-columns must be in header" % label)
         cols = dict.fromkeys(find)
-    for c in cols.keys():
+    for c in cols:
         cols[c] = header.index(c)
     return cols
 
@@ -96,10 +98,10 @@ def find_non_unique_cols(header, keep, non_unique):
     @return dict
     """
     # find non-unique columns
-    cols = {}
-    handled = {}
+    cols = dict()
+    handled = dict()
     for i, v in enumerate(header):
-        if v in handled.keys():
+        if v in handled:
             continue
         else:
             handled[v] = [i, ]
@@ -114,9 +116,9 @@ def find_non_unique_cols(header, keep, non_unique):
             cols[v] = tuple(handled[v])
 
     # raise error if we are not expecting these in the results
-    if cols and not non_unique and any(k in cols.keys() for k in keep):
+    if cols and not non_unique and any(k in cols for k in keep):
         raise MyError(u"Unexpected non-unique columns found: %s" %
-                      ', '.join(cols.keys()))
+                      ', '.join(cols))
     return cols
 
 
@@ -165,14 +167,14 @@ def csv_file_to_dict(filename, key_col, header_check, non_unique=False,
 
     # set up columns to keep and listify columns
     cols = find_cols(keep, 'keep', header, default_all=True)
-    non_unique_cols = find_non_unique_cols(header, cols.keys(), non_unique)
+    non_unique_cols = find_non_unique_cols(header, list(cols), non_unique)
     listify = find_cols(lists, 'lists', header, default_all=False)
 
     # verify key_col is valid
-    validate_key_col(key_col, lists, non_unique_cols, cols.keys(), header)
+    validate_key_col(key_col, lists, non_unique_cols, list(cols), header)
 
     # load to dict
-    d = {}
+    d = dict()
     for l in lines:
         if not l:
             continue
@@ -189,21 +191,21 @@ def csv_file_to_dict(filename, key_col, header_check, non_unique=False,
             key = parts[key_col_num].strip()
 
         # check uniqueness
-        if key in d.keys():
+        if key in d:
             raise MyError("Non-unique key found: %s" % key)
 
-        d[key] = {}
-        for k, v in cols.iteritems():
-            if k in non_unique_cols.keys():
+        d[key] = dict()
+        for k, v in cols.items():
+            if k in non_unique_cols:
                 d[key][k] = []
                 for nv in non_unique_cols[k]:
-                    if k in listify.keys():
+                    if k in listify:
                         d[key][k] += parts[nv].strip().split(list_delimiter)
                     else:
                         d[key][k].append(parts[nv].strip())
                 d[key][k] = trim_list(d[key][k])
             else:
-                if k in listify.keys():
+                if k in listify:
                     d[key][k] = trim_list(
                         parts[v].strip().split(list_delimiter))
                 else:
@@ -228,8 +230,8 @@ def dict_to_csv_file(filename, d, header, delimiter='|', list_delimiter=';',
     # load file and write header
     output = u'%s\n' % header
 
-    # find keys to compare with header
-    cols = d.iteritems().next()[1].keys()
+    # find keys to compare with header (from any row)
+    cols = list(d[list(d)[0]])
     header = header.split(delimiter)
 
     # verify all header fields are present
@@ -237,7 +239,7 @@ def dict_to_csv_file(filename, d, header, delimiter='|', list_delimiter=';',
         raise MyError("Header missmatch")
 
     # output rows
-    for k, v in d.iteritems():
+    for k, v in d.items():
         row = []
         for h in header:
             if isinstance(v[h], list):
