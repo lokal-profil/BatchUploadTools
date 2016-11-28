@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """Methods and helpers for csv handling."""
+from __future__ import unicode_literals
 from builtins import dict
 from batchupload.common import (
     MyError,
@@ -52,14 +53,14 @@ def validate_key_col(key_col, lists, non_unique, keep, header):
 
     for test_key in test_key_col:
         if not test_key:
-            raise MyError(u'no key_col must not be empty')
+            raise MyError('no key_col must not be empty')
         if test_key in (lists or []) or key_col in (non_unique or []):
-            raise MyError(u'no key_col must be a list column or a '
-                          u'non-unique column')
+            raise MyError('no key_col must be a list column or a '
+                          'non-unique column')
         if test_key not in header:
-            raise MyError(u'every key_col must be present in the header')
+            raise MyError('every key_col must be present in the header')
         if test_key not in keep:
-            raise MyError(u'every key_col must be present in the kept columns')
+            raise MyError('every key_col must be present in the kept columns')
 
 
 def find_cols(find, label, header, default_all=False):
@@ -117,7 +118,7 @@ def find_non_unique_cols(header, keep, non_unique):
 
     # raise error if we are not expecting these in the results
     if cols and not non_unique and any(k in cols for k in keep):
-        raise MyError(u"Unexpected non-unique columns found: %s" %
+        raise MyError("Unexpected non-unique columns found: %s" %
                       ', '.join(cols))
     return cols
 
@@ -228,7 +229,7 @@ def dict_to_csv_file(filename, d, header, delimiter='|', list_delimiter=';',
     @return: None
     """
     # load file and write header
-    output = u'%s\n' % header
+    output = '%s\n' % header
 
     # find keys to compare with header (from any row)
     cols = list(d[list(d)[0]])
@@ -246,7 +247,7 @@ def dict_to_csv_file(filename, d, header, delimiter='|', list_delimiter=';',
                 row.append(list_delimiter.join(v[h]))
             else:
                 row.append(v[h])
-        output += u'%s\n' % delimiter.join(row)
+        output += '%s\n' % delimiter.join(row)
 
     # close
     open_and_write_file(filename, output, codec=codec)

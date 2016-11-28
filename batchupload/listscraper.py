@@ -9,16 +9,17 @@
 # TODO:
 #   import mappings output from py_makeMappings
 #
+from __future__ import unicode_literals
 from builtins import dict
 import os
 import batchupload.common as common
 import pywikibot
 
-OUT_PATH = u'connections'
+OUT_PATH = 'connections'
 
 
 def parseEntries(contents,
-                 row_t=u'User:Lokal Profil/LSH3',
+                 row_t='User:Lokal Profil/LSH3',
                  default_params=None):
     """
     Return a list of all parameters for instances of a given template.
@@ -33,34 +34,34 @@ def parseEntries(contents,
     @return list: of entry-dict items
     """
     default_params = default_params or {
-        u'name': '',
-        u'more': '',
-        u'frequency': '',
-        u'technique': '',
-        u'creator': '',
-        u'link': '',
-        u'category': '',
-        u'other': ''}
+        'name': '',
+        'more': '',
+        'frequency': '',
+        'technique': '',
+        'creator': '',
+        'link': '',
+        'category': '',
+        'other': ''}
 
     entries = common.get_all_template_entries(contents, row_t)
     units = []
     for entry in entries:
         params = default_params.copy()
         for key, value in entry.items():
-            value = value.replace(u'<small>', '').replace(u'</small>', '')
+            value = value.replace('<small>', '').replace('</small>', '')
             value = value.strip()  # in case of empty <small>-tags
             if not value:
                 continue
             if key in params:
-                params[key] = value.split(u'/')
+                params[key] = value.split('/')
             else:
-                pywikibot.output(u'Unrecognised parameter: %s = %s' % (
+                pywikibot.output('Unrecognised parameter: %s = %s' % (
                                  key, value))
         units.append(params.copy())
     return units
 
 
-def formatEntry(unit, typ=u'category'):
+def formatEntry(unit, typ='category'):
     """
     Extract a given value from a list together with its frequency.
 
@@ -97,13 +98,13 @@ def scrape(pages, prefix, working_path=None, out_path=None, site=None):
     @param pages: A mapping of Commons pages to output files
         where Commons pages get the format prefix*
         and output file the format: commons-*.json
-        example: {u'People': u'People',
-                  u'Keywords': u'Keywords',
-                  u'Materials': u'Materials',
-                  u'Places': u'Places'}
+        example: {'People': 'People',
+                  'Keywords': 'Keywords',
+                  'Materials': 'Materials',
+                  'Places': 'Places'}
 
     @param prefix: prefix under which lists are found
-        example: u'Commons:Batch uploading/LSH'
+        example: 'Commons:Batch uploading/LSH'
     @param working_path: path to directory in which to work (if not current)
         modifies out_path
     @param out_path: path to directory in which output files are put
@@ -121,16 +122,16 @@ def scrape(pages, prefix, working_path=None, out_path=None, site=None):
 
     # fetch, parse and save each page
     for k, v in pages.items():
-        page_title = u'%s/%s' % (prefix, k)
+        page_title = '%s/%s' % (prefix, k)
         page = pywikibot.Page(site, title=page_title)
         if not page.exists():
             raise common.MyError('The list page "%s" does not exist!' %
                                  page_title)
         units = parseEntries(page.get())
-        filename = os.path.join(out_path, u'commons-%s.json' % v)
+        filename = os.path.join(out_path, 'commons-%s.json' % v)
         common.open_and_write_file(filename, units, as_json=True)
 
-        pywikibot.output(u'Created %s' % filename)
+        pywikibot.output('Created %s' % filename)
 
 
 # methods for producing lists
@@ -140,7 +141,7 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
     Output mapping lists in wiki format, merging with any existing.
 
     @param sorted_dict prefix under which lists are found
-        example: u'Commons:Batch uploading/LSH'
+        example: 'Commons:Batch uploading/LSH'
     @param pagename: name of the list
     @param output_wiki: method for outputting wikitext
     @param working_path: path to directory in which to work (if not current)
@@ -157,7 +158,7 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
 
     # load local json file (if any)
     old_mapping = []
-    mapping_file = os.path.join(out_path, u'commons-%s.json' % pagename)
+    mapping_file = os.path.join(out_path, 'commons-%s.json' % pagename)
     if os.path.exists(mapping_file):
         old_mapping = common.open_and_read_file(mapping_file, as_json=True)
 
@@ -183,7 +184,7 @@ def mergeWithOld(sorted_dict, pagename, output_wiki,
 
     # create output and write to .wiki
     wiki = output_wiki(new_mapping)
-    wikifile = u'%s.wiki' % mapping_file[:-len('.json')]
+    wikifile = '%s.wiki' % mapping_file[:-len('.json')]
     common.open_and_write_file(wikifile, wiki)
 
 
@@ -201,16 +202,16 @@ def makeEntry(name, frequency, previous=None):
             previous['frequency'] = frequency
             return previous
         else:
-            return {u'name': [name, ],
-                    u'more': '',
-                    u'frequency': frequency,
-                    u'technique': '',
-                    u'creator': '',
-                    u'link': '',
-                    u'category': '',
-                    u'other': ''}
+            return {'name': [name, ],
+                    'more': '',
+                    'frequency': frequency,
+                    'technique': '',
+                    'creator': '',
+                    'link': '',
+                    'category': '',
+                    'other': ''}
     if previous:
         for k, v in previous.items():
             # if any entry is non-empty
-            if k not in (u'name', u'frequency') and v:
+            if k not in ('name', 'frequency') and v:
                 return previous

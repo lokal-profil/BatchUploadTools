@@ -5,6 +5,7 @@ Abstract class for producing mapping tables and file description pages.
 
 @TODO: add an entry point to make/update mappings
 """
+from __future__ import unicode_literals
 from builtins import dict, object
 import batchupload.common as common
 import batchupload.helpers as helpers
@@ -21,20 +22,20 @@ def make_info_page(data):
     @param data: dict with the keys {cats, meta_cats, info, filename}
     @return: str
     """
-    separator = u'\n\n'  # standard separation before categories
+    separator = '\n\n'  # standard separation before categories
     txt = data['info']
 
     if data['meta_cats']:
         txt += separator
-        txt += u'<!-- Metadata categories -->\n'
+        txt += '<!-- Metadata categories -->\n'
         for cat in data['meta_cats']:
-            txt += u'[[Category:%s]]\n' % cat
+            txt += '[[Category:%s]]\n' % cat
 
     if data['cats']:
         txt += separator
-        txt += u'<!-- Content categories -->\n'
+        txt += '<!-- Content categories -->\n'
         for cat in data['cats']:
-            txt += u'[[Category:%s]]\n' % cat
+            txt += '[[Category:%s]]\n' % cat
 
     return txt
 
@@ -51,7 +52,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         """
         self.data = dict()  # the processed metadata
         self.mappings = dict()  # any loaded mappings
-        self.cwd_path = u''  # path to directory in which to work
+        self.cwd_path = ''  # path to directory in which to work
         self.base_meta_cat = base_meta_cat
         self.batch_cat = self.make_maintanance_cat(batch_label)
 
@@ -156,7 +157,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         @param cat: the string to prefix
         @return: str
         """
-        return u'%s: %s' % (self.base_meta_cat, cat)
+        return '%s: %s' % (self.base_meta_cat, cat)
 
     def make_info(self):
         """
@@ -179,8 +180,8 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
             cats = self.generate_content_cats(v)
             meta_cats = self.generate_meta_cats(v, cats)
             out_data[original_filename] = {
-                u'info': info, u'filename': filename,
-                u'cats': cats, u'meta_cats': meta_cats}
+                'info': info, 'filename': filename,
+                'cats': cats, 'meta_cats': meta_cats}
         return out_data
 
     def run(self, in_file, base_name=None):
@@ -198,8 +199,8 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
                 base_name, ext = os.path.splitext(in_file)
             else:
                 raise common.MyError(
-                    u'A base name must be provided if multiple in_files '
-                    u'are provided')
+                    'A base name must be provided if multiple in_files '
+                    'are provided')
 
         self.cwd_path = os.path.split(base_name)[0]
         raw_data = self.load_data(in_file)
@@ -208,17 +209,17 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         out_data = self.make_info()
 
         # store output
-        out_file = u'%s.json' % base_name
+        out_file = '%s.json' % base_name
         common.open_and_write_file(out_file, out_data, as_json=True)
-        pywikibot.output(u'Created %s' % out_file)
+        pywikibot.output('Created %s' % out_file)
 
         # store filenames
-        out_file = u'%s.filenames.txt' % base_name
-        out = u''
+        out_file = '%s.filenames.txt' % base_name
+        out = ''
         for k in sorted(out_data.keys()):
-            out += u'%s|%s\n' % (k, out_data[k][u'filename'])
+            out += '%s|%s\n' % (k, out_data[k]['filename'])
         common.open_and_write_file(out_file, out)
-        pywikibot.output(u'Created %s' % out_file)
+        pywikibot.output('Created %s' % out_file)
 
     @staticmethod
     def handle_args(args):
@@ -249,13 +250,13 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
     def main(cls, usage=None, *args):
         """Command line entry-point."""
         usage = usage or \
-            u'Usage:' \
-            u'\tpython make_info.py -in_file:PATH -dir:PATH\n' \
-            u'\t-in_file:PATH path to metadata file\n' \
-            u'\t-dir:PATH specifies the path to the directory containing a ' \
-            u'user_config.py file (optional)\n' \
-            u'\tExample:\n' \
-            u'\tpython make_info.py -in_file:SMM/metadata.csv -dir:SMM\n'
+            'Usage:' \
+            '\tpython make_info.py -in_file:PATH -dir:PATH\n' \
+            '\t-in_file:PATH path to metadata file\n' \
+            '\t-dir:PATH specifies the path to the directory containing a ' \
+            'user_config.py file (optional)\n' \
+            '\tExample:\n' \
+            '\tpython make_info.py -in_file:SMM/metadata.csv -dir:SMM\n'
 
         # Load pywikibot args and handle local args
         options = cls.handle_args(args)

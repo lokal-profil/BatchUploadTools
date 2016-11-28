@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8  -*-
 """Prepare files for upload by creating Information pages and renaming them."""
+from __future__ import unicode_literals
 from builtins import open
 import os
 from batchupload.make_info import make_info_page
@@ -8,7 +9,7 @@ import batchupload.helpers as helpers
 import batchupload.common as common
 import pywikibot
 
-FILE_EXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
+FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg')
 
 
 def run(in_path, out_path, data_path, file_exts=None):
@@ -35,7 +36,7 @@ def run(in_path, out_path, data_path, file_exts=None):
     # Find candidate files
     if not os.path.isdir(in_path):
         raise common.MyError(
-            u'The provided inPath was not a valid directory: %s' % in_path)
+            'The provided inPath was not a valid directory: %s' % in_path)
     found_files = find_files(path=in_path, file_exts=file_exts)
 
     # Find matches
@@ -94,7 +95,7 @@ def makeHitlist(files, data):
         if key not in data:
             continue
         elif key in processed_keys:
-            raise common.MyError(u'non-unique file key: %s' % key)
+            raise common.MyError('non-unique file key: %s' % key)
         processed_keys.append(key)
         hitlist.append({'path': f, 'ext': ext.lower(),
                         'data': data[key], 'key': key})
@@ -112,23 +113,23 @@ def makeAndRename(hitlist, outPath):
     common.create_dir(outPath)
 
     # logfile
-    logfile = os.path.join(outPath, u'¤generator.log')
+    logfile = os.path.join(outPath, '¤generator.log')
     flog = open(logfile, 'a', encoding='utf-8')
 
     for hit in hitlist:
         base_name = os.path.join(outPath, hit['data']['filename'])
 
         # output info file
-        common.open_and_write_file(u'%s.info' % base_name,
+        common.open_and_write_file('%s.info' % base_name,
                                    make_info_page(hit['data']))
 
         # rename/move matched file
-        outfile = u'%s%s' % (base_name, hit['ext'])
+        outfile = '%s%s' % (base_name, hit['ext'])
         os.rename(hit['path'], outfile)
-        flog.write(u'%s|%s\n' % (os.path.basename(hit['path']),
-                                 os.path.basename(outfile)))
+        flog.write('%s|%s\n' % (os.path.basename(hit['path']),
+                                os.path.basename(outfile)))
     flog.close()
-    pywikibot.output(u'Created %s' % logfile)
+    pywikibot.output('Created %s' % logfile)
 
 
 def removeEmptyDirectories(path, top=True):
@@ -160,10 +161,10 @@ def removeEmptyDirectories(path, top=True):
 def main(*args):
     """Command line entry-point."""
     usage = \
-        u'Usage:\tpython prepUpload.py -in_path:PATH -out_path:PATH -data_path:PATH\n' \
-        u'\tExamples:\n' \
-        u'\tpython prepUpload.py -in_path:../diskkopia -out_path:./toUpload ' \
-        u'-data_path:./datafile.json \n'
+        'Usage:\tpython prepUpload.py -in_path:PATH -out_path:PATH -data_path:PATH\n' \
+        '\tExamples:\n' \
+        '\tpython prepUpload.py -in_path:../diskkopia -out_path:./toUpload ' \
+        '-data_path:./datafile.json \n'
     in_path = None
     out_path = None
     data_path = None

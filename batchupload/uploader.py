@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 #
+from __future__ import unicode_literals
+from builtins import open
 import batchupload.common as common
 import batchupload.prepUpload as prepUpload
-from builtins import open
 import os
 import pywikibot
 
-FILE_EXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
+FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg')
 
 
 def upload_single_file(file_name, media_file, text, target_site,
@@ -65,29 +66,29 @@ def upload_single_file(file_name, media_file, text, target_site,
             report_success=False, chunk_size=chunk_size)
     except pywikibot.data.api.APIError as error:
         result['error'] = error
-        result['log'] = u'Error: %s: %s' % (file_page.title(), error)
+        result['log'] = 'Error: %s: %s' % (file_page.title(), error)
     except KeyboardInterrupt:
         raise
     except Exception as e:
-        result['error'] = u'%r' % e
-        result['log'] = u'Error: %s: Unhandled error: %' % (
+        result['error'] = '%r' % e
+        result['log'] = 'Error: %s: Unhandled error: %' % (
                         file_page.title(), e)
     else:
         if result.get('warning'):
-            result['log'] = u'Warning: %s: %s' % (file_page.title(),
-                                                  result['warning'])
+            result['log'] = 'Warning: %s: %s' % (file_page.title(),
+                                                 result['warning'])
         elif success:
-            result['log'] = u'%s: success' % file_page.title()
+            result['log'] = '%s: success' % file_page.title()
         else:
-            result['error'] = u"No warning/error but '%s' didn't upload?" % \
+            result['error'] = "No warning/error but '%s' didn't upload?" % \
                               file_page.title()
-            result['log'] = u'Error: %s: %s' % (file_page.title(),
-                                                result['error'])
+            result['log'] = 'Error: %s: %s' % (file_page.title(),
+                                               result['error'])
     finally:
         return result
 
 
-def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
+def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
            verbose=False, test=False, target_site=None):
     """
     Upload all matched files in the supplied directory.
@@ -114,20 +115,20 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
 
     # Verify in_path
     if not os.path.isdir(in_path):
-        pywikibot.output(u'The provided in_path was not a valid '
-                         u'directory: %s' % in_path)
+        pywikibot.output('The provided in_path was not a valid '
+                         'directory: %s' % in_path)
         exit()
 
     # create target directories if they don't exist
     done_dir = os.path.join(in_path, target)
-    error_dir = u'%s_errors' % done_dir
-    warnings_dir = u'%s_warnings' % done_dir
+    error_dir = '%s_errors' % done_dir
+    warnings_dir = '%s_warnings' % done_dir
     common.create_dir(done_dir)
     common.create_dir(error_dir)
     common.create_dir(warnings_dir)
 
     # logfile
-    logfile = os.path.join(in_path, u'¤uploader.log')
+    logfile = os.path.join(in_path, '¤uploader.log')
     flog = open(logfile, 'a', encoding='utf-8')
 
     # find all content files
@@ -138,19 +139,19 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
         if cutoff and counter > cutoff:
             break
         # verify that there is a matching info file
-        info_file = u'%s.info' % os.path.splitext(f)[0]
+        info_file = '%s.info' % os.path.splitext(f)[0]
         base_name = os.path.basename(f)
         base_info_name = os.path.basename(info_file)
         if not os.path.exists(info_file):
-            flog.write(u'%s: Found multimedia file without info\n' % base_name)
+            flog.write('%s: Found multimedia file without info\n' % base_name)
             continue
 
         # prepare upload
         txt = common.open_and_read_file(info_file)
 
         if test:
-            pywikibot.output(u'Test upload "%s" with the following '
-                             u'description: %s\n' % (base_name, txt))
+            pywikibot.output('Test upload "%s" with the following '
+                             'description: %s\n' % (base_name, txt))
             continue
         # stop here if testing
 
@@ -166,29 +167,29 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
         if verbose:
             pywikibot.output(result.get('log'))
 
-        flog.write(u'%s\n' % result.get('log'))
+        flog.write('%s\n' % result.get('log'))
         os.rename(f, os.path.join(target_dir, base_name))
         os.rename(info_file, os.path.join(target_dir, base_info_name))
         counter += 1
         flog.flush()
 
     flog.close()
-    pywikibot.output(u'Created %s' % logfile)
+    pywikibot.output('Created %s' % logfile)
 
 
 def main(*args):
     """Command line entry-point."""
-    usage = u'Usage:' \
-            u'\tpython uploader.py -in_path:PATH -dir:PATH -cutoff:NUM\n' \
-            u'\t-in_path:PATH path to the directory containing the media files\n' \
-            u'\t-dir:PATH specifies the path to the directory containing a ' \
-            u'user_config.py file (optional)\n' \
-            u'\t-cutoff:NUM stop the upload after the specified number of files ' \
-            u'(optional)\n' \
-            u'\t-confirm Whether to output a confirmation after each upload ' \
-            u'attempt (optional)\n' \
-            u'\tExample:\n' \
-            u'\tpython uploader.py -in_path:../diskkopia -cutoff:100\n'
+    usage = 'Usage:' \
+            '\tpython uploader.py -in_path:PATH -dir:PATH -cutoff:NUM\n' \
+            '\t-in_path:PATH path to the directory containing the media files\n' \
+            '\t-dir:PATH specifies the path to the directory containing a ' \
+            'user_config.py file (optional)\n' \
+            '\t-cutoff:NUM stop the upload after the specified number of files ' \
+            '(optional)\n' \
+            '\t-confirm Whether to output a confirmation after each upload ' \
+            'attempt (optional)\n' \
+            '\tExample:\n' \
+            '\tpython uploader.py -in_path:../diskkopia -cutoff:100\n'
     cutoff = None
     in_path = None
     test = False

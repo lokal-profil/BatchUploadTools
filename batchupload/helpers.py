@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """Helper tools related to batchUploads."""
+from __future__ import unicode_literals
 from builtins import range  # ,dict
 import operator
 import sys  # needed by convertFromCommandline()
@@ -13,7 +14,7 @@ GOODLENGTH = 100
 MAXLENGTH = 128
 
 # black-lists
-bad_dates = (u'n.d', u'odaterad')
+bad_dates = ('n.d', 'odaterad')
 
 
 def flip_name(name):
@@ -27,7 +28,7 @@ def flip_name(name):
     """
     p = name.split(',')
     if len(p) == 2:
-        return u'%s %s' % (p[1].strip(), p[0].strip())
+        return '%s %s' % (p[1].strip(), p[0].strip())
     else:
         return name
 
@@ -89,7 +90,7 @@ def format_filename(descr, institution, idno, delimiter=None):
     @param delimiter: the delimiter to use between the parts
     @return: str
     """
-    delimiter = delimiter or u' - '
+    delimiter = delimiter or ' - '
     descr = shortenString(touchup(cleanString(descr), delimiter))
     institution = cleanString(institution)
     idno = cleanString(idno)
@@ -104,18 +105,18 @@ def cleanString(text):
     # Currently first replacing possesive case and sentence break then
     # dealing with stand alone :
     # maybe also ? ' and &nbsp; symbol
-    bad_char = {u'\\': u'-', u'/': u'-', u'|': u'-', u'#': u'-',
-                u'[': u'(', u']': u')', u'{': u'(', u'}': u')',
-                u':s': u's', u': ': u', ',
-                u' ': u' ', u' ': u' ', u'	': u' ',  # unusual whitespace
-                u'e´': u'é',
-                u'”': u' ', u'"': u' ', u'“': u' '}
+    bad_char = {'\\': '-', '/': '-', '|': '-', '#': '-',
+                '[': '(', ']': ')', '{': '(', '}': ')',
+                ':s': 's', ': ': ', ',
+                ' ': ' ', ' ': ' ', '	': ' ',  # unusual whitespace
+                'e´': 'é',
+                '”': ' ', '"': ' ', '“': ' '}
     for k, v in bad_char.items():
         text = text.replace(k, v)
 
     # replace any remaining colons
-    if u':' in text:
-        text = text.replace(u':', u'-')
+    if ':' in text:
+        text = text.replace(':', '-')
 
     # replace double space by single space
     text = text.replace('  ', ' ')
@@ -138,7 +139,7 @@ def touchup(text, delimiter=None, delimiter_replacement=None):
     delimiter_replacement = delimiter_replacement or ', '
 
     # If string starts and ends with bracket or quotes then remove
-    brackets = {u'(': ')', u'[': ']', u'{': '}', u'"': '"'}
+    brackets = {'(': ')', '[': ']', '{': '}', '"': '"'}
     for k, v in brackets.items():
         if text.startswith(k) and text.endswith(v) and \
                 text[:-1].count(k) == 1:
@@ -166,9 +167,9 @@ def shortenString(text):
     @param text: the text to shorten
     @return string
     """
-    badchar = u'-., '  # maybe also "?
-    if u'<!>' in text:
-        text = text[:text.find(u'<!>')]
+    badchar = '-., '  # maybe also "?
+    if '<!>' in text:
+        text = text[:text.find('<!>')]
     # is ok?
     if len(text) < GOODLENGTH:
         return text
@@ -189,7 +190,7 @@ def shortenString(text):
                 if pos < 0:
                     # try something else
                     if len(text) > MAXLENGTH:
-                        text = u'%s...' % text[:MAXLENGTH - 3]
+                        text = '%s...' % text[:MAXLENGTH - 3]
                     return text
     return shortenString(text[:pos].strip(badchar))
 
@@ -218,7 +219,7 @@ def std_date_range(date, range_delimiter=' - '):
             if d1 == d2:
                 return d1
             else:
-                return u'{{other date|-|%s|%s}}' % (d1, d2)
+                return '{{other date|-|%s|%s}}' % (d1, d2)
     else:
         d = stdDate(date)
         if d is not None:
@@ -242,101 +243,101 @@ def stdDate(date):
     @return string|None
     """
     # No date
-    date = date.strip(u'.  ')
+    date = date.strip('.  ')
     if len(date) == 0 or date.lower() in bad_dates:
-        return u''  # this is equivalent to u'{{other date|unknown}}'
-    date = date.replace(u' - ', u'-')
+        return ''  # this is equivalent to '{{other date|unknown}}'
+    date = date.replace(' - ', '-')
 
     # A single date
     endings = {
-        u'?': u'?',
-        u'(?)': u'?',
-        u'c': u'ca',
-        u'ca': u'ca',
-        u'cirka': u'ca',
-        u'andra hälft': u'2half',
-        u'första hälft': u'1half',
-        u'början': u'early',
-        u'slut': u'end',
-        u'slutet': u'end',
-        u'mitt': u'mid',
-        u'första fjärdedel': u'1quarter',
-        u'andra fjärdedel': u'2quarter',
-        u'tredje fjärdedel': u'3quarter',
-        u'fjärde fjärdedel': u'4quarter',
-        u'sista fjärdedel': u'4quarter',
-        u'före': u'<',
-        u'efter': u'>',
-        u'-': u'>'}
+        '?': '?',
+        '(?)': '?',
+        'c': 'ca',
+        'ca': 'ca',
+        'cirka': 'ca',
+        'andra hälft': '2half',
+        'första hälft': '1half',
+        'början': 'early',
+        'slut': 'end',
+        'slutet': 'end',
+        'mitt': 'mid',
+        'första fjärdedel': '1quarter',
+        'andra fjärdedel': '2quarter',
+        'tredje fjärdedel': '3quarter',
+        'fjärde fjärdedel': '4quarter',
+        'sista fjärdedel': '4quarter',
+        'före': '<',
+        'efter': '>',
+        '-': '>'}
     starts = {
-        u'tidigt': u'early',
-        u'br av': u'early',
-        u'början av': u'early',
-        u'tid ': u'early',
-        u'sent': u'late',
-        u'sl av': u'late',
-        u'slutet av': u'end',
-        u'andra hälften av': u'2half',
-        u'första hälften av': u'1half',
-        u'mitten av': u'mid',
-        u'första fjärdedel av': u'1quarter',
-        u'andra fjärdedel av': u'2quarter',
-        u'tredje fjärdedel av': u'3quarter',
-        u'fjärde fjärdedel av': u'4quarter',
-        u'sista fjärdedel av': u'4quarter',
-        u'ca': u'ca',
-        u'våren': u'spring',
-        u'sommaren': u'summer',
-        u'hösten': u'fall',
-        u'vintern': u'winter',
-        u'sekelskiftet': u'turn of the century',
-        u'före': u'<',
-        u'efter': u'>',
-        u'-': u'<'}
-    tal_endings = (u'-talets', u'-tal', u'-talet', u' talets')
-    modality = (u'troligen', u'sannolikt')
+        'tidigt': 'early',
+        'br av': 'early',
+        'början av': 'early',
+        'tid ': 'early',
+        'sent': 'late',
+        'sl av': 'late',
+        'slutet av': 'end',
+        'andra hälften av': '2half',
+        'första hälften av': '1half',
+        'mitten av': 'mid',
+        'första fjärdedel av': '1quarter',
+        'andra fjärdedel av': '2quarter',
+        'tredje fjärdedel av': '3quarter',
+        'fjärde fjärdedel av': '4quarter',
+        'sista fjärdedel av': '4quarter',
+        'ca': 'ca',
+        'våren': 'spring',
+        'sommaren': 'summer',
+        'hösten': 'fall',
+        'vintern': 'winter',
+        'sekelskiftet': 'turn of the century',
+        'före': '<',
+        'efter': '>',
+        '-': '<'}
+    tal_endings = ('-talets', '-tal', '-talet', ' talets')
+    modality = ('troligen', 'sannolikt')
     for k, v in starts.items():
         if date.lower().startswith(k):
             again = stdDate(date[len(k):])
             if again:
-                return u'{{other date|%s|%s}}' % (v, again)
+                return '{{other date|%s|%s}}' % (v, again)
             else:
                 return None
     for k, v in endings.items():
         if date.lower().endswith(k):
             again = stdDate(date[:-len(k)])
             if again:
-                return u'{{other date|%s|%s}}' % (v, again)
+                return '{{other date|%s|%s}}' % (v, again)
             else:
                 return None
     for k in modality:
         found = False
         if date.lower().endswith(k):
-            date = date[:-len(k)].strip(u'.,  ')
+            date = date[:-len(k)].strip('.,  ')
             found = True
         elif date.lower().startswith(k):
-            date = date[len(k):].strip(u'.,  ')
+            date = date[len(k):].strip('.,  ')
             found = True
         if found:
             again = stdDate(date)
             if again:
-                return u'%s {{Probably}}' % again
+                return '%s {{Probably}}' % again
             else:
                 return None
     for k in tal_endings:
         if date.lower().endswith(k):
-            date = date[:-len(k)].strip(u'.  ')
-            if date[-2:] == u'00':
-                v = u'century'
+            date = date[:-len(k)].strip('.  ')
+            if date[-2:] == '00':
+                v = 'century'
                 if len(date) == 4:
-                    return u'{{other date|%s|%r}}' % (v, int(date[:2]) + 1)
+                    return '{{other date|%s|%r}}' % (v, int(date[:2]) + 1)
                 else:
                     return None
             else:
-                v = u'decade'
+                v = 'decade'
             again = stdDate(date)  # needed?
             if again:
-                return u'{{other date|%s|%s}}' % (v, again)
+                return '{{other date|%s|%s}}' % (v, again)
             else:
                 return None
 
@@ -351,7 +352,7 @@ def isoDate(date):
             int(item[1][:len('MM')]) in range(1, 12 + 1) and \
             int(item[2][:len('DD')]) in range(1, 31 + 1):
         # 1921-09-17Z or 2014-07-11T08:14:46Z
-        return u'%s-%s-%s' % (item[0], item[1], item[2])
+        return '%s-%s-%s' % (item[0], item[1], item[2])
     elif len(item) == 1 and common.is_pos_int(item[0][:len('YYYY')]):
         # 1921Z
         return item[0]
@@ -359,14 +360,14 @@ def isoDate(date):
             all(common.is_pos_int(x) for x in (item[0], item[1][:len('MM')])) and \
             int(item[1][:len('MM')]) in range(1, 12 + 1):
         # 1921-09Z
-        return u'%s-%s' % (item[0], item[1])
+        return '%s-%s' % (item[0], item[1])
     else:
         return None
 
 
 def italicize(s):
     """Given a string return the same string italicized (in wikitext)."""
-    return u'\'\'%s\'\'' % s
+    return '\'\'%s\'\'' % s
 
 
 def convertFromCommandline(s):

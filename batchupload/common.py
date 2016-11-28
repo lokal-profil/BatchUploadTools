@@ -6,6 +6,7 @@ Shared methods.
 
 To be merged with helpers.py
 """
+from __future__ import unicode_literals
 from builtins import dict, open
 import pywikibot
 import json
@@ -184,7 +185,7 @@ def modify_path(base_path, out_path):
     """
     if base_path:
         if not os.path.isdir(base_path):
-            raise MyError(u'"%s" is not a directory.' % base_path)
+            raise MyError('"%s" is not a directory.' % base_path)
         out_path = os.path.join(base_path, out_path)
     return out_path
 
@@ -196,12 +197,12 @@ def create_dir(out_path):
     @param out_path: directory to create
     """
     if not out_path:
-        raise MyError(u'Cannot create directory without a name.')
+        raise MyError('Cannot create directory without a name.')
     if not os.path.exists(out_path):
         os.mkdir(out_path)
     elif os.path.isfile(out_path):
-        raise MyError(u'Cannot create the directory "%s" as a file with that '
-                      u'name already exists.' % out_path)
+        raise MyError('Cannot create the directory "%s" as a file with that '
+                      'name already exists.' % out_path)
 
 
 def to_unicode(text):
