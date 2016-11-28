@@ -3,7 +3,7 @@
 #
 import batchupload.common as common
 import batchupload.prepUpload as prepUpload
-import codecs
+from builtins import open
 import os
 import pywikibot
 
@@ -128,7 +128,7 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
 
     # logfile
     logfile = os.path.join(in_path, u'¤uploader.log')
-    flog = codecs.open(logfile, 'a', 'utf-8')
+    flog = open(logfile, 'a', encoding='utf-8')
 
     # find all content files
     found_files = prepUpload.find_files(path=in_path, file_exts=file_exts,

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8  -*-
 """Prepare files for upload by creating Information pages and renaming them."""
+from builtins import open
 import os
-import codecs
 from batchupload.make_info import make_info_page
 import batchupload.helpers as helpers
 import batchupload.common as common
@@ -113,7 +113,7 @@ def makeAndRename(hitlist, outPath):
 
     # logfile
     logfile = os.path.join(outPath, u'¤generator.log')
-    flog = codecs.open(logfile, 'a', 'utf-8')
+    flog = open(logfile, 'a', encoding='utf-8')
 
     for hit in hitlist:
         base_name = os.path.join(outPath, hit['data']['filename'])

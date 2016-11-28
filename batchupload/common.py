@@ -6,9 +6,8 @@ Shared methods.
 
 To be merged with helpers.py
 """
-from builtins import dict
+from builtins import dict, open
 import pywikibot
-import codecs
 import json
 import os
 
@@ -60,7 +59,7 @@ def open_and_read_file(filename, codec='utf-8', as_json=False):
     @param codec: the used encoding (defaults to "utf-8")
     @param json: load as json instead of reading
     """
-    with codecs.open(filename, 'r', codec) as f:
+    with open(filename, 'r', encoding=codec) as f:
         if as_json:
             return json.load(f)
         return f.read()
@@ -77,7 +76,7 @@ def open_and_write_file(filename, text, codec='utf-8', as_json=False):
     @param codec: the used encoding (defaults to "utf-8")
     @param json: if text is an object which should be dumped as json
     """
-    with codecs.open(filename, 'w', codec) as f:
+    with open(filename, 'w', encoding=codec) as f:
         if as_json:
             f.write(json.dumps(text, indent=4, ensure_ascii=False))
         else:
