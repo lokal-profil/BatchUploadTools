@@ -92,7 +92,11 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
     """
     Upload all matched files in the supplied directory.
 
-    Moves any processed files to the target folders.
+    Media (image) files and metadata files with the expected extension .info
+    should be in the same directory. Metadata files should contain the entirety
+    of the desired description page (in wikitext).
+
+    Moves each file to one the target folders after processing.
 
     @param in_path: path to directory with files to upload
     @param cutoff: number of files to upload (defaults to all)
