@@ -13,7 +13,7 @@ import json
 import os
 
 
-# avoids having to use from past.builtins import basestring
+# avoid having to use from past.builtins import basestring
 try:
     basestring  # attempt to evaluate basestring
 except NameError:

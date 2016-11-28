@@ -177,6 +177,9 @@ def main(*args):
             out_path = helpers.convertFromCommandline(value)
         elif option == '-data_path':
             data_path = helpers.convertFromCommandline(value)
+        elif option == '-usage':
+            pywikibot.output(usage)
+            return
 
     if in_path and out_path and data_path:
         run(in_path, out_path, data_path)

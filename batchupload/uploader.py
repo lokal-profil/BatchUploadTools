@@ -206,6 +206,9 @@ def main(*args):
             test = True
         elif option == '-confirm':
             confirm = True
+        elif option == '-usage':
+            pywikibot.output(usage)
+            return
 
     if in_path:
         up_all(in_path, cutoff=cutoff, test=test, verbose=confirm)
