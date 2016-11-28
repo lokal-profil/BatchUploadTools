@@ -15,6 +15,7 @@ To use a different user for a particular batchupload place the `user-config.py`
 in the subdirectory and run the script with `-dir:<sub-directory>`.
 
 ## Protocol for a batch upload
+
 1. Load indata to a dictionary
 2. Process the indata to generate mapping lists
 3. Load the indata and the mappings to produce a list of original filenames
@@ -30,7 +31,11 @@ in the subdirectory and run the script with `-dir:<sub-directory>`.
 5. Run the uploader to upload it all
 
 ## When creating a new batch upload
+
 Extend make_info to create own methods for reading and processing the indata.
 Any method marked as abstract must be implemented locally. You can make use
 of the various helper functions in the other classes.
 
+## Usage example:
+
+For usage examples see [lokal-profil/upload_batches](https://github.com/lokal-profil/upload_batches).
