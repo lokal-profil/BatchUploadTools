@@ -222,14 +222,14 @@ class TestOpenWriteFile(TestOpenFileBase):
     def test_write_data(self):
         to_write = u'{"list": ["a", "b", "c"], "två": "2", "ett": 1}'
         open_and_write_file(self.test_outfile.name, to_write)
-        self.assertEquals(self.test_outfile.read(),
-                          self.test_data.encode('utf-8'))
+        self.assertEquals(self.test_outfile.read().decode('utf-8'),
+                          self.test_data)
 
     def test_write_json_data(self):
         to_write = {'list': ['a', 'b', 'c'], u'två': '2', 'ett': 1}
         open_and_write_file(self.test_outfile.name, to_write, as_json=True)
-        json_out = json.loads(self.test_outfile.read())
-        json_in = json.loads(self.test_data.encode('utf-8'))
+        json_out = json.loads(self.test_outfile.read().decode('utf-8'))
+        json_in = json.loads(self.test_data)
         self.assertEquals(deep_sort(json_out),
                           deep_sort(json_in))
 

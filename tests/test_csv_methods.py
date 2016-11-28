@@ -202,8 +202,8 @@ class TestDictToCSVFile(TestCSVFileBase, CustomAssertions):
         dict_to_csv_file(self.test_outfile.name,
                          test_data, self.test_header)
         self.assert_equal_with_unordered_lines(
-            self.test_outfile.read(),
-            self.test_out_data.encode('utf-8'))
+            self.test_outfile.read().decode('utf-8'),
+            self.test_out_data)
 
     def test_write_list_data(self):
         test_data = {
@@ -218,5 +218,5 @@ class TestDictToCSVFile(TestCSVFileBase, CustomAssertions):
         dict_to_csv_file(self.test_outfile.name,
                          test_data, self.test_header)
         self.assert_equal_with_unordered_lines(
-            self.test_outfile.read(),
-            self.test_out_data.encode('utf-8'))
+            self.test_outfile.read().decode('utf-8'),
+            self.test_out_data)
