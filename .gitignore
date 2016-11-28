@@ -1,3 +1,6 @@
+# Python
+*.pyc
+
 # source data files
 *.doc
 *.docx
