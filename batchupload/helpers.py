@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """Helper tools related to batchUploads."""
-from builtins import dict, range
+from builtins import range  # ,dict
 import operator
 import sys  # needed by convertFromCommandline()
 import locale  # needed by convertFromCommandline()

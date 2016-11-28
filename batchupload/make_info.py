@@ -5,7 +5,6 @@ Abstract class for producing mapping tables and file description pages.
 
 @TODO: add an entry point to make/update mappings
 """
-from past.builtins import basestring
 from builtins import dict, object
 import batchupload.common as common
 import batchupload.helpers as helpers
@@ -195,7 +194,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
             (defaults to same as in_file)
         """
         if not base_name:
-            if isinstance(in_file, basestring):
+            if common.is_str(in_file):
                 base_name, ext = os.path.splitext(in_file)
             else:
                 raise common.MyError(

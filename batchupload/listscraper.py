@@ -9,7 +9,6 @@
 # TODO:
 #   import mappings output from py_makeMappings
 #
-from past.builtins import basestring
 from builtins import dict
 import os
 import batchupload.common as common
@@ -83,7 +82,7 @@ def formatEntry(unit, typ=u'category'):
         if v:
             if k == 'frequency':
                 v = int(v)
-            elif isinstance(v, basestring) and v == '-':
+            elif common.is_str(v) and v == '-':
                 v = ''
             elif isinstance(v, list) and v[0] == '-':
                 v = []

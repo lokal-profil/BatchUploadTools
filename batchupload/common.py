@@ -6,12 +6,22 @@ Shared methods.
 
 To be merged with helpers.py
 """
-from past.builtins import basestring
 from builtins import dict
 import pywikibot
 import codecs
 import json
 import os
+
+
+# avoids having to use from past.builtins import basestring
+try:
+    basestring  # attempt to evaluate basestring
+except NameError:
+    def is_str(s):
+        return isinstance(s, str)
+else:
+    def is_str(s):
+        return isinstance(s, basestring)
 
 
 def is_int(value):
@@ -81,7 +91,7 @@ def strip_dict_entries(dict_in):
         raise MyError('strip_dict_entries() expects a dictionary object'
                       'as input but found "%s"' % type(dict_in).__name__)
     for k, v in dict_in.items():
-        if isinstance(v, basestring):
+        if is_str(v):
             v = v.strip()
         dict_out[k.strip()] = v
     return dict_out
@@ -94,7 +104,7 @@ def strip_list_entries(list_in):
         raise MyError('strip_list_entries() expects a list object'
                       'as input but found "%s"' % type(list_in).__name__)
     for l in list_in:
-        if isinstance(l, basestring):
+        if is_str(l):
             l = l.strip()
         list_out.append(l)
     return list_out

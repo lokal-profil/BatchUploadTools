@@ -1,14 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """Methods and helpers for csv handling."""
-from past.builtins import basestring
 from builtins import dict
 from batchupload.common import (
     MyError,
     open_and_read_file,
     open_and_write_file,
     strip_list_entries,
-    trim_list
+    trim_list,
+    is_str
 )
 
 
@@ -39,10 +39,10 @@ def validate_key_col(key_col, lists, non_unique, keep, header):
     @raise MyError
     """
     # verify type is valid
-    if not isinstance(key_col, (tuple, basestring)):
+    if not isinstance(key_col, tuple) and not is_str(key_col):
         raise MyError('key_col must be tuple or str')
     if isinstance(key_col, tuple) and \
-            not all(isinstance(key, basestring) for key in key_col):
+            not all(is_str(key) for key in key_col):
         raise MyError('each key_col entry must be a str')
 
     # verify no key_col is empty or any list or non_unique column
