@@ -7,6 +7,7 @@ from batchupload.helpers import (
     flip_name,
     flip_names,
     get_all_template_entries,
+    cleanString,
 )
 
 
@@ -63,3 +64,36 @@ class TestGetAllTemplateEntries(unittest.TestCase):
         expected = [{'b': 'b'}, {'b': 'b'}, {'1': 'c'}]
         self.assertListEqual(get_all_template_entries(wikitext, template),
                              expected)
+
+
+class TestCleanString(unittest.TestCase):
+
+    """Test the cleanString method."""
+
+    def test_clean_string_empty(self):
+        self.assertEquals(cleanString(''), '')
+
+    def test_clean_string_normal_whitespace(self):
+        test_string = ' a\tb\nc\xa0d  '
+        expected = 'a b c d'
+        self.assertEquals(cleanString(test_string), expected)
+
+    def test_clean_string_unusual_whitespace(self):
+        test_string = 'a\x8fb'
+        expected = 'a b'
+        self.assertEquals(cleanString(test_string), expected)
+
+    def test_clean_string_brackets(self):
+        test_string = '[{()}]'
+        expected = '((()))'
+        self.assertEquals(cleanString(test_string), expected)
+
+    def test_clean_string_separators(self):
+        test_string = '#|/\\'
+        expected = '----'
+        self.assertEquals(cleanString(test_string), expected)
+
+    def test_clean_string_colons(self):
+        test_string = ':s,a: ,:'
+        expected = 's,a, ,-'
+        self.assertEquals(cleanString(test_string), expected)

@@ -109,18 +109,36 @@ def format_filename(descr, institution, idno, delimiter=None):
 
 
 def cleanString(text):
-    """Remove characters which are forbidden/undesired in filenames."""
+    """
+    Remove characters which are forbidden/undesired in filenames.
+
+    Note that ":" is complicated as it has several different interpretations.
+    Current approach:
+    * replacing possessive case then
+    * sentence break then
+    * stand-alone colons
+
+    @todo: consider blacklisting ? and '
+
+    @param text: string to clean
+    @type text: str
+    @return: str
+    """
     # bad characters  - extend as more are identified
-    # Note that ":" is complicated as it has several different interpretaions.
-    # Currently first replacing possesive case and sentence break then
-    # dealing with stand alone :
-    # maybe also ? ' and &nbsp; symbol
     bad_char = {'\\': '-', '/': '-', '|': '-', '#': '-',
                 '[': '(', ']': ')', '{': '(', '}': ')',
                 ':s': 's', ': ': ', ',
-                ' ': ' ', ' ': ' ', '	': ' ',  # unusual whitespace
                 'e´': 'é',
                 '”': ' ', '"': ' ', '“': ' '}
+
+    # whitespace characters not handled by .split()
+    unusual_whitespace = ['\x8f', ]
+    for w in unusual_whitespace:
+        bad_char[w] = ' '  # replace by normal space
+
+    # replace all normal white space characters by space
+    text = ' '.join(text.split())
+
     for k, v in bad_char.items():
         text = text.replace(k, v)
 
