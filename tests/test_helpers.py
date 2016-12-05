@@ -6,8 +6,7 @@ import unittest
 from batchupload.helpers import (
     flip_name,
     flip_names,
-    sortedDict,
-    addOrIncrement
+    get_all_template_entries,
 )
 
 
@@ -44,49 +43,23 @@ class TestFlipNames(unittest.TestCase):
     # @TODO: add test counting calls to flip_names and number/content of output
 
 
-class TestSortedDict(unittest.TestCase):
+class TestGetAllTemplateEntries(unittest.TestCase):
 
-    """Test the sortedDict method."""
+    """Test the get_all_template_entries method."""
 
-    def test_sorted_dict_empty(self):
-        self.assertEquals(sortedDict({}), [])
+    def test_get_all_template_entries_empty(self):
+        self.assertEquals(get_all_template_entries('', ''), [])
 
-    def test_sorted_dict_sort(self):
-        input_value = {'a': 1, 'b': 3, 'c': 2}
-        expected = [('b', 3), ('c', 2), ('a', 1)]
-        self.assertEquals(sortedDict(input_value), expected)
+    def test_get_all_template_entries_single(self):
+        template = 'a'
+        wikitext = '{{a|A|b=b|c={{c|c=pling}}}}'
+        expected = [{'1': 'A', 'c': '{{c|c=pling}}', 'b': 'b'}]
+        self.assertListEqual(get_all_template_entries(wikitext, template),
+                             expected)
 
-
-class TestAddOrIncrement(unittest.TestCase):
-
-    """Test the addOrIncrement method."""
-
-    def test_add_or_increment_new_wo_key(self):
-        dictionary = {}
-        val = 'hej'
-        expected = {'hej': 1}
-        addOrIncrement(dictionary, val)
-        self.assertEquals(dictionary, expected)
-
-    def test_add_or_increment_new_w_key(self):
-        dictionary = {}
-        key = 'freq'
-        val = 'hej'
-        expected = {'hej': {'freq': 1}}
-        addOrIncrement(dictionary, val, key)
-        self.assertEquals(dictionary, expected)
-
-    def test_add_or_increment_old_wo_key(self):
-        dictionary = {'hej': 1}
-        val = 'hej'
-        expected = {'hej': 2}
-        addOrIncrement(dictionary, val)
-        self.assertEquals(dictionary, expected)
-
-    def test_add_or_increment_old_w_key(self):
-        dictionary = {'hej': {'freq': 1}}
-        key = 'freq'
-        val = 'hej'
-        expected = {'hej': {'freq': 2}}
-        addOrIncrement(dictionary, val, key)
-        self.assertEquals(dictionary, expected)
+    def test_get_all_template_entries_multiple(self):
+        template = 'a'
+        wikitext = '{{a|b=b}} {{a|b=b}} {{a|c}}'
+        expected = [{'b': 'b'}, {'b': 'b'}, {'1': 'c'}]
+        self.assertListEqual(get_all_template_entries(wikitext, template),
+                             expected)

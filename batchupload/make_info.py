@@ -8,7 +8,6 @@ Abstract class for producing mapping tables and file description pages.
 from __future__ import unicode_literals
 from builtins import dict, object
 import batchupload.common as common
-import batchupload.helpers as helpers
 import os
 import pywikibot
 from abc import ABCMeta, abstractmethod
@@ -240,9 +239,9 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         for arg in pywikibot.handle_args(args):
             option, sep, value = arg.partition(':')
             if option == '-in_file':
-                options['in_file'] = helpers.convertFromCommandline(value)
+                options['in_file'] = common.convert_from_commandline(value)
             elif option == '-base_name':
-                options['base_name'] = helpers.convertFromCommandline(value)
+                options['base_name'] = common.convert_from_commandline(value)
 
         return options
 

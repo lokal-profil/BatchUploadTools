@@ -9,7 +9,6 @@ import json
 from batchupload.common import (
     strip_dict_entries,
     strip_list_entries,
-    get_all_template_entries,
     is_int,
     is_pos_int,
     open_and_read_file,
@@ -20,6 +19,8 @@ from batchupload.common import (
     modify_path,
     create_dir,
     listify,
+    sorted_dict,
+    add_or_increment,
 )
 
 
@@ -88,28 +89,6 @@ class TestStriplistEntries(unittest.TestCase):
         self.assertEquals(cm.exception.value,
                           'strip_list_entries() expects a list object'
                           'as input but found "int"')
-
-
-class TestGetAllTemplateEntries(unittest.TestCase):
-
-    """Test the get_all_template_entries method."""
-
-    def test_get_all_template_entries_empty(self):
-        self.assertEquals(get_all_template_entries('', ''), [])
-
-    def test_get_all_template_entries_single(self):
-        template = 'a'
-        wikitext = '{{a|A|b=b|c={{c|c=pling}}}}'
-        expected = [{'1': 'A', 'c': '{{c|c=pling}}', 'b': 'b'}]
-        self.assertListEqual(get_all_template_entries(wikitext, template),
-                             expected)
-
-    def test_get_all_template_entries_multiple(self):
-        template = 'a'
-        wikitext = '{{a|b=b}} {{a|b=b}} {{a|c}}'
-        expected = [{'b': 'b'}, {'b': 'b'}, {'1': 'c'}]
-        self.assertListEqual(get_all_template_entries(wikitext, template),
-                             expected)
 
 
 class TestIsInt(unittest.TestCase):
@@ -359,3 +338,51 @@ class TestCreateDir(TestModifyDirBase):
         self.assertEquals(cm.exception.value,
                           'Cannot create the directory "%s" as a file with '
                           'that name already exists.' % self.test_file.name)
+
+
+class TestSortedDict(unittest.TestCase):
+
+    """Test the sorted_dict method."""
+
+    def test_sorted_dict_empty(self):
+        self.assertEquals(sorted_dict({}), [])
+
+    def test_sorted_dict_sort(self):
+        input_value = {'a': 1, 'b': 3, 'c': 2}
+        expected = [('b', 3), ('c', 2), ('a', 1)]
+        self.assertEquals(sorted_dict(input_value), expected)
+
+
+class TestAddOrIncrement(unittest.TestCase):
+
+    """Test the add_or_increment method."""
+
+    def test_add_or_increment_new_wo_key(self):
+        dictionary = {}
+        val = 'hej'
+        expected = {'hej': 1}
+        add_or_increment(dictionary, val)
+        self.assertEquals(dictionary, expected)
+
+    def test_add_or_increment_new_w_key(self):
+        dictionary = {}
+        key = 'freq'
+        val = 'hej'
+        expected = {'hej': {'freq': 1}}
+        add_or_increment(dictionary, val, key)
+        self.assertEquals(dictionary, expected)
+
+    def test_add_or_increment_old_wo_key(self):
+        dictionary = {'hej': 1}
+        val = 'hej'
+        expected = {'hej': 2}
+        add_or_increment(dictionary, val)
+        self.assertEquals(dictionary, expected)
+
+    def test_add_or_increment_old_w_key(self):
+        dictionary = {'hej': {'freq': 1}}
+        key = 'freq'
+        val = 'hej'
+        expected = {'hej': {'freq': 2}}
+        add_or_increment(dictionary, val, key)
+        self.assertEquals(dictionary, expected)

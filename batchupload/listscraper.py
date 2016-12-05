@@ -12,8 +12,9 @@
 from __future__ import unicode_literals
 from builtins import dict
 import os
-import batchupload.common as common
 import pywikibot
+import batchupload.common as common
+import batchupload.helpers as helpers
 
 OUT_PATH = 'connections'
 
@@ -43,7 +44,7 @@ def parseEntries(contents,
         'category': '',
         'other': ''}
 
-    entries = common.get_all_template_entries(contents, row_t)
+    entries = helpers.get_all_template_entries(contents, row_t)
     units = []
     for entry in entries:
         params = default_params.copy()

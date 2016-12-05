@@ -1,16 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
-
-"""
-Shared methods.
-
-To be merged with helpers.py
-"""
+"""Common functions not specifically related to batchuploads or wiki."""
 from __future__ import unicode_literals
 from builtins import dict, open
-import pywikibot
 import json
 import os
+import operator  # needed by sorted_dict
+import sys  # needed by convert_from_commandline()
+import locale  # needed by convert_from_commandline()
+from pywikibot.tools import deprecated
 
 
 # avoid having to use from past.builtins import basestring
@@ -84,6 +82,20 @@ def open_and_write_file(filename, text, codec='utf-8', as_json=False):
             f.write(text)
 
 
+def sorted_dict(ddict):
+    """
+    Turn a dict into a sorted list.
+
+    @param ddict: dict to sort
+    @type ddict: dict
+    @return: list of tuples
+    """
+    sorted_ddict = sorted(ddict.items(),
+                          key=operator.itemgetter(1),
+                          reverse=True)
+    return sorted_ddict
+
+
 def strip_dict_entries(dict_in):
     """Strip whitespace from all keys and (string) values in a dictionary."""
     dict_out = dict()
@@ -155,24 +167,37 @@ def deep_sort(obj):
     return _sorted
 
 
+def add_or_increment(dictionary, val, key=None):
+    """
+    Add a value to the dictionary or increments the counter for the value.
+
+    @param dictionary: the dictionary to update
+    @param val: the value to look for in the dictionary
+    @param key: the key holding the counter
+    """
+    if val not in dictionary:
+        if key:
+            dictionary[val] = {key: 0}
+        else:
+            dictionary[val] = 0
+    if key:
+        dictionary[val][key] += 1
+    else:
+        dictionary[val] += 1
+
+
+@deprecated('helpers.get_all_template_entries')
 def get_all_template_entries(wikitext, template_name):
     """Return a list of all arguments for instances of a given template."""
-    templates = pywikibot.textlib.extract_templates_and_params(wikitext)
-    result = []
-    for tp in templates:
-        if tp[0] == template_name:
-            result.append(strip_dict_entries(tp[1]))
-    return result
+    import batchupload.helpers as helpers
+    return helpers.get_all_template_entries(wikitext, template_name)
 
 
+@deprecated('helpers.get_all_template_entries_from_page')
 def get_all_template_entries_from_page(page, template_name):
     """Return a list of all arguments for instances of a given template."""
-    templates = page.templatesWithParams()
-    result = []
-    for tp in templates:
-        if tp[0].title() == template_name:
-            result.append(tp[1])
-    return result
+    import batchupload.helpers as helpers
+    return helpers.get_all_template_entries_from_page(page, template_name)
 
 
 def modify_path(base_path, out_path):
@@ -221,6 +246,17 @@ def to_unicode(text):
         if isinstance(text, str):
             text = unicode(text)
     return text
+
+
+def convert_from_commandline(string):
+    """
+    Convert a string read from the commandline to a standard unicode format.
+
+    @param string: string to convert
+    @return: str
+    """
+    return string.decode(sys.stdin.encoding or
+                         locale.getpreferredencoding(True))
 
 
 class MyError(Exception):

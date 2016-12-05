@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 from builtins import open
 import os
 from batchupload.make_info import make_info_page
-import batchupload.helpers as helpers
 import batchupload.common as common
 import pywikibot
 
@@ -173,11 +172,11 @@ def main(*args):
     for arg in pywikibot.handle_args(args):
         option, sep, value = arg.partition(':')
         if option == '-in_path':
-            in_path = helpers.convertFromCommandline(value)
+            in_path = common.convert_from_commandline(value)
         elif option == '-out_path':
-            out_path = helpers.convertFromCommandline(value)
+            out_path = common.convert_from_commandline(value)
         elif option == '-data_path':
-            data_path = helpers.convertFromCommandline(value)
+            data_path = common.convert_from_commandline(value)
         elif option == '-usage':
             pywikibot.output(usage)
             return

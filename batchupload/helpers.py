@@ -1,11 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
-"""Helper tools related to batchUploads."""
+"""Helper tools related to wiki specific formatting or restrictions."""
 from __future__ import unicode_literals
 from builtins import range  # ,dict
-import operator
-import sys  # needed by convertFromCommandline()
-import locale  # needed by convertFromCommandline()
+from pywikibot.tools import deprecated
+import pywikibot.textlib
 import batchupload.common as common
 
 # limitations on namelength
@@ -48,14 +47,13 @@ def flip_names(names):
     return flipped
 
 
+@deprecated('common.sorted_dict')
 def sortedDict(ddict):
     """Turn a dict into a sorted list."""
-    sorted_ddict = sorted(ddict.items(),
-                          key=operator.itemgetter(1),
-                          reverse=True)
-    return sorted_ddict
+    return common.sorted_dict(ddict)
 
 
+@deprecated('common.add_or_increment')
 def addOrIncrement(dictionary, val, key=None):
     """
     Add a value to the dictionary or increments the counter for the value.
@@ -64,15 +62,27 @@ def addOrIncrement(dictionary, val, key=None):
     @param val: the value to look for in the dictionary
     @param key: the key holding the counter
     """
-    if val not in dictionary:
-        if key:
-            dictionary[val] = {key: 0}
-        else:
-            dictionary[val] = 0
-    if key:
-        dictionary[val][key] += 1
-    else:
-        dictionary[val] += 1
+    common.add_or_increment(dictionary, val, key)
+
+
+def get_all_template_entries(wikitext, template_name):
+    """Return a list of all arguments for instances of a given template."""
+    templates = pywikibot.textlib.extract_templates_and_params(wikitext)
+    result = []
+    for tp in templates:
+        if tp[0] == template_name:
+            result.append(common.strip_dict_entries(tp[1]))
+    return result
+
+
+def get_all_template_entries_from_page(page, template_name):
+    """Return a list of all arguments for instances of a given template."""
+    templates = page.templatesWithParams()
+    result = []
+    for tp in templates:
+        if tp[0].title() == template_name:
+            result.append(tp[1])
+    return result
 
 
 # methods for handling filenames
@@ -394,6 +404,7 @@ def italicize(s):
     return '\'\'%s\'\'' % s
 
 
+@deprecated('common.convert_from_commandline')
 def convertFromCommandline(s):
     """
     Convert a string read from the commandline to a standard unicode format.
@@ -401,5 +412,4 @@ def convertFromCommandline(s):
     :param s: string to convert
     :return: str
     """
-    return s.decode(sys.stdin.encoding or
-                    locale.getpreferredencoding(True))
+    return common.convert_from_commandline(s)
