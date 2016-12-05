@@ -91,7 +91,7 @@ def format_filename(descr, institution, idno, delimiter=None):
     @return: str
     """
     delimiter = delimiter or ' - '
-    descr = shortenString(touchup(cleanString(descr), delimiter))
+    descr = desc_cleanup_routine(descr, delimiter)
     institution = cleanString(institution)
     idno = cleanString(idno)
     filename = delimiter.join((descr, institution, idno))
@@ -133,7 +133,8 @@ def touchup(text, delimiter=None, delimiter_replacement=None):
 
     @param text: the text to touch up
     @param delimiter: a delimiter to replace
-    @param delimiter_replacement: what to replace the delimiter by
+    @param delimiter_replacement: what to replace the delimiter by. Defaults to
+        ", ".
     @return string
     """
     delimiter_replacement = delimiter_replacement or ', '
@@ -193,6 +194,29 @@ def shortenString(text):
                         text = '%s...' % text[:MAXLENGTH - 3]
                     return text
     return shortenString(text[:pos].strip(badchar))
+
+
+def desc_cleanup_routine(text, delimiter=None, delimiter_replacement=None):
+    """
+    Run the full cleanup routine on a description string.
+
+    @param text: the text to clean
+    @type text: string
+    @param delimiter: a delimiter to replace
+    @type delimiter: string|None
+    @param delimiter_replacement: what to replace the delimiter by
+    @type delimiter_replacement: string|None
+    @return: string
+    """
+    text = cleanString(text)
+    if not text.strip('0123456789,.- '):
+        # if no relevant info left
+        text = ''
+    else:
+        text = shortenString(text)
+        text = touchup(text, delimiter, delimiter_replacement)
+
+    return text
 
 
 # methods for handling dates
