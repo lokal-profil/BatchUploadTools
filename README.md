@@ -6,16 +6,6 @@ An attempt of unifying the various tools for batch uploads under one repo.
 Heavily based on the [LSH](https://github.com/lokal-profil/LSH) repo
 
 
-## To install
-You can install `BatchUploadTools` via `pip` using:
-`pip install git+https://github.com/lokal-profil/BatchUploadTools.git`
-
-If you are not already using the developer version of pywikibot (3.0-dev) you
-will have to add the  `--process-dependency-links` flag to the pip command.
-
-If it is your first time running pywikibot you will also have to set up a
-`user-config.py` file.
-
 ## Running as a different user:
 
 To run as a different user to your standard pywikibot simply place a
@@ -24,12 +14,8 @@ modified `user-config.py`-file in the top directory.
 To use a different user for a particular batchupload place the `user-config.py`
 in the subdirectory and run the script with `-dir:<sub-directory>`.
 
-## When creating a new batch upload
-Extend `make_info` to create own methods for reading and processing the indata.
-Any method marked as abstract must be implemented locally. You can make use
-of the various helper functions in the other classes.
-
 ## Protocol for a batch upload
+
 1. Load indata to a dictionary
 2. Process the indata to generate mapping lists
 3. Load the indata and the mappings to produce a list of original filenames
@@ -43,3 +29,13 @@ of the various helper functions in the other classes.
 4. Run the prep-uploader to rename the media files and create the text file
    for the associated file description page.
 5. Run the uploader to upload it all
+
+## When creating a new batch upload
+
+Extend make_info to create own methods for reading and processing the indata.
+Any method marked as abstract must be implemented locally. You can make use
+of the various helper functions in the other classes.
+
+## Usage example:
+
+For usage examples see [lokal-profil/upload_batches](https://github.com/lokal-profil/upload_batches).
