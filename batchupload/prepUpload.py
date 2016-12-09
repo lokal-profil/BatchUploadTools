@@ -16,15 +16,16 @@ def run(in_path, out_path, data_path, file_exts=None):
     Prepare an upload.
 
     Prepare an upload by:
-        1. Finds files in inpath (with subdirs) with the right file extension,
-        2. Matching these against the keys in the makeInfo output data
-        3. Making info files and renaming found file (in new target folder)
-    @param in_path: path to directory where unprocessed files live
-    @param outPath: path to directory where renamed files and info should live
-    @param dataPath: path to .json containing makeInfo output data
-    @param file_exts: tupple of allowed file extensions (case insensitive)
+        1. Find files in in_path (with subdirs) with file_exts file extension,
+        2. Match these against the keys in the makeInfo output data
+        3. Make info files and rename found file (in new target folder)
 
     @todo: throw errors on failed file read/write
+
+    @param in_path: path to directory where unprocessed files live
+    @param out_path: path to directory where renamed files and info should live
+    @param data_path: path to .json containing makeInfo output data
+    @param file_exts: tupple of allowed file extensions (case insensitive)
     """
     # Load data
     data = common.open_and_read_file(data_path, codec='utf-8', as_json=True)
