@@ -12,7 +12,7 @@ FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg')
 
 
 def upload_single_file(file_name, media_file, text, target_site,
-                       chunk_size=5, overwrite_page_exists=False,
+                       chunk_size=5, chunked=True, overwrite_page_exists=False,
                        upload_if_duplicate=False, upload_if_badprefix=False,
                        ignore_all_warnings=False):
     """
@@ -23,6 +23,7 @@ def upload_single_file(file_name, media_file, text, target_site,
     @param text: file description page
     @param target_site: pywikibot.Site object to which file should be uploaded
     @param chunk_size: Size of chunks (in MB) in which to upload file
+    @param chunked: Whether to do chunked uploading or not.
     @param overwrite_page_exists: Ignore filepage already exists warning
     @param upload_if_duplicate: Ignore duplicate file warning
     @param upload_if_badprefix: Ignore bad-prefix warning
@@ -53,7 +54,10 @@ def upload_single_file(file_name, media_file, text, target_site,
         ignore_warnings = allow_warnings
 
     # convert chunksize to Mb
-    chunk_size *= 1048576
+    if chunked:
+        chunk_size *= 1048576
+    else:
+        chunk_size = 0
 
     # store description in filepage (used for comment and description)
     file_page = pywikibot.FilePage(target_site, file_name)
@@ -89,7 +93,7 @@ def upload_single_file(file_name, media_file, text, target_site,
 
 
 def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
-           verbose=False, test=False, target_site=None):
+           verbose=False, test=False, target_site=None, chunked=True):
     """
     Upload all matched files in the supplied directory.
 
@@ -107,6 +111,7 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
     @param test: set to True to test but not upload (deprecated?)
     @param target_site: pywikibot.Site to which file should be uploaded,
         defaults to Commons.
+    @param chunked: Whether to do chunked uploading or not.
     """
     # set defaults unless overridden
     file_exts = file_exts or FILE_EXTS
@@ -157,7 +162,7 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
 
         target_dir = None
         result = upload_single_file(base_name, f, txt, target_site,
-                                    upload_if_badprefix=True)
+                                    upload_if_badprefix=True, chunked=chunked)
         if result.get('error'):
             target_dir = error_dir
         elif result.get('warning'):
