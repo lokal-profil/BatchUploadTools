@@ -255,8 +255,14 @@ def convert_from_commandline(string):
     @param string: string to convert
     @return: str
     """
-    return string.decode(sys.stdin.encoding or
-                         locale.getpreferredencoding(True))
+    try:
+        unicode
+    except NameError:
+        # python 3 so don't worry (I think)
+        return string
+    else:
+        return string.decode(sys.stdin.encoding or
+                             locale.getpreferredencoding(True))
 
 
 class MyError(Exception):
