@@ -50,6 +50,7 @@ of the various helper functions in the other classes.
 ## Usage example:
 
 For usage examples see [lokal-profil/upload_batches](https://github.com/lokal-profil/upload_batches).
+In particular SMM-images.
 
 ## Handling upload errors
 
