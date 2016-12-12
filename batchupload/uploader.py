@@ -1,17 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 #
+from __future__ import unicode_literals
+from builtins import open
 import batchupload.common as common
 import batchupload.prepUpload as prepUpload
-import codecs
 import os
 import pywikibot
 
-FILE_EXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
+FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg')
 
 
 def upload_single_file(file_name, media_file, text, target_site,
-                       chunk_size=5, overwrite_page_exists=False,
+                       chunk_size=5, chunked=True, overwrite_page_exists=False,
                        upload_if_duplicate=False, upload_if_badprefix=False,
                        ignore_all_warnings=False):
     """
@@ -22,6 +23,7 @@ def upload_single_file(file_name, media_file, text, target_site,
     @param text: file description page
     @param target_site: pywikibot.Site object to which file should be uploaded
     @param chunk_size: Size of chunks (in MB) in which to upload file
+    @param chunked: Whether to do chunked uploading or not.
     @param overwrite_page_exists: Ignore filepage already exists warning
     @param upload_if_duplicate: Ignore duplicate file warning
     @param upload_if_badprefix: Ignore bad-prefix warning
@@ -52,7 +54,10 @@ def upload_single_file(file_name, media_file, text, target_site,
         ignore_warnings = allow_warnings
 
     # convert chunksize to Mb
-    chunk_size *= 1048576
+    if chunked:
+        chunk_size *= 1048576
+    else:
+        chunk_size = 0
 
     # store description in filepage (used for comment and description)
     file_page = pywikibot.FilePage(target_site, file_name)
@@ -65,34 +70,38 @@ def upload_single_file(file_name, media_file, text, target_site,
             report_success=False, chunk_size=chunk_size)
     except pywikibot.data.api.APIError as error:
         result['error'] = error
-        result['log'] = u'Error: %s: %s' % (file_page.title(), error)
+        result['log'] = 'Error: %s: %s' % (file_page.title(), error)
     except KeyboardInterrupt:
         raise
     except Exception as e:
-        result['error'] = u'%r' % e
-        result['log'] = u'Error: %s: Unhandled error: %' % (
+        result['error'] = '%r' % e
+        result['log'] = 'Error: %s: Unhandled error: %' % (
                         file_page.title(), e)
     else:
         if result.get('warning'):
-            result['log'] = u'Warning: %s: %s' % (file_page.title(),
-                                                  result['warning'])
+            result['log'] = 'Warning: %s: %s' % (file_page.title(),
+                                                 result['warning'])
         elif success:
-            result['log'] = u'%s: success' % file_page.title()
+            result['log'] = '%s: success' % file_page.title()
         else:
-            result['error'] = u"No warning/error but '%s' didn't upload?" % \
+            result['error'] = "No warning/error but '%s' didn't upload?" % \
                               file_page.title()
-            result['log'] = u'Error: %s: %s' % (file_page.title(),
-                                                result['error'])
+            result['log'] = 'Error: %s: %s' % (file_page.title(),
+                                               result['error'])
     finally:
         return result
 
 
-def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
-           verbose=False, test=False, target_site=None):
+def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
+           verbose=False, test=False, target_site=None, chunked=True):
     """
     Upload all matched files in the supplied directory.
 
-    Moves any processed files to the target folders.
+    Media (image) files and metadata files with the expected extension .info
+    should be in the same directory. Metadata files should contain the entirety
+    of the desired description page (in wikitext).
+
+    Moves each file to one the target folders after processing.
 
     @param in_path: path to directory with files to upload
     @param cutoff: number of files to upload (defaults to all)
@@ -102,6 +111,7 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
     @param test: set to True to test but not upload (deprecated?)
     @param target_site: pywikibot.Site to which file should be uploaded,
         defaults to Commons.
+    @param chunked: Whether to do chunked uploading or not.
     """
     # set defaults unless overridden
     file_exts = file_exts or FILE_EXTS
@@ -110,21 +120,21 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
 
     # Verify in_path
     if not os.path.isdir(in_path):
-        pywikibot.output(u'The provided in_path was not a valid '
-                         u'directory: %s' % in_path)
+        pywikibot.output('The provided in_path was not a valid '
+                         'directory: %s' % in_path)
         exit()
 
     # create target directories if they don't exist
     done_dir = os.path.join(in_path, target)
-    error_dir = u'%s_errors' % done_dir
-    warnings_dir = u'%s_warnings' % done_dir
+    error_dir = '%s_errors' % done_dir
+    warnings_dir = '%s_warnings' % done_dir
     common.create_dir(done_dir)
     common.create_dir(error_dir)
     common.create_dir(warnings_dir)
 
     # logfile
-    logfile = os.path.join(in_path, u'¤uploader.log')
-    flog = codecs.open(logfile, 'a', 'utf-8')
+    logfile = os.path.join(in_path, '¤uploader.log')
+    flog = open(logfile, 'a', encoding='utf-8')
 
     # find all content files
     found_files = prepUpload.find_files(path=in_path, file_exts=file_exts,
@@ -134,25 +144,25 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
         if cutoff and counter > cutoff:
             break
         # verify that there is a matching info file
-        info_file = u'%s.info' % os.path.splitext(f)[0]
+        info_file = '%s.info' % os.path.splitext(f)[0]
         base_name = os.path.basename(f)
         base_info_name = os.path.basename(info_file)
         if not os.path.exists(info_file):
-            flog.write(u'%s: Found multimedia file without info\n' % base_name)
+            flog.write('%s: Found multimedia file without info\n' % base_name)
             continue
 
         # prepare upload
         txt = common.open_and_read_file(info_file)
 
         if test:
-            pywikibot.output(u'Test upload "%s" with the following '
-                             u'description: %s\n' % (base_name, txt))
+            pywikibot.output('Test upload "%s" with the following '
+                             'description: %s\n' % (base_name, txt))
             continue
         # stop here if testing
 
         target_dir = None
         result = upload_single_file(base_name, f, txt, target_site,
-                                    upload_if_badprefix=True)
+                                    upload_if_badprefix=True, chunked=chunked)
         if result.get('error'):
             target_dir = error_dir
         elif result.get('warning'):
@@ -162,29 +172,29 @@ def up_all(in_path, cutoff=None, target=u'Uploaded', file_exts=None,
         if verbose:
             pywikibot.output(result.get('log'))
 
-        flog.write(u'%s\n' % result.get('log'))
+        flog.write('%s\n' % result.get('log'))
         os.rename(f, os.path.join(target_dir, base_name))
         os.rename(info_file, os.path.join(target_dir, base_info_name))
         counter += 1
         flog.flush()
 
     flog.close()
-    pywikibot.output(u'Created %s' % logfile)
+    pywikibot.output('Created %s' % logfile)
 
 
 def main(*args):
     """Command line entry-point."""
-    usage = u'Usage:' \
-            u'\tpython uploader.py -in_path:PATH -dir:PATH -cutoff:NUM\n' \
-            u'\t-in_path:PATH path to the directory containing the media files\n' \
-            u'\t-dir:PATH specifies the path to the directory containing a ' \
-            u'user_config.py file (optional)\n' \
-            u'\t-cutoff:NUM stop the upload after the specified number of files ' \
-            u'(optional)\n' \
-            u'\t-confirm Whether to output a confirmation after each upload ' \
-            u'attempt (optional)\n' \
-            u'\tExample:\n' \
-            u'\tpython uploader.py -in_path:../diskkopia -cutoff:100\n'
+    usage = 'Usage:' \
+            '\tpython uploader.py -in_path:PATH -dir:PATH -cutoff:NUM\n' \
+            '\t-in_path:PATH path to the directory containing the media files\n' \
+            '\t-dir:PATH specifies the path to the directory containing a ' \
+            'user_config.py file (optional)\n' \
+            '\t-cutoff:NUM stop the upload after the specified number of files ' \
+            '(optional)\n' \
+            '\t-confirm Whether to output a confirmation after each upload ' \
+            'attempt (optional)\n' \
+            '\tExample:\n' \
+            '\tpython uploader.py -in_path:../diskkopia -cutoff:100\n'
     cutoff = None
     in_path = None
     test = False
@@ -202,6 +212,9 @@ def main(*args):
             test = True
         elif option == '-confirm':
             confirm = True
+        elif option == '-usage':
+            pywikibot.output(usage)
+            return
 
     if in_path:
         up_all(in_path, cutoff=cutoff, test=test, verbose=confirm)

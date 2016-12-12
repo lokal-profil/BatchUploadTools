@@ -1,14 +1,14 @@
 #!/usr/bin/python
 # -*- coding: UTF-8  -*-
 """Prepare files for upload by creating Information pages and renaming them."""
+from __future__ import unicode_literals
+from builtins import open
 import os
-import codecs
 from batchupload.make_info import make_info_page
-import batchupload.helpers as helpers
 import batchupload.common as common
 import pywikibot
 
-FILE_EXTS = (u'.tif', u'.jpg', u'.tiff', u'.jpeg')
+FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg')
 
 
 def run(in_path, out_path, data_path, file_exts=None):
@@ -16,15 +16,16 @@ def run(in_path, out_path, data_path, file_exts=None):
     Prepare an upload.
 
     Prepare an upload by:
-        1. Finds files in inpath (with subdirs) with the right file extension,
-        2. Matching these against the keys in the makeInfo output data
-        3. Making info files and renaming found file (in new target folder)
-    @param in_path: path to directory where unprocessed files live
-    @param outPath: path to directory where renamed files and info should live
-    @param dataPath: path to .json containing makeInfo output data
-    @param file_exts: tupple of allowed file extensions (case insensitive)
+        1. Find files in in_path (with subdirs) with file_exts file extension,
+        2. Match these against the keys in the makeInfo output data
+        3. Make info files and rename found file (in new target folder)
 
     @todo: throw errors on failed file read/write
+
+    @param in_path: path to directory where unprocessed files live
+    @param out_path: path to directory where renamed files and info should live
+    @param data_path: path to .json containing makeInfo output data
+    @param file_exts: tupple of allowed file extensions (case insensitive)
     """
     # Load data
     data = common.open_and_read_file(data_path, codec='utf-8', as_json=True)
@@ -35,7 +36,7 @@ def run(in_path, out_path, data_path, file_exts=None):
     # Find candidate files
     if not os.path.isdir(in_path):
         raise common.MyError(
-            u'The provided inPath was not a valid directory: %s' % in_path)
+            'The provided inPath was not a valid directory: %s' % in_path)
     found_files = find_files(path=in_path, file_exts=file_exts)
 
     # Find matches
@@ -58,8 +59,7 @@ def find_files(path, file_exts, subdir=True):
     @return: list of paths to found files
     """
     # os.listdir cannot handle unicode filenames unless the path is unicode
-    if isinstance(path, str):
-        path = unicode(path)
+    path = common.to_unicode(path)
 
     files = []
     subdirs = []
@@ -92,10 +92,10 @@ def makeHitlist(files, data):
     processed_keys = []  # stay paranoid
     for f in files:
         key, ext = os.path.splitext(os.path.basename(f))
-        if key not in data.keys():
+        if key not in data:
             continue
         elif key in processed_keys:
-            raise common.MyError(u'non-unique file key: %s' % key)
+            raise common.MyError('non-unique file key: %s' % key)
         processed_keys.append(key)
         hitlist.append({'path': f, 'ext': ext.lower(),
                         'data': data[key], 'key': key})
@@ -113,23 +113,23 @@ def makeAndRename(hitlist, outPath):
     common.create_dir(outPath)
 
     # logfile
-    logfile = os.path.join(outPath, u'¤generator.log')
-    flog = codecs.open(logfile, 'a', 'utf-8')
+    logfile = os.path.join(outPath, '¤generator.log')
+    flog = open(logfile, 'a', encoding='utf-8')
 
     for hit in hitlist:
         base_name = os.path.join(outPath, hit['data']['filename'])
 
         # output info file
-        common.open_and_write_file(u'%s.info' % base_name,
+        common.open_and_write_file('%s.info' % base_name,
                                    make_info_page(hit['data']))
 
         # rename/move matched file
-        outfile = u'%s%s' % (base_name, hit['ext'])
+        outfile = '%s%s' % (base_name, hit['ext'])
         os.rename(hit['path'], outfile)
-        flog.write(u'%s|%s\n' % (os.path.basename(hit['path']),
-                                 os.path.basename(outfile)))
+        flog.write('%s|%s\n' % (os.path.basename(hit['path']),
+                                os.path.basename(outfile)))
     flog.close()
-    pywikibot.output(u'Created %s' % logfile)
+    pywikibot.output('Created %s' % logfile)
 
 
 def removeEmptyDirectories(path, top=True):
@@ -161,10 +161,10 @@ def removeEmptyDirectories(path, top=True):
 def main(*args):
     """Command line entry-point."""
     usage = \
-        u'Usage:\tpython prepUpload.py -in_path:PATH -out_path:PATH -data_path:PATH\n' \
-        u'\tExamples:\n' \
-        u'\tpython prepUpload.py -in_path:../diskkopia -out_path:./toUpload ' \
-        u'-data_path:./datafile.json \n'
+        'Usage:\tpython prepUpload.py -in_path:PATH -out_path:PATH -data_path:PATH\n' \
+        '\tExamples:\n' \
+        '\tpython prepUpload.py -in_path:../diskkopia -out_path:./toUpload ' \
+        '-data_path:./datafile.json \n'
     in_path = None
     out_path = None
     data_path = None
@@ -173,11 +173,14 @@ def main(*args):
     for arg in pywikibot.handle_args(args):
         option, sep, value = arg.partition(':')
         if option == '-in_path':
-            in_path = helpers.convertFromCommandline(value)
+            in_path = common.convert_from_commandline(value)
         elif option == '-out_path':
-            out_path = helpers.convertFromCommandline(value)
+            out_path = common.convert_from_commandline(value)
         elif option == '-data_path':
-            data_path = helpers.convertFromCommandline(value)
+            data_path = common.convert_from_commandline(value)
+        elif option == '-usage':
+            pywikibot.output(usage)
+            return
 
     if in_path and out_path and data_path:
         run(in_path, out_path, data_path)
