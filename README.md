@@ -62,7 +62,7 @@ Below follows a list of of common errors and what to do about them (when known).
    primarilly be due to larger files. Solution: Manually upload this using
    Upload Wizard.
 2. `stashfailed: This file contains HTML or script code that may be erroneously interpreted by a web browser.`
-   Either you really have html tags in your exif data or you have triggered [this issue](https://commons.wikimedia.org/wiki/Commons:Upload_help/Archive/2015/11#This_file_contains_HTML_or_script_code...).
+   Either you really have html tags in your exif data or you have triggered [T143610](https://phabricator.wikimedia.org/T143610).
    Smaller files can often be uploaded unchunked (slow).
 3. `stashfailed: Cannot upload this file because Internet Explorer would detect it as "$1", which is a disallowed and potentially dangerous file type`
    No clue yet. See [T147720](https://phabricator.wikimedia.org/T147720)
