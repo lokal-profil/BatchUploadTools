@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from setuptools import setup
 version = '0.1.1'
@@ -6,7 +7,7 @@ repo = 'BatchUploadTools'
 setup(
     name='BatchUploadTools',
     packages=['batchupload'],
-    install_requires=['pywikibot==3.0-dev'],
+    install_requires=['pywikibot==3.0-dev', 'future', 'mwparserfromhell'],
     dependency_links=['git+https://github.com/wikimedia/pywikibot-core.git#egg=pywikibot-3.0-dev'],
     version=version,
     description='Framework for mass-importing images to Wikimedia Commons.',

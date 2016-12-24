@@ -16,9 +16,11 @@ try:
     basestring  # attempt to evaluate basestring
 except NameError:
     def is_str(s):
+        """Python 3 test for string type."""
         return isinstance(s, str)
 else:
     def is_str(s):
+        """Python 2 test for basestring type."""
         return isinstance(s, basestring)
 
 
@@ -129,10 +131,7 @@ def trim_list(old_list):
         return old_list
 
     old_list = strip_list_entries(old_list)
-    new_list = []
-    for l in old_list:
-        if l:
-            new_list.append(l)
+    new_list = filter(None, old_list)
     return new_list
 
 
