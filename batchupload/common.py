@@ -131,7 +131,10 @@ def trim_list(old_list):
         return old_list
 
     old_list = strip_list_entries(old_list)
-    new_list = filter(None, old_list)
+    new_list = []
+    for l in old_list:
+        if l:
+            new_list.append(l)
     return new_list
 
 
