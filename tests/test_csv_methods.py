@@ -38,9 +38,9 @@ class CustomAssertions(object):
         :param first: a string
         :param second: a string
         """
-        self.assertEquals(CustomAssertions.sort_lines(first),
-                          CustomAssertions.sort_lines(second),
-                          msg=msg)
+        self.assertEqual(CustomAssertions.sort_lines(first),
+                         CustomAssertions.sort_lines(second),
+                         msg=msg)
 
 
 class TestCSVFileBase(unittest.TestCase):
@@ -87,8 +87,8 @@ class TestOpenCSVFile(TestCSVFileBase):
             'a1|a2| a3 |a4|a5|a1;a2; a3 ;a4;a5'
         ]
         result_header, result_lines = open_csv_file(self.test_infile.name)
-        self.assertEquals(result_header, expected_header)
-        self.assertEquals(result_lines, expected_lines)
+        self.assertEqual(result_header, expected_header)
+        self.assertEqual(result_lines, expected_lines)
 
 
 class TestCSVFileToDict(TestCSVFileBase):
@@ -182,8 +182,8 @@ class TestCSVFileToDictNonUnique(TestCSVFileBase):
         # ensure error message is the same
         result_msg, _, result_items = cm.exception.value.partition(':')
         result_items = strip_list_entries(result_items.split(','))
-        self.assertEquals(result_msg, expected_msg)
-        self.assertEquals(sorted(result_items), expected_items)
+        self.assertEqual(result_msg, expected_msg)
+        self.assertEqual(sorted(result_items), expected_items)
 
 
 class TestDictToCSVFile(TestCSVFileBase, CustomAssertions):

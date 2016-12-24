@@ -29,35 +29,35 @@ class TestStripDictEntries(unittest.TestCase):
     """Test the strip_dict_entries method."""
 
     def test_strip_dict_entries_empty_dict(self):
-        self.assertEquals(strip_dict_entries({}), {})
+        self.assertEqual(strip_dict_entries({}), {})
 
     def test_strip_dict_entries(self):
         input_value = {'id': 'identifier'}
         expected = {'id': 'identifier'}
-        self.assertEquals(strip_dict_entries(input_value), expected)
+        self.assertEqual(strip_dict_entries(input_value), expected)
 
     def test_strip_dict_entries_with_whitespace_in_key(self):
         input_value = {' id\n ': 'identifier'}
         expected = {'id': 'identifier'}
-        self.assertEquals(strip_dict_entries(input_value), expected)
+        self.assertEqual(strip_dict_entries(input_value), expected)
 
     def test_strip_dict_entries_with_whitespace_in_value(self):
         input_value = {'id': ' \t\nidentifier '}
         expected = {'id': 'identifier'}
-        self.assertEquals(strip_dict_entries(input_value), expected)
+        self.assertEqual(strip_dict_entries(input_value), expected)
 
     def test_strip_dict_entries_ignore_non_string_values(self):
         input_value = {'int': 5, 'list': ['aa', ' aa']}
         expected = {'int': 5, 'list': ['aa', ' aa']}
-        self.assertEquals(strip_dict_entries(input_value), expected)
+        self.assertEqual(strip_dict_entries(input_value), expected)
 
     def test_strip_dict_entries_error_on_non_dict(self):
         input_value = 123
         with self.assertRaises(MyError) as cm:
             strip_dict_entries(input_value)
-        self.assertEquals(cm.exception.value,
-                          'strip_dict_entries() expects a dictionary object'
-                          'as input but found "int"')
+        self.assertEqual(cm.exception.value,
+                         'strip_dict_entries() expects a dictionary object'
+                         'as input but found "int"')
 
 
 class TestStriplistEntries(unittest.TestCase):
@@ -65,30 +65,30 @@ class TestStriplistEntries(unittest.TestCase):
     """Test the strip_list_entries method."""
 
     def test_strip_list_entries_empty_list(self):
-        self.assertEquals(strip_list_entries([]), [])
+        self.assertEqual(strip_list_entries([]), [])
 
     def test_strip_list_entries(self):
         input_value = ['id', 'identifier']
         expected = ['id', 'identifier']
-        self.assertEquals(strip_list_entries(input_value), expected)
+        self.assertEqual(strip_list_entries(input_value), expected)
 
     def test_strip_list_entries_with_whitespace(self):
         input_value = [' id\n', 'identifier']
         expected = ['id', 'identifier']
-        self.assertEquals(strip_list_entries(input_value), expected)
+        self.assertEqual(strip_list_entries(input_value), expected)
 
     def test_strip_list_entries_ignore_non_string_values(self):
         input_value = [5, ['aa', ' aa']]
         expected = [5, ['aa', ' aa']]
-        self.assertEquals(strip_list_entries(input_value), expected)
+        self.assertEqual(strip_list_entries(input_value), expected)
 
     def test_strip_list_entries_error_on_non_list(self):
         input_value = 123
         with self.assertRaises(MyError) as cm:
             strip_list_entries(input_value)
-        self.assertEquals(cm.exception.value,
-                          'strip_list_entries() expects a list object'
-                          'as input but found "int"')
+        self.assertEqual(cm.exception.value,
+                         'strip_list_entries() expects a list object'
+                         'as input but found "int"')
 
 
 class TestIsInt(unittest.TestCase):
@@ -186,13 +186,13 @@ class TestOpenReadFile(TestOpenFileBase):
     def test_read_data(self):
         expected_data = '{"list": ["a", "b", "c"], "två": "2", "ett": 1}'
         result = open_and_read_file(self.test_infile.name)
-        self.assertEquals(result, expected_data)
+        self.assertEqual(result, expected_data)
 
     def test_read_json_data(self):
         expected_data = {'list': ['a', 'b', 'c'], 'två': '2', 'ett': 1}
         result = open_and_read_file(self.test_infile.name, as_json=True)
-        self.assertEquals(deep_sort(result),
-                          deep_sort(expected_data))
+        self.assertEqual(deep_sort(result),
+                         deep_sort(expected_data))
 
 
 class TestOpenWriteFile(TestOpenFileBase):
@@ -202,16 +202,16 @@ class TestOpenWriteFile(TestOpenFileBase):
     def test_write_data(self):
         to_write = '{"list": ["a", "b", "c"], "två": "2", "ett": 1}'
         open_and_write_file(self.test_outfile.name, to_write)
-        self.assertEquals(self.test_outfile.read().decode('utf-8'),
-                          self.test_data)
+        self.assertEqual(self.test_outfile.read().decode('utf-8'),
+                         self.test_data)
 
     def test_write_json_data(self):
         to_write = {'list': ['a', 'b', 'c'], 'två': '2', 'ett': 1}
         open_and_write_file(self.test_outfile.name, to_write, as_json=True)
         json_out = json.loads(self.test_outfile.read().decode('utf-8'))
         json_in = json.loads(self.test_data)
-        self.assertEquals(deep_sort(json_out),
-                          deep_sort(json_in))
+        self.assertEqual(deep_sort(json_out),
+                         deep_sort(json_in))
 
 
 class TestTrimList(unittest.TestCase):
@@ -219,25 +219,25 @@ class TestTrimList(unittest.TestCase):
     """Test trim_list()."""
 
     def test_trim_list_none(self):
-        self.assertEquals(trim_list(None), None)
+        self.assertEqual(trim_list(None), None)
 
     def test_trim_list_empty_list(self):
-        self.assertEquals(trim_list([]), [])
+        self.assertEqual(trim_list([]), [])
 
     def test_trim_list(self):
         input_value = ['a', '', 'c']
         expected = ['a', 'c']
-        self.assertEquals(trim_list(input_value), expected)
+        self.assertEqual(trim_list(input_value), expected)
 
     def test_trim_list_with_whitespace(self):
         input_value = [' a\n', ' ', 'c']
         expected = ['a', 'c']
-        self.assertEquals(trim_list(input_value), expected)
+        self.assertEqual(trim_list(input_value), expected)
 
     def test_trim_list_ignore_non_string_values(self):
         input_value = [5, ['aa', ' aa']]
         expected = [5, ['aa', ' aa']]
-        self.assertEquals(trim_list(input_value), expected)
+        self.assertEqual(trim_list(input_value), expected)
 
 
 class TestListify(unittest.TestCase):
@@ -245,20 +245,20 @@ class TestListify(unittest.TestCase):
     """Test listify()."""
 
     def test_listify_none(self):
-        self.assertEquals(listify(None), None)
+        self.assertEqual(listify(None), None)
 
     def test_listify_empty_list(self):
-        self.assertEquals(listify([]), [])
+        self.assertEqual(listify([]), [])
 
     def test_listify_list(self):
         input_value = ['a', 'c']
         expected = ['a', 'c']
-        self.assertEquals(listify(input_value), expected)
+        self.assertEqual(listify(input_value), expected)
 
     def test_listify_string(self):
         input_value = 'a string'
         expected = ['a string']
-        self.assertEquals(listify(input_value), expected)
+        self.assertEqual(listify(input_value), expected)
 
 
 class TestModifyDirBase(unittest.TestCase):
@@ -298,14 +298,14 @@ class TestModifyPath(TestModifyDirBase):
     def test_modify_path_no_valid_path(self):
         with self.assertRaises(MyError) as cm:
             modify_path('not_a_directory', self.out_path)
-        self.assertEquals(cm.exception.value,
-                          '"not_a_directory" is not a directory.')
+        self.assertEqual(cm.exception.value,
+                         '"not_a_directory" is not a directory.')
 
     def test_modify_path_file_as_path(self):
         with self.assertRaises(MyError) as cm:
             modify_path(self.test_file.name, self.out_path)
-        self.assertEquals(cm.exception.value,
-                          '"%s" is not a directory.' % self.test_file.name)
+        self.assertEqual(cm.exception.value,
+                         '"%s" is not a directory.' % self.test_file.name)
 
 
 class TestCreateDir(TestModifyDirBase):
@@ -318,8 +318,8 @@ class TestCreateDir(TestModifyDirBase):
     def test_create_dir_with_empty_arg(self):
         with self.assertRaises(MyError) as cm:
             create_dir('')
-        self.assertEquals(cm.exception.value,
-                          'Cannot create directory without a name.')
+        self.assertEqual(cm.exception.value,
+                         'Cannot create directory without a name.')
 
     def test_create_dir_valid(self):
         in_data = os.path.join(self.test_dir, self.out_path)
@@ -335,9 +335,9 @@ class TestCreateDir(TestModifyDirBase):
     def test_create_dir_file_already_exists(self):
         with self.assertRaises(MyError) as cm:
             create_dir(self.test_file.name)
-        self.assertEquals(cm.exception.value,
-                          'Cannot create the directory "%s" as a file with '
-                          'that name already exists.' % self.test_file.name)
+        self.assertEqual(cm.exception.value,
+                         'Cannot create the directory "%s" as a file with '
+                         'that name already exists.' % self.test_file.name)
 
 
 class TestSortedDict(unittest.TestCase):
@@ -345,12 +345,12 @@ class TestSortedDict(unittest.TestCase):
     """Test the sorted_dict method."""
 
     def test_sorted_dict_empty(self):
-        self.assertEquals(sorted_dict({}), [])
+        self.assertEqual(sorted_dict({}), [])
 
     def test_sorted_dict_sort(self):
         input_value = {'a': 1, 'b': 3, 'c': 2}
         expected = [('b', 3), ('c', 2), ('a', 1)]
-        self.assertEquals(sorted_dict(input_value), expected)
+        self.assertEqual(sorted_dict(input_value), expected)
 
 
 class TestAddOrIncrement(unittest.TestCase):
@@ -362,7 +362,7 @@ class TestAddOrIncrement(unittest.TestCase):
         val = 'hej'
         expected = {'hej': 1}
         add_or_increment(dictionary, val)
-        self.assertEquals(dictionary, expected)
+        self.assertEqual(dictionary, expected)
 
     def test_add_or_increment_new_w_key(self):
         dictionary = {}
@@ -370,14 +370,14 @@ class TestAddOrIncrement(unittest.TestCase):
         val = 'hej'
         expected = {'hej': {'freq': 1}}
         add_or_increment(dictionary, val, key)
-        self.assertEquals(dictionary, expected)
+        self.assertEqual(dictionary, expected)
 
     def test_add_or_increment_old_wo_key(self):
         dictionary = {'hej': 1}
         val = 'hej'
         expected = {'hej': 2}
         add_or_increment(dictionary, val)
-        self.assertEquals(dictionary, expected)
+        self.assertEqual(dictionary, expected)
 
     def test_add_or_increment_old_w_key(self):
         dictionary = {'hej': {'freq': 1}}
@@ -385,4 +385,4 @@ class TestAddOrIncrement(unittest.TestCase):
         val = 'hej'
         expected = {'hej': {'freq': 2}}
         add_or_increment(dictionary, val, key)
-        self.assertEquals(dictionary, expected)
+        self.assertEqual(dictionary, expected)
