@@ -193,12 +193,15 @@ def main(*args):
             '(optional)\n' \
             '\t-confirm Whether to output a confirmation after each upload ' \
             'attempt (optional)\n' \
+            '\t-nochunk Whether to turn of chunked uploading, this is slow ' \
+            'and does not support files > 100Mb (optional)\n' \
             '\tExample:\n' \
             '\tpython uploader.py -in_path:../diskkopia -cutoff:100\n'
     cutoff = None
     in_path = None
     test = False
     confirm = False
+    chunked = True
 
     # Load pywikibot args and handle local args
     for arg in pywikibot.handle_args(args):
@@ -212,12 +215,15 @@ def main(*args):
             test = True
         elif option == '-confirm':
             confirm = True
+        elif option == '-nochunk':
+            chunked = False
         elif option == '-usage':
             pywikibot.output(usage)
             return
 
     if in_path:
-        up_all(in_path, cutoff=cutoff, test=test, verbose=confirm)
+        up_all(in_path, cutoff=cutoff, test=test, verbose=confirm,
+               chunked=chunked)
     else:
         pywikibot.output(usage)
 
