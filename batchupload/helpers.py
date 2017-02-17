@@ -422,6 +422,40 @@ def italicize(s):
     return '\'\'%s\'\'' % s
 
 
+def output_block_template(name, data, padding=None):
+    """
+    Given a dict output a block adjusted template using keys as parameters.
+
+    To ensure the order of the parameters supply an OrderedDict instead of a
+    normal dict.
+
+    Omitted entries are still considered when determining automatic padding.
+
+    @param name: The template name (without "Template:"-prefix)
+    @param data: A dict where each key is a parameter name. Entries where the
+        value is None are omitted, entries where the value is an empty string
+        are outputted.
+    @param padding: The number of characters from | to = on each row. Set to 0,
+        to disable or to None to automatically determine minimum padding.
+    @type adjust: int or None
+    @return basestring
+    """
+    if padding is None:
+        if not data:
+            padding = 0
+        else:
+            padding = max(len(key) for key in data.keys()) + 2
+
+    template = '{{{{{:s}\n'.format(name)
+    for k, v in data.items():
+        if v is not None:
+            template += '| {param} = {val}\n'.format(param=k.ljust(padding-2),
+                                                     val=v)
+    template += '}}'
+
+    return template
+
+
 @deprecated('common.convert_from_commandline')
 def convertFromCommandline(s):
     """

@@ -3,11 +3,14 @@
 """Unit tests for helpers.py."""
 from __future__ import unicode_literals
 import unittest
+from collections import OrderedDict
+
 from batchupload.helpers import (
     flip_name,
     flip_names,
     get_all_template_entries,
     cleanString,
+    output_block_template
 )
 
 
@@ -97,3 +100,81 @@ class TestCleanString(unittest.TestCase):
         test_string = ':s,a: ,:'
         expected = 's,a, ,-'
         self.assertEqual(cleanString(test_string), expected)
+
+
+class TestOutputBlockTemplate(unittest.TestCase):
+
+    """Test the output_block_template method."""
+
+    def setUp(self):
+        self.name = 'TemplateName'
+        self.data = OrderedDict()
+        self.data['param1'] = 'text1'
+        self.data['param10'] = 'text10'
+        self.data['param100'] = 'text100'
+
+    def test_output_block_template_empty(self):
+        expected = "{{\n}}"
+        self.assertEqual(output_block_template('', {}, 0), expected)
+
+    def test_output_block_template_unordered_dict(self):
+        data = {'param1': 'text1'}
+        expected = "{{TemplateName\n" \
+                   "| param1 = text1\n" \
+                   "}}"
+        self.assertEqual(
+            output_block_template(self.name, data, 0),
+            expected)
+
+    def test_output_block_template_set_padding(self):
+        expected = "{{TemplateName\n" \
+                   "| param1        = text1\n" \
+                   "| param10       = text10\n" \
+                   "| param100      = text100\n" \
+                   "}}"
+        self.assertEqual(
+            output_block_template(self.name, self.data, 15),
+            expected)
+
+    def test_output_block_template_no_padding(self):
+        expected = "{{TemplateName\n" \
+                   "| param1 = text1\n" \
+                   "| param10 = text10\n" \
+                   "| param100 = text100\n" \
+                   "}}"
+        self.assertEqual(
+            output_block_template(self.name, self.data, 0),
+            expected)
+
+    def test_output_block_template_auto_padding(self):
+        expected = "{{TemplateName\n" \
+                   "| param1   = text1\n" \
+                   "| param10  = text10\n" \
+                   "| param100 = text100\n" \
+                   "}}"
+        self.assertEqual(
+            output_block_template(self.name, self.data, None),
+            expected)
+
+    def test_output_block_template_ommit_entry(self):
+        self.data['special'] = None
+        expected = "{{TemplateName\n" \
+                   "| param1   = text1\n" \
+                   "| param10  = text10\n" \
+                   "| param100 = text100\n" \
+                   "}}"
+        self.assertEqual(
+            output_block_template(self.name, self.data, None),
+            expected)
+
+    def test_output_block_template_empty_entry(self):
+        self.data['special'] = ''
+        expected = "{{TemplateName\n" \
+                   "| param1   = text1\n" \
+                   "| param10  = text10\n" \
+                   "| param100 = text100\n" \
+                   "| special  = \n" \
+                   "}}"
+        self.assertEqual(
+            output_block_template(self.name, self.data, None),
+            expected)
