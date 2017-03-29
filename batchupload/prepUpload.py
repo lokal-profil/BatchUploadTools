@@ -104,7 +104,7 @@ def makeHitlist(files, data):
 
 def makeAndRename(hitlist, outPath):
     """
-    Given a hitlist create the info files and and rename the matched file.
+    Given a hitlist create the info files and rename the matched file.
 
     @param hitlist: the output of makeHitlist
     @param outPath: the directory in which to store info + renamed files
@@ -161,7 +161,8 @@ def removeEmptyDirectories(path, top=True):
 def main(*args):
     """Command line entry-point."""
     usage = \
-        'Usage:\tpython prepUpload.py -in_path:PATH -out_path:PATH -data_path:PATH\n' \
+        'Usage:\tpython prepUpload.py '\
+        '-in_path:PATH -out_path:PATH -data_path:PATH\n' \
         '\tExamples:\n' \
         '\tpython prepUpload.py -in_path:../diskkopia -out_path:./toUpload ' \
         '-data_path:./datafile.json \n'

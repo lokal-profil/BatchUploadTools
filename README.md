@@ -31,6 +31,16 @@ Extend `make_info` to create own methods for reading and processing the indata.
 Any method marked as abstract must be implemented locally. You can make use
 of the various helper functions in the other classes.
 
+Alternatively you can make use of only the prep-uploader/uploader tools by
+creating your own indata file. This must then be a json file where each image
+is represented by a dictionary entry with the *original filename* (without
+the file extension) as the key and the following values:
+ - `info`: the wikitext to be used on the description page (e.g. an information
+   template)
+ - `filename`: the filename to be used on Commons (without the file extension)
+ - `cats`: a list of content categories (without "Category" prefix)
+ - `meta_cats`: a list of meta categories (without "Category" prefix)
+
 ## Protocol for a batch upload
 
 1. Load indata to a dictionary

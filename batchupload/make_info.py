@@ -95,7 +95,10 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
     @abstractmethod
     def make_info_template(self, item):
         """
-        Make a filled in information (or similar) template for a single file.
+        Make a filled in Information (or similar) template for a single file.
+
+        It is recommended to make use of the helper.output_block_template() to
+        produce the final result.
 
         @param item: the metadata for the media file in question
         @return: str
