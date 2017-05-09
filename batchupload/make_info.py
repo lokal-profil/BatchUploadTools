@@ -46,14 +46,14 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         """
         Initialise a makeBaseInfo object.
 
-        @param base_meta_cat: base_name for maintanance categories
+        @param base_meta_cat: base_name for maintenance categories
         @param batch_label: label for this particular batch
         """
         self.data = dict()  # the processed metadata
         self.mappings = dict()  # any loaded mappings
         self.cwd_path = ''  # path to directory in which to work
         self.base_meta_cat = base_meta_cat
-        self.batch_cat = self.make_maintanance_cat(batch_label)
+        self.batch_cat = self.make_maintenance_cat(batch_label)
 
     @abstractmethod
     def load_data(self, in_file):
@@ -97,7 +97,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         """
         Make a filled in Information (or similar) template for a single file.
 
-        It is recommended to make use of the helper.output_block_template() to
+        It is recommended to make use of the helpers.output_block_template() to
         produce the final result.
 
         @param item: the metadata for the media file in question
@@ -131,7 +131,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
     @abstractmethod
     def generate_meta_cats(self, item, content_cats):
         """
-        Produce maintanance categories related to a media file.
+        Produce maintenance categories related to a media file.
 
         @param item: the metadata for the media file in question
         @param content_cats: any content categories for the file
@@ -152,7 +152,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         """
         pass
 
-    def make_maintanance_cat(self, cat):
+    def make_maintenance_cat(self, cat):
         """
         Return a category name with the base_meta_cat prefix.
 
