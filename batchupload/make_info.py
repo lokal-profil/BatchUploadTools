@@ -14,29 +14,46 @@ from abc import ABCMeta, abstractmethod
 from future.utils import with_metaclass
 
 
-def make_info_page(data):
+def make_info_page(data, preview=False):
     """
     Given a data entry from a make_info output, create a file description page.
 
+    This includes the template and any formatted categories.
+
+    Preview mode adds the final filename to the top of the page and makes the
+    categories visible instead of categorising the page.
+
     @param data: dict with the keys {cats, meta_cats, info, filename}
+    @param preview: if output should be done in preview mode
     @return: str
     """
+    # handle categories
     separator = '\n\n'  # standard separation before categories
-    txt = data['info']
+    cats_as_text = ''
 
     if data['meta_cats']:
-        txt += separator
-        txt += '<!-- Metadata categories -->\n'
+        cats_as_text += separator
+        cats_as_text += '<!-- Metadata categories -->\n'
         for cat in data['meta_cats']:
-            txt += '[[Category:%s]]\n' % cat
+            cats_as_text += '[[Category:%s]]\n' % cat
 
     if data['cats']:
-        txt += separator
-        txt += '<!-- Content categories -->\n'
+        cats_as_text += separator
+        cats_as_text += '<!-- Content categories -->\n'
         for cat in data['cats']:
-            txt += '[[Category:%s]]\n' % cat
+            cats_as_text += '[[Category:%s]]\n' % cat
 
-    return txt
+    if preview:
+        text = 'Filename: {filename}.<ext>\n{template}{cats}'.format(
+            filename=data['filename'],
+            template=data['info'],
+            cats=cats_as_text.replace('[[Category:', '[[:Category:'))
+    else:
+        text = '{template}{cats}'.format(
+            template=data['info'],
+            cats=cats_as_text)
+
+    return text.strip()
 
 
 class MakeBaseInfo(with_metaclass(ABCMeta, object)):
