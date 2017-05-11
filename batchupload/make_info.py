@@ -69,13 +69,13 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         pass
 
     @abstractmethod
-    def load_mappings(self, update=True):
+    def load_mappings(self, update_mappings):
         """
         Load the mapping files and package them appropriately.
 
         The loaded mappings are stored as self.mappings
 
-        @param update: whether to first download the latest mappings
+        @param update_mappings: whether to first download the latest mappings
         """
         # should this actually carry code
         # improve docstring
@@ -186,7 +186,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
                 'cats': cats, 'meta_cats': meta_cats}
         return out_data
 
-    def run(self, in_file, base_name=None):
+    def run(self, in_file, base_name, update_mappings):
         """
         Entry point for outputting info data.
 
@@ -195,6 +195,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         @param in_file: filename (or tuple of such) containing the metadata
         @param base_name: base name to use for output
             (defaults to same as in_file)
+        @update_mappings: if mappings should be updated against online sources
         """
         if not base_name:
             if common.is_str(in_file):
@@ -207,7 +208,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         self.cwd_path = os.path.split(base_name)[0]
         raw_data = self.load_data(in_file)
         self.process_data(raw_data)
-        self.load_mappings()
+        self.load_mappings(update_mappings)
         out_data = self.make_info()
 
         # store output
@@ -237,6 +238,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         options = {
             'in_file': None,
             'base_name': None,
+            'update_mappings': True
         }
 
         for arg in pywikibot.handle_args(args):
@@ -245,27 +247,35 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
                 options['in_file'] = common.convert_from_commandline(value)
             elif option == '-base_name':
                 options['base_name'] = common.convert_from_commandline(value)
+            elif option == '-update_mappings':
+                options['update_mappings'] = common.interpret_bool(value)
 
         return options
 
     @classmethod
     def main(cls, usage=None, *args):
         """Command line entry-point."""
-        usage = usage or \
-            'Usage:' \
-            '\tpython make_info.py -in_file:PATH -dir:PATH\n' \
-            '\t-in_file:PATH path to metadata file\n' \
-            '\t-dir:PATH specifies the path to the directory containing a ' \
-            'user_config.py file (optional)\n' \
-            '\tExample:\n' \
+        usage = usage or (
+            'Usage:'
+            '\tpython make_info.py -in_file:PATH -dir:PATH\n'
+            '\t-in_file:PATH path to metadata file\n'
+            '\t-base_name:STR base name to use for output files '
+            '(defaults to same as in_file)\n'
+            '\t-update_mappings:BOOL if mappings should first be updated '
+            'against online sources (defaults to True)\n'
+            '\t-dir:PATH specifies the path to the directory containing a '
+            'user_config.py file (optional)\n'
+            '\tExample:\n'
             '\tpython make_info.py -in_file:SMM/metadata.csv -dir:SMM\n'
+        )
 
         # Load pywikibot args and handle local args
         options = cls.handle_args(args)
 
         if options['in_file']:
             info = cls(**options)
-            info.run(options['in_file'], options['base_name'])
+            info.run(options['in_file'], options['base_name'],
+                     options['update_mappings'])
         else:
             pywikibot.output(usage)
 

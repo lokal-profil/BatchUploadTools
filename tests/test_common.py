@@ -21,6 +21,7 @@ from batchupload.common import (
     listify,
     sorted_dict,
     add_or_increment,
+    interpret_bool,
 )
 
 
@@ -386,3 +387,33 @@ class TestAddOrIncrement(unittest.TestCase):
         expected = {'hej': {'freq': 2}}
         add_or_increment(dictionary, val, key)
         self.assertEqual(dictionary, expected)
+
+
+class TestInterpretBool(unittest.TestCase):
+
+    """Test the interpret_bool() method."""
+
+    def test_interpret_bool_empty_value(self):
+        with self.assertRaises(ValueError):
+            interpret_bool(None)
+
+    def test_interpret_bool_allow_bool(self):
+        self.assertTrue(interpret_bool(True))
+        self.assertFalse(interpret_bool(False))
+
+    def test_interpret_bool_true_values(self):
+        true_values = ['t', 'True', 'yes', 'Y']
+        for val in true_values:
+            self.assertTrue(interpret_bool(val))
+
+    def test_interpret_bool_false_value(self):
+        false_values = ['f', 'False', 'no', 'N']
+        for val in false_values:
+            self.assertFalse(interpret_bool(val))
+
+    def test_interpret_bool_unknown_value(self):
+        with self.assertRaises(ValueError) as cm:
+            interpret_bool('Some value')
+        self.assertEqual(
+            cm.exception.args[0],
+            "'Some value' cannot be interpreted as either True/False.")

@@ -267,6 +267,32 @@ def convert_from_commandline(string):
                              locale.getpreferredencoding(True))
 
 
+def interpret_bool(string):
+    """
+    Given a string try to interpret it as a boolean.
+
+    @param string: string to interpret
+    @return: bool
+    @raise: ValueError
+    """
+    if not is_str(string):
+        if isinstance(string, bool):
+            # be generous
+            return string
+        else:
+            raise ValueError(
+                "interpret_bool() expects a string not a '{0}'.".format(
+                    type(string)))
+
+    if string.lower() in ('t', 'true', 'yes', 'y'):
+        return True
+    elif string.lower() in ('f', 'false', 'no', 'n'):
+        return False
+    else:
+        raise ValueError(
+            "'{0}' cannot be interpreted as either True/False.".format(string))
+
+
 class MyError(Exception):
 
     """Home made errors"""
