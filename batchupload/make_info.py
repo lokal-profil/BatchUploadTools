@@ -47,7 +47,9 @@ def make_info_page(data, preview=False):
         text = 'Filename: {filename}.<ext>\n{template}{cats}'.format(
             filename=data['filename'],
             template=data['info'],
-            cats=cats_as_text.replace('[[Category:', '[[:Category:'))
+            cats=cats_as_text.replace('[[Category:', '* [[:Category:')
+                             .replace('<!-- ', "''")
+                             .replace(' -->', ":''"))
     else:
         text = '{template}{cats}'.format(
             template=data['info'],

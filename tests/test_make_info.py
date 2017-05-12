@@ -38,14 +38,14 @@ class TestMakeInfoPage(unittest.TestCase):
 
     def test_make_info_page_preview(self):
         expected = (
-            'Filename: The_filename.<ext>\n'
-            '{{Infobox\n| param1 = value1 \n}}\n\n'
-            '<!-- Metadata categories -->\n'
-            '[[:Category:A meta_Cat]]\n'
-            '\n\n'
-            '<!-- Content categories -->\n'
-            '[[:Category:cat1]]\n'
-            '[[:Category:cat2]]')
+            "Filename: The_filename.<ext>\n"
+            "{{Infobox\n| param1 = value1 \n}}\n\n"
+            "''Metadata categories:''\n"
+            "* [[:Category:A meta_Cat]]\n"
+            "\n\n"
+            "''Content categories:''\n"
+            "* [[:Category:cat1]]\n"
+            "* [[:Category:cat2]]")
         self.assertEqual(
             make_info_page(self.data, preview=True),
             expected)
