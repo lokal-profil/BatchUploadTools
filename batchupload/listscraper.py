@@ -20,7 +20,7 @@ OUT_PATH = 'connections'
 
 
 def parseEntries(contents,
-                 row_t='User:Lokal Profil/LSH3',
+                 row_t='User:André Costa (WMSE)/mapping-row',
                  default_params=None):
     """
     Return a list of all parameters for instances of a given template.
@@ -40,6 +40,7 @@ def parseEntries(contents,
         'frequency': '',
         'technique': '',
         'creator': '',
+        'wikidata': '',
         'link': '',
         'category': '',
         'other': ''}
@@ -54,7 +55,7 @@ def parseEntries(contents,
             if not value:
                 continue
             if key in params:
-                params[key] = value.split('/')
+                params[key] = [v.strip() for v in value.split('/')]
             else:
                 pywikibot.output('Unrecognised parameter: %s = %s' % (
                                  key, value))
@@ -208,6 +209,7 @@ def makeEntry(name, frequency, previous=None):
                     'frequency': frequency,
                     'technique': '',
                     'creator': '',
+                    'wikidata': '',
                     'link': '',
                     'category': '',
                     'other': ''}
