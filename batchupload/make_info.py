@@ -273,7 +273,14 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
 
     @classmethod
     def main(cls, usage=None, *args):
-        """Command line entry-point."""
+        """
+        Command line entry-point executing the run method.
+
+        @param usage: alternative usage instructions to be outputted on
+            incorrect/missing arguments.
+        @type usage: str
+        @return: the created MakeBaseInfo instance
+        """
         usage = usage or (
             'Usage:'
             '\tpython make_info.py -in_file:PATH -dir:PATH\n'
@@ -295,6 +302,7 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
             info = cls(**options)
             info.run(options['in_file'], options['base_name'],
                      options['update_mappings'])
+            return info
         else:
             pywikibot.output(usage)
 
