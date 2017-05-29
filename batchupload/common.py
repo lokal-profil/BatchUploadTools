@@ -8,6 +8,7 @@ import os
 import operator  # needed by sorted_dict
 import sys  # needed by convert_from_commandline()
 import locale  # needed by convert_from_commandline()
+from datetime import datetime  # needed for LogFile.write()
 from pywikibot.tools import deprecated
 
 
@@ -234,7 +235,7 @@ def create_dir(out_path):
 
 def to_unicode(text):
     """
-    Converts a str to unicode (if python2).
+    Convert a str to unicode (if python2).
 
     @param text: text to convert
     @return: unicode string
@@ -294,11 +295,52 @@ def interpret_bool(string):
 
 
 class MyError(Exception):
-
-    """Home made errors"""
+    """Home made errors."""
 
     def __init__(self, value):
+        """Initialise the Error."""
         self.value = value
 
     def __str__(self):
+        """A string representation of the Error."""
         return repr(self.value)
+
+
+class LogFile(object):
+    """A simple object for doing logging."""
+
+    def __init__(self, output_dir, name):
+        """
+        Initialise the LogFile.
+
+        @param output_dir: directory in which to store the file
+        @param name: the filename including extension
+        """
+        self.file_name = os.path.join(output_dir, name)
+        self.file = open(self.file_name, 'a', encoding='utf-8')
+
+    def write(self, text):
+        """
+        Write text to the log file, appending a linebreak.
+
+        Also flushes the log to ensure the contents have been stored in case of
+        a crash.
+
+        @param text: text to output
+        """
+        self.file.write('{0}\n'.format(text))
+        self.file.flush()
+
+    def write_w_timestamp(self, text):
+        """
+        Write text to the log prepending a timestamp, appending a linebreak.
+
+        @param text: text to output
+        """
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.write('{0} {1}'.format(timestamp, text))
+
+    def close_and_confirm(self):
+        """Close the log file and return a confirmation."""
+        self.file.close()
+        return 'Created {0}'.format(self.file_name)

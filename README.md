@@ -52,10 +52,12 @@ the file extension) as the key and the following values:
     - Content categories
     - File description
     - Output filename
-    - Input filename (as key)
+    - Input filename or url to file (as key)
 4. Run the prep-uploader to rename the media files and create the text file
-   for the associated file description page.
+   for the associated file description page. \*
 5. Run the uploader to upload it all
+
+\* This step is not needed for _upload by url_.
 
 ## Usage example:
 
