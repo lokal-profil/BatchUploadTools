@@ -168,7 +168,7 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
 
         if test:
             pywikibot.output('Test upload "%s" with the following '
-                             'description: %s\n' % (base_name, txt))
+                             'description:\n%s\n' % (base_name, txt))
             continue
         # stop here if testing
 
@@ -194,7 +194,7 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
 
 def up_all_from_url(info_path, cutoff=None, target='upload_logs',
                     file_exts=None, verbose=False, test=False,
-                    target_site=None):
+                    target_site=None, only=None, skip=None):
     """
     Upload all images provided as urls in a make_info json file.
 
@@ -213,6 +213,8 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
     @param test: set to True to test but not upload
     @param target_site: pywikibot.Site to which file should be uploaded,
         defaults to Commons.
+    @param only: list of urls to upload, if provided all others will be skipped
+    @param skip: list of urls to skip, all others will be uploaded
     """
     # set defaults unless overridden
     file_exts = file_exts or FILE_EXTS
@@ -237,7 +239,16 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
     # shortcut to the general/verbose logfile
     flog = logs['general']
 
-    # @todo: filtering/removal of entries based on new input parameters
+    # filtering based on entries in only/skip
+    kill_list = set()
+    if only:
+        kill_list |= set(info_datas.keys()) - set(only)  # difference
+    if skip:
+        kill_list |= set(info_datas.keys()) & set(skip)  # intersection
+    for key in kill_list:
+        del info_datas[key]
+    flog.write('{} files remain to upload after filtering'.format(
+        len(info_datas)))
 
     counter = 1
     for url, data in info_datas.items():
@@ -269,8 +280,8 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
 
         if test:
             pywikibot.output(
-                'Test upload "{filename}" from {url} with the following '
-                'description: {txt}\n'.format(
+                'Test upload "{filename}" from "{url}" with the following '
+                'description:\n{txt}\n'.format(
                     filename=filename, url=url, txt=txt))
             continue
         # stop here if testing
@@ -345,8 +356,16 @@ def main(*args):
         '(optional)\n'
         '\t-confirm Whether to output a confirmation after each upload '
         'attempt (optional)\n'
-        '\t-nochunk Whether to turn of chunked uploading, this is slow '
-        'and does not support files > 100Mb (optional)\n'
+        '\t-test Whether to do mock upload, simply outputting to commandline. '
+        '(optional)\n'
+        '\t-nochunk Whether to turn off chunked uploading, this is slow '
+        'and does not support files > 100Mb (optional, type:FILES only)\n'
+        '\t-only:PATH to file containing list of urls to upload, skipping all '
+        'others. One entry per line. (optional, type:URL only)\n'
+        '\t-skip:PATH to file containing list of urls to skip, uploading all '
+        'others. Can be combined with "-only" for further filtering, e.g '
+        '"-only:<list of vase images> -skip:<list of blue images>" to get '
+        'non-blue vase images. One entry per line. (optional, type:URL only)\n'
         '\tExample:\n'
         '\tpython uploader.py -in_path:../diskkopia -cutoff:100\n'
     )
@@ -356,6 +375,8 @@ def main(*args):
     confirm = False
     chunked = True
     typ = 'files'
+    only = None
+    skip = None
 
     # Load pywikibot args and handle local args
     for arg in pywikibot.handle_args(args):
@@ -377,6 +398,12 @@ def main(*args):
             elif value.lower() not in ('url', 'files'):
                 pywikibot.output(usage)
                 return
+        elif option == '-only':
+            only = common.trim_list(
+                common.open_and_read_file(value).split('\n'))
+        elif option == '-skip':
+            skip = common.trim_list(
+                common.open_and_read_file(value).split('\n'))
         elif option == '-usage':
             pywikibot.output(usage)
             return
@@ -386,8 +413,8 @@ def main(*args):
             up_all(in_path, cutoff=cutoff, test=test, verbose=confirm,
                    chunked=chunked)
         elif typ == 'url':
-            up_all_from_url(in_path, cutoff=cutoff, test=test,
-                            verbose=confirm)
+            up_all_from_url(in_path, cutoff=cutoff, only=only, skip=skip,
+                            test=test, verbose=confirm)
     else:
         pywikibot.output(usage)
 
