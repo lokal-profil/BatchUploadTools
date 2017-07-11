@@ -169,6 +169,7 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
         if test:
             pywikibot.output('Test upload "%s" with the following '
                              'description:\n%s\n' % (base_name, txt))
+            counter += 1
             continue
         # stop here if testing
 
@@ -283,6 +284,7 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
                 'Test upload "{filename}" from "{url}" with the following '
                 'description:\n{txt}\n'.format(
                     filename=filename, url=url, txt=txt))
+            counter += 1
             continue
         # stop here if testing
 
