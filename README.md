@@ -59,6 +59,9 @@ the file extension) as the key and the following values:
 
 \* This step is not needed for _upload by url_.
 
+## Post-upload processing
+To make use of the post-upload processing tools use `import batchupload.postUpload`.
+
 ## Usage example:
 
 For usage examples see [lokal-profil/upload_batches](https://github.com/lokal-profil/upload_batches).
