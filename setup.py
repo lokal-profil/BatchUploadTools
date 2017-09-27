@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from setuptools import setup
-version = '0.1.6'
+version = '0.1.7'
 repo = 'BatchUploadTools'
 
 setup(

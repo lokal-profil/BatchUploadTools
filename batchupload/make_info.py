@@ -257,7 +257,9 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
         options = {
             'in_file': None,
             'base_name': None,
-            'update_mappings': True
+            'update_mappings': True,
+            'base_meta_cat': None,
+            'batch_label': None
         }
 
         for arg in pywikibot.handle_args(args):
@@ -268,6 +270,11 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
                 options['base_name'] = common.convert_from_commandline(value)
             elif option == '-update_mappings':
                 options['update_mappings'] = common.interpret_bool(value)
+            elif option == '-base_meta_cat':
+                options['base_meta_cat'] = common.convert_from_commandline(
+                    value)
+            elif option == '-batch_label':
+                options['batch_label'] = common.convert_from_commandline(value)
 
         return options
 
@@ -289,6 +296,10 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
             '(defaults to same as in_file)\n'
             '\t-update_mappings:BOOL if mappings should first be updated '
             'against online sources (defaults to True)\n'
+            '\t-base_meta_cat:STRING stem used for meta categories for this '
+            'batch (optional)\n'
+            '\t-batch_label:STRING label used for the batch specific '
+            'category (optional)\n'
             '\t-dir:PATH specifies the path to the directory containing a '
             'user_config.py file (optional)\n'
             '\tExample:\n'
