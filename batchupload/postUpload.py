@@ -13,11 +13,14 @@ def load_commons_site():
         commons = pywikibot.Site('commons', 'commons')
 
 
-def trim_parent_category(category, summary=None, verbose=True):
+def trim_parent_category(category, in_filename=None, summary=None,
+                         verbose=True):
     """
     Remove a category from any files already in one of its sub-categories.
 
     @param category: the category name (with or without the Category:-prefix)
+    @param in_filename: string which must be part of the filename for action
+        to be taken. Default: None
     @param summary: override the default summary
     @param verbose: if verbose output is desired. Default: True.
     @return: the number of pages removed from the category
@@ -32,6 +35,8 @@ def trim_parent_category(category, summary=None, verbose=True):
     uncat = []  # pages for which to remove the category
 
     for page in cat.articles(namespaces=6, content=True):
+        if in_filename and in_filename not in page.title():
+            continue
         page_cats = set(page.categories())
         if page_cats.intersection(subcats):
             uncat.append(page)
