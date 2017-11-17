@@ -226,8 +226,8 @@ class MakeBaseInfo(with_metaclass(ABCMeta, object)):
 
         self.cwd_path = os.path.split(base_name)[0]
         raw_data = self.load_data(in_file)
-        self.process_data(raw_data)
         self.load_mappings(update_mappings)
+        self.process_data(raw_data)
         out_data = self.make_info()
 
         # store output
