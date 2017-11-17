@@ -22,6 +22,7 @@ from batchupload.common import (
     sorted_dict,
     add_or_increment,
     interpret_bool,
+    pop
 )
 
 
@@ -417,3 +418,24 @@ class TestInterpretBool(unittest.TestCase):
         self.assertEqual(
             cm.exception.args[0],
             "'Some value' cannot be interpreted as either True/False.")
+
+
+class TestPop(unittest.TestCase):
+
+    """Test the pop() method."""
+
+    def test_pop_no_key(self):
+        obj = {'foo': 'bar'}
+        self.assertEqual(pop(obj, ''), None)
+
+    def test_pop_not_poppable(self):
+        with self.assertRaises(AttributeError):
+            pop('foo', 'bar')
+
+    def test_pop_has_key(self):
+        obj = {'foo': 'bar'}
+        self.assertEqual(pop(obj, 'foo'), 'bar')
+
+    def test_pop_not_has_key(self):
+        obj = {'foo': 'bar'}
+        self.assertEqual(pop(obj, 'bar'), None)

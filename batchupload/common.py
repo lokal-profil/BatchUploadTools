@@ -141,7 +141,8 @@ def trim_list(old_list):
 
 
 def listify(value):
-    """Turn the given value, which might or might not be a list, into a list.
+    """
+    Turn the given value, which might or might not be a list, into a list.
 
     @param value: The value to listify
     @type value: any
@@ -153,6 +154,20 @@ def listify(value):
         return value
     else:
         return [value, ]
+
+
+def pop(obj, key):
+    """
+    A poper which returns None if the value isn't present.
+
+    @param obj: The object to pop from
+    @param key: The key to pop
+    @type key: str
+    """
+    try:
+        return obj.pop(key)
+    except KeyError:
+        return None
 
 
 def deep_sort(obj):
