@@ -159,7 +159,7 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
         base_name = os.path.basename(f)
         base_info_name = os.path.basename(info_file)
         if not os.path.exists(info_file):
-            flog.write(
+            flog.write_w_timestamp(
                 '{0}: Found multimedia file without info'.format(base_name))
             continue
 
@@ -185,7 +185,7 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
         if verbose:
             pywikibot.output(result.get('log'))
 
-        flog.write(result.get('log'))
+        flog.write_w_timestamp(result.get('log'))
         os.rename(f, os.path.join(target_dir, base_name))
         os.rename(info_file, os.path.join(target_dir, base_info_name))
         counter += 1
@@ -248,7 +248,7 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
         kill_list |= set(info_datas.keys()) & set(skip)  # intersection
     for key in kill_list:
         del info_datas[key]
-    flog.write('{} files remain to upload after filtering'.format(
+    flog.write_w_timestamp('{} files remain to upload after filtering'.format(
         len(info_datas)))
 
     counter = 1
@@ -260,17 +260,17 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
         try:
             ext = verify_url_file_extension(url, file_exts)
         except common.MyError as e:
-            flog.write(e)
+            flog.write_w_timestamp(e)
             continue
 
         # verify that info and output filenames are provided
         if not data['info']:
-            flog.write(
+            flog.write_w_timestamp(
                 '{url}: Found url missing the info field (at least)'.format(
                     url=url))
             continue
         elif not data['filename']:
-            flog.write(
+            flog.write_w_timestamp(
                 '{url}: Found url missing the output filename'.format(
                     url=url))
             continue
@@ -299,7 +299,7 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
         if verbose:
             pywikibot.output(result.get('log'))
 
-        flog.write(result.get('log'))
+        flog.write_w_timestamp(result.get('log'))
         counter += 1
 
     for log in logs.values():
