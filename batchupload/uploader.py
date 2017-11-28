@@ -87,7 +87,7 @@ def upload_single_file(file_name, media_file, text, target_site,
         raise
     except Exception as e:
         result['error'] = '%r' % e
-        result['log'] = 'Error: %s: Unhandled error: %' % (
+        result['log'] = 'Error: %s: Unhandled error: %s' % (
                         file_page.title(), e)
     else:
         if result.get('warning'):
