@@ -27,7 +27,7 @@ class TestMakeInfoPage(unittest.TestCase):
         expected = (
             '{{Infobox\n| param1 = value1 \n}}\n\n'
             '<!-- Metadata categories -->\n'
-            '[[Category:A meta_Cat]]\n'
+            '[[Category:A meta_Cat]]'
             '\n\n'
             '<!-- Content categories -->\n'
             '[[Category:cat1]]\n'
@@ -41,7 +41,7 @@ class TestMakeInfoPage(unittest.TestCase):
             "Filename: The_filename.<ext>\n"
             "{{Infobox\n| param1 = value1 \n}}\n\n"
             "''Metadata categories:''\n"
-            "* [[:Category:A meta_Cat]]\n"
+            "* [[:Category:A meta_Cat]]"
             "\n\n"
             "''Content categories:''\n"
             "* [[:Category:cat1]]\n"

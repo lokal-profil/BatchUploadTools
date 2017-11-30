@@ -1,10 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
-"""
-Abstract class for producing mapping tables and file description pages.
-
-@TODO: add an entry point to make/update mappings
-"""
+"""Abstract class for producing mapping tables and file description pages."""
 from __future__ import unicode_literals
 from builtins import dict, object
 import batchupload.common as common
@@ -34,14 +30,14 @@ def make_info_page(data, preview=False):
     if data['meta_cats']:
         cats_as_text += separator
         cats_as_text += '<!-- Metadata categories -->\n'
-        for cat in data['meta_cats']:
-            cats_as_text += '[[Category:%s]]\n' % cat
+        cats_as_text += '\n'.join(
+            ['[[Category:{}]]'.format(cat) for cat in data.get('meta_cats')])
 
     if data['cats']:
         cats_as_text += separator
         cats_as_text += '<!-- Content categories -->\n'
-        for cat in data['cats']:
-            cats_as_text += '[[Category:%s]]\n' % cat
+        cats_as_text += '\n'.join(
+            ['[[Category:{}]]'.format(cat) for cat in data.get('cats')])
 
     if preview:
         text = 'Filename: {filename}.<ext>\n{template}{cats}'.format(
