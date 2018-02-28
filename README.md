@@ -31,6 +31,11 @@ Extend `make_info` to create own methods for reading and processing the indata.
 Any method marked as abstract must be implemented locally. You can make use
 of the various helper functions in the other classes.
 
+If you are making use of mappings lists on Wikimedia Commons then create a
+`MappingList` instance for each such list to manage the creation of the
+mapping tables, the harvest of the tables when mapped and the preservation of
+old mappings when new lists are needed for later uploads.
+
 Alternatively you can make use of only the prep-uploader/uploader tools by
 creating your own indata file. This must then be a json file where each image
 is represented by a dictionary entry with the *original filename* (without
@@ -58,6 +63,21 @@ the file extension) as the key and the following values:
 5. Run the uploader to upload it all
 
 \* This step is not needed for _upload by url_.
+
+## Using mapping lists
+To generate new tables:
+
+1. collect the data you wish mapped
+2. create a `MappingList` instance
+3. use `mappings_merger()` or `multi_table_mappings_merger` to combine the
+   collected data with pre-existing data. (set `update=False` if there is no pre-existing data).
+4. pass the result to `save_as_wikitext()`
+
+To make use of the mapping list data:
+
+1. create a `MappingList` instance
+2. load the existing data using `load_old_mappings()`
+3. pass the result to `consume_entries()`
 
 ## Post-upload processing
 To make use of the post-upload processing tools use `import batchupload.postUpload`.

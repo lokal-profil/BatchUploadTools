@@ -419,7 +419,12 @@ def isoDate(date):
 
 def italicize(s):
     """Given a string return the same string italicized (in wikitext)."""
-    return '\'\'%s\'\'' % s
+    return "''{}''".format(s)
+
+
+def bolden(s):
+    """Given a string return the same string boldened (in wikitext)."""
+    return "'''{}'''".format(s)
 
 
 def output_block_template(name, data, padding=None):
