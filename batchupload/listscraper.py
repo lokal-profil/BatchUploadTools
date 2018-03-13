@@ -519,7 +519,10 @@ class MappingList(object):
                 pywikibot.warning('The field intended as dict key was empty!')
                 continue
             elif key in presentable_units:
-                pywikibot.warning('The dict key was not unique!')
+                # @todo: this should compare values and keep any with content
+                # and only warn if two have differing content
+                pywikibot.warning('The dict key was not unique! - {}'.format(
+                    key))
                 continue
 
             if only:
@@ -547,3 +550,52 @@ class MappingList(object):
             entry[key] = value
 
         return entry
+
+
+# @todo: consider optionally tying this in already at the parsing step
+#        that way a roundtrip would enrich a list.
+def get_wikidata_info(qid, site=None, cache=None):
+    """
+    Query Wikidata for additional info about a list entry with a qid.
+
+    If a cache is provided this is used to reduce the number
+    of lookups.
+
+    Death year is looked up to assist with Public Domain logic.
+
+    @param qid: Qid for the Wikidata item
+    @param site: pywikibot.Site object for Wikidata
+    @param cache: dict to use for caching
+    @return: bool
+    """
+    wikidata = site or pywikibot.Site('wikidata', 'wikidata')
+    # cannot use cache = cache or {} as this also discards an empty cache
+    if cache is None:
+        cache = {}
+
+    if qid in cache:
+        return cache[qid]
+
+    item = pywikibot.ItemPage(wikidata, qid)
+    if not item.exists():
+        cache[qid] = {}
+    else:
+        commonscat = return_first_claim(item, 'P373')
+        creator = return_first_claim(item, 'P1472')
+        death_year = return_first_claim(item, 'P570')
+        if death_year:
+            death_year = death_year.year
+        cache[qid] = {
+            'commonscat': commonscat,
+            'creator': creator,
+            'death_year': death_year
+        }
+
+    return cache[qid]
+
+
+def return_first_claim(item, prop):
+    """Return the first claim of a Wikidata item for a given property."""
+    claims = item.claims.get(prop)
+    if claims:
+        return claims[0].target

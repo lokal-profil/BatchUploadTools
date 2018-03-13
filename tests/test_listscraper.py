@@ -923,4 +923,4 @@ class TestConsumeEntries(TestMappingListBaseWithList):
         self.assertEquals(
             self.mapping_list.consume_entries(data, 'foo'), expect)
         self.mock_warning.assert_called_once_with(
-            'The dict key was not unique!')
+            'The dict key was not unique! - b')

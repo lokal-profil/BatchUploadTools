@@ -347,7 +347,7 @@ def stdDate(date):
         'efter': '>',
         '-': '<'}
     tal_endings = ('-talets', '-tal', '-talet', ' talets')
-    modality = ('troligen', 'sannolikt')
+    modality = ('troligen', 'sannolikt', 'trol.')
     for k, v in starts.items():
         if date.lower().startswith(k):
             again = stdDate(date[len(k):])
@@ -408,9 +408,11 @@ def isoDate(date):
     elif len(item) == 1 and common.is_pos_int(item[0][:len('YYYY')]):
         # 1921Z
         return item[0]
-    elif len(item) == 2 and \
-            all(common.is_pos_int(x) for x in (item[0], item[1][:len('MM')])) and \
-            int(item[1][:len('MM')]) in range(1, 12 + 1):
+    elif (
+            len(item) == 2 and
+            all(common.is_pos_int(x)
+                for x in (item[0], item[1][:len('MM')])) and
+            int(item[1][:len('MM')]) in range(1, 12 + 1)):
         # 1921-09Z
         return '%s-%s' % (item[0], item[1])
     else:
@@ -454,8 +456,8 @@ def output_block_template(name, data, padding=None):
     template = '{{{{{:s}\n'.format(name)
     for k, v in data.items():
         if v is not None:
-            template += '| {param} = {val}\n'.format(param=k.ljust(padding-2),
-                                                     val=v)
+            template += '| {param} = {val}\n'.format(
+                param=k.ljust(padding - 2), val=v)
     template += '}}'
 
     return template
@@ -466,7 +468,36 @@ def convertFromCommandline(s):
     """
     Convert a string read from the commandline to a standard unicode format.
 
-    :param s: string to convert
-    :return: str
+    @param s: string to convert
+    @return: str
     """
     return common.convert_from_commandline(s)
+
+
+def category_exists(cat, site=None, cache=None):
+    """
+    Ensure a given category really exists on Commons.
+
+    If a cache is provided this is used to reduce the number
+    of lookups.
+
+    @param cat: category name (with or without "Category" prefix)
+    @param site: pywikibot.Site object for Wikidata
+    @param cache: dict to use for caching
+    @return: bool
+    """
+    commons = site or pywikibot.Site('commons', 'commons')
+    # cannot use cache = cache or {} as this also discards an empty cache
+    if cache is None:
+        cache = {}
+
+    if not cat.lower().startswith('category:'):
+        cat = 'Category:{0}'.format(cat)
+
+    if cat in cache:
+        return cache[cat]
+
+    exists = pywikibot.Page(commons, cat).exists()
+    cache[cat] = exists
+
+    return cache[cat]
