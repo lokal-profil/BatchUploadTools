@@ -30,14 +30,14 @@ def make_info_page(data, preview=False):
     if data['meta_cats']:
         cats_as_text += separator
         cats_as_text += '<!-- Metadata categories -->\n'
-        cats_as_text += '\n'.join(
-            ['[[Category:{}]]'.format(cat) for cat in data.get('meta_cats')])
+        cats_as_text += '\n'.join(sorted(
+            ['[[Category:{}]]'.format(cat) for cat in data.get('meta_cats')]))
 
     if data['cats']:
         cats_as_text += separator
         cats_as_text += '<!-- Content categories -->\n'
-        cats_as_text += '\n'.join(
-            ['[[Category:{}]]'.format(cat) for cat in data.get('cats')])
+        cats_as_text += '\n'.join(sorted(
+            ['[[Category:{}]]'.format(cat) for cat in data.get('cats')]))
 
     if preview:
         text = 'Filename: {filename}.<ext>\n{template}{cats}'.format(
