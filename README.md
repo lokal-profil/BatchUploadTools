@@ -11,9 +11,6 @@ Heavily based on the [LSH](https://github.com/lokal-profil/LSH) repo
 You can install `BatchUploadTools` via `pip` using:
 `pip install git+https://github.com/lokal-profil/BatchUploadTools.git`
 
-If you are not already using the developer version of pywikibot (3.0-dev) you
-will have to add the  `--process-dependency-links` flag to the pip command.
-
 If it is your first time running pywikibot you will also have to set up a
 `user-config.py` file.
 
