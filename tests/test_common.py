@@ -22,7 +22,9 @@ from batchupload.common import (
     sorted_dict,
     add_or_increment,
     interpret_bool,
-    pop
+    pop,
+    relabel_inner_dicts,
+    invert_dict
 )
 
 
@@ -439,3 +441,61 @@ class TestPop(unittest.TestCase):
     def test_pop_not_has_key(self):
         obj = {'foo': 'bar'}
         self.assertEqual(pop(obj, 'bar'), None)
+
+
+class TestRelabelInnerDicts(unittest.TestCase):
+
+    """Test the relabel_inner_dicts() method."""
+
+    def test_relabel_inner_dicts_none(self):
+        with self.assertRaises(AttributeError):
+            relabel_inner_dicts(None, None)
+
+    def test_relabel_inner_dicts_not_a_dict(self):
+        with self.assertRaises(AttributeError):
+            relabel_inner_dicts('not a dict', 'not a dict')
+
+    def test_relabel_inner_dicts_basic(self):
+        obj = {
+            'a': {'name': 'A', 'type': 't'},
+            'b': {'name': 'B', 'type': 't'}
+        }
+        key = {'name': 'namn'}
+        expected = {
+            'a': {'namn': 'A', 'type': 't'},
+            'b': {'namn': 'B', 'type': 't'}
+        }
+        self.assertEqual(relabel_inner_dicts(obj, key), expected)
+        self.assertEqual(obj, expected)
+
+    def test_relabel_inner_dicts_missing_key(self):
+        obj = {
+            'a': {'name': 'A', 'type': 't'},
+            'b': {'name': 'B', 'type': 't'}
+        }
+        key = {'name': 'namn', 'unmatched_key': 'x'}
+        with self.assertRaises(KeyError):
+            relabel_inner_dicts(obj, key)
+
+
+class TestInvertDict(unittest.TestCase):
+
+    """Test the invert_dict() method."""
+
+    def test_invert_dict_none(self):
+        with self.assertRaises(AttributeError):
+            invert_dict(None)
+
+    def test_invert_dict_not_dict(self):
+        with self.assertRaises(AttributeError):
+            invert_dict('not a dict')
+
+    def test_invert_dict_basic(self):
+        obj = {'a': 'A', 'b': 'B'}
+        expected = {'A': 'a', 'B': 'b'}
+        self.assertEqual(invert_dict(obj), expected)
+
+    def test_invert_dict_not_hashable(self):
+        obj = {'a': {'A': 1}, 'b': 'B'}
+        with self.assertRaises(TypeError):
+            invert_dict(obj)

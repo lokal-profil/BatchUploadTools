@@ -186,6 +186,21 @@ def deep_sort(obj):
     return _sorted
 
 
+# consider movingto BatchUploadTools.common
+def relabel_inner_dicts(obj, key_map):
+    """Update the keys of all dicts in a dict."""
+    for inner in obj.values():
+        for old_key, new_key in key_map.items():
+            inner[new_key] = inner.pop(old_key)
+    return obj
+
+
+def invert_dict(old_dict):
+    """Invert a dict where each value is itself hashable."""
+    # note that OrderedDict gets converted to dict
+    return {v: k for k, v in old_dict.items()}
+
+
 def add_or_increment(dictionary, val, key=None):
     """
     Add a value to the dictionary or increments the counter for the value.
