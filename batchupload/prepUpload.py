@@ -8,7 +8,7 @@ from batchupload.make_info import make_info_page
 import batchupload.common as common
 import pywikibot
 
-FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg')
+FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg', '.wav')
 
 
 def run(in_path, out_path, data_path, file_exts=None):

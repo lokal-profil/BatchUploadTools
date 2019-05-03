@@ -8,7 +8,7 @@ from batchupload.make_info import make_info_page
 import os
 import pywikibot
 
-FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg')
+FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg', '.wav')
 URL_PROTOCOLS = ('http', 'https')  # @todo: extend with supported protocols
 
 
@@ -107,9 +107,9 @@ def upload_single_file(file_name, media_file, text, target_site,
 def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
            verbose=False, test=False, target_site=None, chunked=True):
     """
-    Upload all matched files in the supplied directory.
+    Upload all matched media files in the supplied directory.
 
-    Media (image) files and metadata files with the expected extension .info
+    Media files and metadata files with the expected extension .info
     should be in the same directory. Metadata files should contain the entirety
     of the desired description page (in wikitext).
 
@@ -197,9 +197,9 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
                     file_exts=None, verbose=False, test=False,
                     target_site=None, only=None, skip=None):
     """
-    Upload all images provided as urls in a make_info json file.
+    Upload all media files provided as urls in a make_info json file.
 
-    Media (image) files and metadata files with the expected extension .info
+    Media files and metadata files with the expected extension .info
     should be in the same directory. Metadata files should contain the entirety
     of the desired description page (in wikitext).
 

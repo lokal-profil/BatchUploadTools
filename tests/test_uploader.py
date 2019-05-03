@@ -13,7 +13,7 @@ class TestVerifyUrlFileExtension(unittest.TestCase):
     """Test the verify_url_file_extension method."""
 
     def setUp(self):
-        self.file_exts = ('.tif', '.jpg', '.tiff', '.jpeg')
+        self.file_exts = ('.tif', '.jpg', '.tiff', '.jpeg', '.wav')
         self.protocols = ('http', 'https')
 
     def test_verify_url_file_extension_empty(self):

@@ -34,8 +34,8 @@ mapping tables, the harvest of the tables when mapped and the preservation of
 old mappings when new lists are needed for later uploads.
 
 Alternatively you can make use of only the prep-uploader/uploader tools by
-creating your own indata file. This must then be a json file where each image
-is represented by a dictionary entry with the *original filename* (without
+creating your own indata file. This must then be a json file where each media
+file is represented by a dictionary entry with the *original filename* (without
 the file extension) as the key and the following values:
  - `info`: the wikitext to be used on the description page (e.g. an information
    template)

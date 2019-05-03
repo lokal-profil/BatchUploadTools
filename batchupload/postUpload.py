@@ -22,7 +22,7 @@ def trim_parent_category(category, summary=None, verbose=True):
     @param verbose: if verbose output is desired. Default: True.
     @return: the number of pages removed from the category
     """
-    summary = 'Removing parent category when image already in subcategory'
+    summary = 'Removing parent category when file already in subcategory'
     load_commons_site()
     if not category.startswith('Category:'):
         category = 'Category:{0}'.format(category)
@@ -68,7 +68,7 @@ def trim_second_category(start_category, del_category, in_filename=None,
     if not del_category.startswith('Category:'):
         del_category = 'Category:{0}'.format(del_category)
     summary = summary or \
-        'Removing {del_category} for image already in {start_category}'.format(
+        'Removing {del_category} for file already in {start_category}'.format(
             del_category=del_category, start_category=start_category)
 
     start_cat = pywikibot.Category(commons, start_category)
