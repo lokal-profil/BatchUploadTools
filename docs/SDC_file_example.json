@@ -4,12 +4,12 @@
         "en": "<plain text>",
         "sv": "<plain text>"
     },
-    "P170": "<value> - for simple values without qualifiers doesn't work for monolingual/quantites etc.",
-    "P180": ["<value_1>", "<value_2>"],
-    "P190": {
-        "_": "<value> - could be a dict for monolingual/quantites/coordinates etc.",
+    "P170": "<value> - for simple values without qualifiers e.g. '123', 'Q42', 'File:Foo.jpg'. Doesn't work for complex values such as monolingual_text/quantites etc.",
+    "P180": {
+        "_": "<value> - could be a simple value e.g. '123', 'Q42' or a dict for monolingual/quantites/coordinates etc. e.g. ({'text': 'Foo', 'lang': 'en'})",
         "prominent": "<bool>",
-        "P191": "<qualifier> - could be a dict for monolingual/quantites/coordinates etc."",
-        "P192": ["<qualifier>", "<qualifier>"]
+        "P181": "<qualifier> - could be a dict for monolingual/quantites/coordinates etc."",
+        "P182": ["<qualifier>", "<qualifier>"],
+    "P190": ["<value_1>", "<value_2 - could also be a dict per P180 example>"]
 }
 
