@@ -1,0 +1,15 @@
+{
+    "summary": "<Use to override the default edit summary>"
+    "caption": {
+        "en": "<plain text>",
+        "sv": "<plain text>"
+    },
+    "P170": "<value> - for simple values without qualifiers doesn't work for monolingual/quantites etc.",
+    "P180": ["<value_1>", "<value_2>"],
+    "P190": {
+        "_": "<value> - could be a dict for monolingual/quantites/coordinates etc.",
+        "prominent": "<bool>",
+        "P191": "<qualifier> - could be a dict for monolingual/quantites/coordinates etc."",
+        "P192": ["<qualifier>", "<qualifier>"]
+}
+

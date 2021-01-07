@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 import batchupload.common as common
 import batchupload.prepUpload as prepUpload
+import batchupload.sdc_support as sdc_support
 from batchupload.make_info import make_info_page
 import os
 import pywikibot
@@ -38,7 +39,7 @@ def upload_single_file(file_name, media_file, text, target_site,
                 return False
         return True
 
-    result = {'warning': None, 'error': None, 'log': ''}
+    result = {'warning': None, 'error': None, 'log': '', 'file_page': None}
 
     # handle warnings to ignore
     ignore_warnings = False
@@ -95,6 +96,7 @@ def upload_single_file(file_name, media_file, text, target_site,
                                                  result['warning'])
         elif success:
             result['log'] = '%s: success' % file_page.title()
+            result['file_page'] = file_page
         else:
             result['error'] = "No warning/error but '%s' didn't upload?" % \
                               file_page.title()
@@ -105,7 +107,8 @@ def upload_single_file(file_name, media_file, text, target_site,
 
 
 def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
-           verbose=False, test=False, target_site=None, chunked=True):
+           verbose=False, test=False, target_site=None, chunked=True,
+           expect_sdc=False):
     """
     Upload all matched media files in the supplied directory.
 
@@ -124,6 +127,7 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
     @param target_site: pywikibot.Site to which file should be uploaded,
         defaults to Commons.
     @param chunked: Whether to do chunked uploading or not.
+    @param expect_sdc: set to True to also look for corresponding SDC-data.
     """
     # set defaults unless overridden
     file_exts = file_exts or FILE_EXTS
@@ -156,11 +160,18 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
             break
         # verify that there is a matching info file
         info_file = '%s.info' % os.path.splitext(f)[0]
+        sdc_file = '%s.sdc' % os.path.splitext(f)[0]
         base_name = os.path.basename(f)
         base_info_name = os.path.basename(info_file)
+        base_sdc_name = os.path.basename(sdc_file)
         if not os.path.exists(info_file):
             flog.write_w_timestamp(
                 '{0}: Found multimedia file without info'.format(base_name))
+            continue
+        if expect_sdc and not os.path.exists(sdc_file):
+            flog.write_w_timestamp(
+                '{0}: Found multimedia file missing the expected '
+                'sdc data'.format(base_name))
             continue
 
         # prepare upload
@@ -175,6 +186,10 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
 
         result = upload_single_file(base_name, f, txt, target_site,
                                     upload_if_badprefix=True, chunked=chunked)
+        if expect_sdc and result['file_page']:
+            sdc_data = common.open_and_read_file(sdc_file, as_json=True)
+            sdc_support.upload_single_sdc_data(
+                target_site, result['file_page'], sdc_data, result)
 
         target_dir = None
         if result.get('error'):
@@ -189,6 +204,8 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
         flog.write_w_timestamp(result.get('log'))
         os.rename(f, os.path.join(target_dir, base_name))
         os.rename(info_file, os.path.join(target_dir, base_info_name))
+        if expect_sdc:
+            os.rename(sdc_file, os.path.join(target_dir, base_sdc_name))
         counter += 1
 
     pywikibot.output(flog.close_and_confirm())
@@ -196,7 +213,8 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
 
 def up_all_from_url(info_path, cutoff=None, target='upload_logs',
                     file_exts=None, verbose=False, test=False,
-                    target_site=None, only=None, skip=None):
+                    target_site=None, only=None, skip=None,
+                    expect_sdc=False):
     """
     Upload all media files provided as urls in a make_info json file.
 
@@ -213,6 +231,7 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
         defaults to Commons.
     @param only: list of urls to upload, if provided all others will be skipped
     @param skip: list of urls to skip, all others will be uploaded
+    @param expect_sdc: set to True to also look for corresponding SDC-data.
     """
     # set defaults unless overridden
     file_exts = file_exts or FILE_EXTS
@@ -271,6 +290,11 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
                 '{url}: Found url missing the output filename'.format(
                     url=url))
             continue
+        elif expect_sdc and not data['sdc']:
+            flog.write_w_timestamp(
+                '{url}: Found url missing the expected sdc data'.format(
+                    url=url))
+            continue
 
         # prepare upload
         txt = make_info_page(data)
@@ -287,6 +311,9 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
 
         result = upload_single_file(
             filename, url, txt, target_site, upload_if_badprefix=True)
+        if expect_sdc and result['file_page']:
+            sdc_support.upload_single_sdc_data(
+                target_site, result['file_page'], data['sdc'], result)
         if result.get('error'):
             logs['error'].write(url)
         elif result.get('warning'):
@@ -359,6 +386,8 @@ def main(*args):
         '(optional)\n'
         '\t-nochunk Whether to turn off chunked uploading, this is slow '
         'and does not support files > 100Mb (optional, type:FILES only)\n'
+        '\t-expect_sdc Whether to expect corresponding Structured Data files '
+        'or entries in the make_info output file.'
         '\t-only:PATH to file containing list of urls to upload, skipping all '
         'others. One entry per line. (optional, type:URL only)\n'
         '\t-skip:PATH to file containing list of urls to skip, uploading all '
@@ -371,6 +400,7 @@ def main(*args):
     cutoff = None
     in_path = None
     test = False
+    expect_sdc = False
     confirm = False
     chunked = True
     typ = 'files'
@@ -387,6 +417,8 @@ def main(*args):
             in_path = value
         elif option == '-test':
             test = True
+        elif option == '-expect_sdc':
+            expect_sdc = True
         elif option == '-confirm':
             confirm = True
         elif option == '-nochunk':
@@ -410,10 +442,10 @@ def main(*args):
     if in_path:
         if typ == 'files':
             up_all(in_path, cutoff=cutoff, test=test, verbose=confirm,
-                   chunked=chunked)
+                   chunked=chunked, expect_sdc=expect_sdc)
         elif typ == 'url':
             up_all_from_url(in_path, cutoff=cutoff, only=only, skip=skip,
-                            test=test, verbose=confirm)
+                            test=test, verbose=confirm, expect_sdc=expect_sdc)
     else:
         pywikibot.output(usage)
 
