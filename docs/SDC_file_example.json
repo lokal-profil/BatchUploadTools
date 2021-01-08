@@ -35,6 +35,6 @@
         "lat": "12.34",
         "lon": "12.34"
     },
-    "P14": "2020-12-31", # Date - Not yet implemented
-    "P15": "2020-12-31T23:59:59Z", # Date with time - Not yet implemented
+    "P14": "2020-12-31", # Date
+    "P15": "2020-12-31T23:59:59Z", # Date with time
 }

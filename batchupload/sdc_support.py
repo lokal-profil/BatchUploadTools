@@ -155,8 +155,10 @@ def format_claim_value(claim, value, target_site):
         else:
             return pywikibot.WbQuantity(value)
     elif claim.type == 'time':
-        # pywikibot.WbTime - @see wikidataStuff.helpers.iso_to_wbtime
-        raise NotImplementedError
+        try:
+            pywikibot.WbTime.fromTimestr('+{}'.format(value.lstrip('+')))
+        except ValueError:
+            return iso_to_wbtime(value)
 
     # simple strings/numbers
     return value
@@ -173,3 +175,47 @@ def is_prop_key(key):
         common.is_str(key)
         and key[0] == 'P'
         and common.is_pos_int(key[1:]))
+
+
+# copied from wikidataStuff.helpers.iso_to_wbtime
+def iso_to_wbtime(date):
+    """
+    Convert ISO date string into WbTime object.
+
+    Given an ISO date object (1922-09-17Z or 2014-07-11T08:14:46Z)
+    this returns the equivalent WbTime object
+
+    @param item: An ISO date string
+    @type item: basestring
+    @return: The converted result
+    @rtype: pywikibot.WbTime
+    """
+    date = date[:len('YYYY-MM-DD')].split('-')
+    if len(date) == 3 and all(common.is_int(x) for x in date):
+        # 1921-09-17Z or 2014-07-11T08:14:46Z
+        d = int(date[2])
+        if d == 0:
+            d = None
+        m = int(date[1])
+        if m == 0:
+            m = None
+        return pywikibot.WbTime(
+            year=int(date[0]),
+            month=m,
+            day=d)
+    elif len(date) == 1 and common.is_int(date[0][:len('YYYY')]):
+        # 1921Z
+        return pywikibot.WbTime(year=int(date[0][:len('YYYY')]))
+    elif (len(date) == 2
+            and all(common.is_int(x) for x in (date[0], date[1][:len('MM')]))):
+        # 1921-09Z
+        m = int(date[1][:len('MM')])
+        if m == 0:
+            m = None
+        return pywikibot.WbTime(
+            year=int(date[0]),
+            month=m)
+
+    # once here all interpretations have failed
+    raise pywikibot.Error(
+        'An invalid ISO-date string received: {}'.format(date))
