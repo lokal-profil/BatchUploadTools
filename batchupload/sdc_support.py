@@ -91,13 +91,17 @@ def format_sdc_payload(target_site, data):
             claim.setTarget(format_claim_value(claim, value, target_site))
         elif isinstance(value, list):
             # multiple values for same property
+            # will likely require a re-factor since this could be a mixture of
+            # simple and qualified statements
             raise NotImplementedError
         elif isinstance(value, dict):
             # more complex data types or values with e.g. qualifiers
             claim.setTarget(format_claim_value(claim, value['_'], target_site))
+
             # set prominent flag
             if value.get('prominent'):
                 claim.setRank('preferred')
+
             # add qualifiers
             qual_prop_data = {key: value[key] for key in value.keys()
                               if is_prop_key(key)}
@@ -144,9 +148,12 @@ def format_claim_value(claim, value, target_site):
     elif claim.type == 'globe-coordinate':
         return pywikibot.Coordinate(value.get('lat'), value.get('lon'))
     elif claim.type == 'quantity':
-        return pywikibot.WbQuantity(
-            value.get('amount'),
-            pywikibot.ItemPage(repo, value.get('unit')))
+        if isinstance(value, dict):
+            return pywikibot.WbQuantity(
+                value.get('amount'),
+                pywikibot.ItemPage(repo, value.get('unit')))
+        else:
+            return pywikibot.WbQuantity(value)
     elif claim.type == 'time':
         # pywikibot.WbTime - @see wikidataStuff.helpers.iso_to_wbtime
         raise NotImplementedError
