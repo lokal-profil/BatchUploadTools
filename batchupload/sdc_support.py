@@ -41,7 +41,7 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, result):
         return
 
     # upload sdc data
-    summary = sdc_data.get('comment',
+    summary = sdc_data.get('edit_summary',
                            'upload SDC data corresponding to recent upload')
     payload = {
         'action': 'wbeditentity',

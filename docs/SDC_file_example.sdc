@@ -1,5 +1,5 @@
 {
-    "summary": "Use to override the default edit summary",
+    "edit_summary": "Use to override the default edit summary",
     "caption": {
         "en": "<plain text>",
         "sv": "<plain text>"
