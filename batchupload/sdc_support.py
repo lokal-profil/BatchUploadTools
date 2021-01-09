@@ -124,7 +124,7 @@ def format_sdc_payload(target_site, data):
                     # more complex data types or values with e.g. qualifiers
                     qual_claim.setTarget(
                         format_claim_value(
-                            qual_claim, qual_value['_'], target_site))
+                            qual_claim, qual_value, target_site))
                 claim.addQualifier(qual_claim)
         payload['claims'].append(claim.toJSON())
     return payload
@@ -162,7 +162,8 @@ def format_claim_value(claim, value, target_site):
             return pywikibot.WbQuantity(value)
     elif claim.type == 'time':
         try:
-            pywikibot.WbTime.fromTimestr('+{}'.format(value.lstrip('+')))
+            return pywikibot.WbTime.fromTimestr('+{}Z'.format(
+                value.lstrip('+').rstrip('Z')))
         except ValueError:
             return iso_to_wbtime(value)
 
