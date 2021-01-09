@@ -78,7 +78,7 @@ def format_sdc_payload(target_site, data):
 
     if data.get('caption'):
         payload['labels'] = dict()
-        for k, v in data['captions'].items():
+        for k, v in data['caption'].items():
             payload['labels'][k] = {'language': k, 'value': v}
 
     if not set(data.keys()) - set(allowed_non_property_keys):
