@@ -27,7 +27,13 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, result):
     @param result: joint result dict for media file and sdc upload
     """
     media_identifier = 'M{}'.format(file_page.pageid)
-    sdc_payload = format_sdc_payload(target_site, sdc_data)
+    try:
+        sdc_payload = format_sdc_payload(target_site, sdc_data)
+    except Exception as e:
+        result['error'] = e
+        result['log'] += '\n\t{0} Error uploading SDC data: {1}'.format(
+            file_page.title(), e)
+        return
 
     # verify that there is no data yet
     request = target_site._simple_request(
