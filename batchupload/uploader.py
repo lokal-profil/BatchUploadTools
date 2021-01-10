@@ -31,7 +31,7 @@ def upload_single_file(file_name, media_file, text, target_site,
     @param ignore_all_warnings: Ignore all warnings
     """
     def allow_warnings(warning_list):
-        """Given a list of warnings determine if all oare acceptable or not."""
+        """Given a list of warnings determine if all are acceptable or not."""
         for w in warning_list:
             if w.code not in ignored_warnings:
                 result['warning'] = w
@@ -173,9 +173,10 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
             continue
         # stop here if testing
 
-        target_dir = None
         result = upload_single_file(base_name, f, txt, target_site,
                                     upload_if_badprefix=True, chunked=chunked)
+
+        target_dir = None
         if result.get('error'):
             target_dir = error_dir
         elif result.get('warning'):
@@ -198,10 +199,6 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
                     target_site=None, only=None, skip=None):
     """
     Upload all media files provided as urls in a make_info json file.
-
-    Media files and metadata files with the expected extension .info
-    should be in the same directory. Metadata files should contain the entirety
-    of the desired description page (in wikitext).
 
     Outputs separate logfiles for files triggering errors, warnings (and
     successful) so that these can be used in latter runs.
