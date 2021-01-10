@@ -8,7 +8,7 @@ from batchupload.make_info import make_info_page
 import os
 import pywikibot
 
-FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg', '.wav')
+FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg', '.wav', '.svg', '.png')
 URL_PROTOCOLS = ('http', 'https')  # @todo: extend with supported protocols
 
 
