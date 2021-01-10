@@ -16,7 +16,7 @@ import pywikibot
 import batchupload.common as common
 
 
-def upload_single_sdc_data(target_site, file_page, sdc_data, result):
+def upload_single_sdc_data(target_site, file_page, sdc_data):
     """
     Upload the Structured Data corresponding to the recently uploaded file.
 
@@ -24,27 +24,31 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, result):
     @param file_page: pywikibot.FilePage object corresponding to the
         recently uploaded file
     @param sdc_data: internally formatted Structured data in json format
-    @param result: joint result dict for media file and sdc upload
+    @return: dict of potential issues
     """
     media_identifier = 'M{}'.format(file_page.pageid)
     try:
         sdc_payload = format_sdc_payload(target_site, sdc_data)
-    except Exception as e:
-        result['error'] = e
-        result['log'] += '\n\t{0} Error uploading SDC data: {1}'.format(
-            file_page.title(), e)
-        return
+    except Exception as error:
+        return {
+            'type': 'error',
+            'data': error,
+            'log': '{0} Error uploading SDC data: {1}'.format(
+                file_page.title(), error)
+        }
 
     # verify that there is no data yet
     request = target_site._simple_request(
         action='wbgetentities', ids=media_identifier)
     raw = request.submit()
     if raw.get('entities').get(media_identifier).get('pageid'):
-        result['warning'] = 'pre-existing sdc-data'
-        result['log'] += '\n\tWarning: Found pre-existing SDC data, no new ' \
-            'data will be added. Found data: '.format(
-            raw.get('entities').get(media_identifier))
-        return
+        return {
+            'type': 'warning',
+            'data': 'pre-existing sdc-data',
+            'log': 'Warning: Found pre-existing SDC data, no new '
+                   'data will be added. Found data: {}'.format(
+                    raw.get('entities').get(media_identifier))
+        }
 
     # upload sdc data
     summary = sdc_data.get('edit_summary',
@@ -63,9 +67,12 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, result):
     try:
         request.submit()
     except pywikibot.data.api.APIError as error:
-        result['error'] = error
-        result['log'] += '\n\t{0} Error uploading SDC data: {1}'.format(
-            file_page.title(), error)
+        return {
+            'type': 'error',
+            'data': error,
+            'log': '{0} Error uploading SDC data: {1}'.format(
+                file_page.title(), error)
+        }
 
 
 def format_sdc_payload(target_site, data):

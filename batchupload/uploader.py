@@ -188,8 +188,11 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
                                     upload_if_badprefix=True, chunked=chunked)
         if expect_sdc and result['file_page']:
             sdc_data = common.open_and_read_file(sdc_file, as_json=True)
-            sdc_support.upload_single_sdc_data(
-                target_site, result['file_page'], sdc_data, result)
+            issues = sdc_support.upload_single_sdc_data(
+                target_site, result['file_page'], sdc_data)
+            if issues:
+                result[issues.get('type')] = issues.get('data')
+                result['log'] += '\n\t{}'.format(issues.get('log'))
 
         target_dir = None
         if result.get('error'):
