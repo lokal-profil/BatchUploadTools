@@ -169,8 +169,9 @@ def format_claim_value(claim, value, target_site):
             return pywikibot.WbQuantity(value)
     elif claim.type == 'time':
         try:
-            return pywikibot.WbTime.fromTimestr('+{}0000000Z'.format(
-                value.lstrip('+0').rstrip('Z')))
+            # note that Wikidata only supports precision down to day
+            datetimestr = '+{}Z'.format(value.lstrip('+0').rstrip('Z'))
+            return pywikibot.WbTime.fromTimestr(datetimestr, precision=11)
         except ValueError:
             return iso_to_wbtime(value)
 
