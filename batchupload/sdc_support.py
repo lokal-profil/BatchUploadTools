@@ -15,6 +15,10 @@ import json
 import pywikibot
 import batchupload.common as common
 
+# Note that Wikibase has hardcoded Commons as being the site where media files
+# live. Pywikibot gets cranky if it's initialised straight away though.
+_COMMONS_MEDIA_FILE_SITE = None  # pywikibot.Site('commons', 'commons')
+
 
 def upload_single_sdc_data(target_site, file_page, sdc_data):
     """
@@ -200,32 +204,43 @@ def format_claim_value(claim, value, target_site):
     if claim.type == 'wikibase-item':
         return pywikibot.ItemPage(repo, value)
     elif claim.type == 'commonsMedia':
-        return pywikibot.FilePage(target_site, value)
+        global _COMMONS_MEDIA_FILE_SITE
+        if not _COMMONS_MEDIA_FILE_SITE:
+            _COMMONS_MEDIA_FILE_SITE = pywikibot.Site('commons', 'commons')
+        return pywikibot.FilePage(_COMMONS_MEDIA_FILE_SITE, value)
     elif claim.type == 'geo-shape':
-        return pywikibot.WbGeoShape(pywikibot.Page(target_site, value))
+        return pywikibot.WbGeoShape(
+            pywikibot.Page(repo.geo_shape_repository(), value))
     elif claim.type == 'tabular-data':
-        return pywikibot.WbTabularData(pywikibot.Page(target_site, value))
+        return pywikibot.WbTabularData(
+            pywikibot.Page(repo.tabular_data_repository(), value))
     elif claim.type == 'monolingualtext':
         return pywikibot.WbMonolingualText(
             value.get('text'), value.get('lang'))
     elif claim.type == 'globe-coordinate':
-        return pywikibot.Coordinate(value.get('lat'), value.get('lon'))
+        # set precision to the least precise of the values
+        precision = max(
+            coord_precision(value.get('lat')),
+            coord_precision(value.get('lon')))
+        return pywikibot.Coordinate(
+            float(value.get('lat')),
+            float(value.get('lon')),
+            precision=precision)
     elif claim.type == 'quantity':
         if isinstance(value, dict):
             return pywikibot.WbQuantity(
                 value.get('amount'),
-                pywikibot.ItemPage(repo, value.get('unit')))
+                pywikibot.ItemPage(repo, value.get('unit')),
+                site=repo)
         else:
-            return pywikibot.WbQuantity(value)
+            return pywikibot.WbQuantity(value, site=repo)
     elif claim.type == 'time':
-        try:
-            # note that Wikidata only supports precision down to day
-            datetimestr = '+{}Z'.format(value.lstrip('+0').rstrip('Z'))
-            return pywikibot.WbTime.fromTimestr(datetimestr, precision=11)
-        except ValueError:
-            return iso_to_wbtime(value)
+        # note that Wikidata only supports precision down to day
+        # as a result pywikibot.WbTime.fromTimestr will produce an incompatible
+        # result for a fully qualified timestamp/timestr
+        return iso_to_wbtime(value)
 
-    # simple strings/numbers
+    # simple strings
     return value
 
 
@@ -248,7 +263,10 @@ def iso_to_wbtime(date):
     Convert ISO date string into WbTime object.
 
     Given an ISO date object (1922-09-17Z or 2014-07-11T08:14:46Z)
-    this returns the equivalent WbTime object
+    this returns the equivalent WbTime object.
+
+    Note that the time part is discarded as Wikidata doesn't support precision
+    below a day.
 
     @param item: An ISO date string
     @type item: basestring
@@ -284,3 +302,28 @@ def iso_to_wbtime(date):
     # once here all interpretations have failed
     raise pywikibot.Error(
         'An invalid ISO-date string received: {}'.format(date))
+
+
+def coord_precision(digits):
+    """
+    Guestimate the precision of a number based on the significant figures.
+
+    This will assume the largest possible error in the case of integers.
+
+    Requires that the number be given as a string (since sig. figs. may
+    otherwise have been removed.)
+
+    @param digits: the number to guestimate the precision from
+    @type unit: str
+    @return: error
+    @rtype: int
+    """
+    integral, _, fractional = digits.partition(".")
+    if fractional:
+        return pow(10, -len(fractional))
+    elif int(integral) == 0:
+        return 1
+    else:
+        to_the = len(integral) - len(integral.rstrip('0'))
+        # maximum imprecision allowed by Wikibase is 10
+        return min(10, pow(10, to_the))
