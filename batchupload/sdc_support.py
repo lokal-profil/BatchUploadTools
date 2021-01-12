@@ -108,33 +108,45 @@ def format_sdc_payload(target_site, data):
             # simple and qualified statements
             raise NotImplementedError
         elif isinstance(value, dict):
-            # more complex data types or values with e.g. qualifiers
-            claim.setTarget(format_claim_value(claim, value['_'], target_site))
-
-            # set prominent flag
-            if value.get('prominent'):
-                claim.setRank('preferred')
-
-            # add qualifiers
-            qual_prop_data = {key: value[key] for key in value.keys()
-                              if is_prop_key(key)}
-            for qual_prop, qual_value in qual_prop_data.items():
-                qual_claim = pywikibot.Claim(repo, qual_prop)
-                if common.is_str(qual_value):
-                    qual_claim.setTarget(
-                        format_claim_value(
-                            qual_claim, qual_value, target_site))
-                elif isinstance(qual_value, list):
-                    # multiple values for same property
-                    raise NotImplementedError
-                elif isinstance(qual_value, dict):
-                    # more complex data types or values with e.g. qualifiers
-                    qual_claim.setTarget(
-                        format_claim_value(
-                            qual_claim, qual_value, target_site))
-                claim.addQualifier(qual_claim)
+            format_dict_claim_value(value, claim, target_site)
         payload['claims'].append(claim.toJSON())
     return payload
+
+
+def format_dict_claim_value(value, claim, target_site):
+    """
+    @# TODO:
+    """
+    # more complex data types or values with e.g. qualifiers
+    claim.setTarget(format_claim_value(claim, value['_'], target_site))
+
+    # set prominent flag
+    if value.get('prominent'):
+        claim.setRank('preferred')
+
+    # add qualifiers
+    qual_prop_data = {key: value[key] for key in value.keys()
+                      if is_prop_key(key)}
+    for qual_prop, qual_value in qual_prop_data.items():
+        if common.is_str(qual_value) or isinstance(qual_value, dict):
+            qual_claim = pywikibot.Claim(claim.repo, qual_prop)
+            qual_claim.setTarget(
+                format_claim_value(qual_claim, qual_value, target_site))
+            claim.addQualifier(qual_claim)
+        elif isinstance(qual_value, list):
+            for q_v in qual_value:
+                q_c = pywikibot.Claim(claim.repo, qual_prop)
+                if common.is_str(q_v) or isinstance(q_v, dict):
+                    q_c.setTarget(
+                        format_claim_value(q_c, q_v, target_site))
+                else:
+                    raise ValueError(
+                        'Incorrectly formatted qualifier: {}'.format(q_v))
+                claim.addQualifier(q_c)
+        else:
+            raise ValueError(
+                'Incorrectly formatted qualifier: {}'.format(qual_value))
+    return claim
 
 
 def format_claim_value(claim, value, target_site):
