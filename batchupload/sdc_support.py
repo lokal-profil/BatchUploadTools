@@ -86,7 +86,6 @@ def format_sdc_payload(target_site, data):
     @return dict formated sdc data payload
     """
     allowed_non_property_keys = ('caption', 'summary')
-    repo = target_site.data_repository()
     payload = dict()
 
     if data.get('caption'):
@@ -99,23 +98,48 @@ def format_sdc_payload(target_site, data):
     payload['claims'] = []
     prop_data = {key: data[key] for key in data.keys() if is_prop_key(key)}
     for prop, value in prop_data.items():
-        claim = pywikibot.Claim(repo, prop)
-        if common.is_str(value):
-            claim.setTarget(format_claim_value(claim, value, target_site))
-        elif isinstance(value, list):
-            # multiple values for same property
-            # will likely require a re-factor since this could be a mixture of
-            # simple and qualified statements
-            raise NotImplementedError
-        elif isinstance(value, dict):
-            format_dict_claim_value(value, claim, target_site)
-        payload['claims'].append(claim.toJSON())
+        if isinstance(value, list):
+            for v in value:
+                claim = make_claim(v, prop, target_site)
+                payload['claims'].append(claim.toJSON())
+        else:
+            claim = make_claim(value, prop, target_site)
+            payload['claims'].append(claim.toJSON())
     return payload
 
 
-def format_dict_claim_value(value, claim, target_site):
+def make_claim(value, prop, target_site):
     """
-    @# TODO:
+    Create a pywikibot Claim representation of the internally formatted value.
+
+    @param value: str|dict The internally formatted claim value
+    @param prop: str Property of the claim
+    @param target_site: pywikibot.Site to which SDC is uploaded
+    @return: pywikibot.Claim
+    """
+    repo = target_site.data_repository()
+    claim = pywikibot.Claim(repo, prop)
+    if common.is_str(value):
+        claim.setTarget(format_claim_value(claim, value, target_site))
+    elif isinstance(value, dict):
+        set_dict_claim_value(value, claim, target_site)
+    else:
+        raise ValueError(
+            'Incorrectly formatted property value: {}'.format(value))
+    return claim
+
+
+def set_dict_claim_value(value, claim, target_site):
+    """
+    Populate a more complex claim.
+
+    A complex claim is either one with a multi-part data type, or with the
+    prominent flag or with qualifiers.
+
+    @param value: str|dict The internally formatted claim value
+    @param claim: pywikibot.Claim for which value is being set
+    @param target_site: pywikibot.Site to which SDC is uploaded
+    @return: pywikibot.Claim
     """
     # more complex data types or values with e.g. qualifiers
     claim.setTarget(format_claim_value(claim, value['_'], target_site))
@@ -128,25 +152,39 @@ def format_dict_claim_value(value, claim, target_site):
     qual_prop_data = {key: value[key] for key in value.keys()
                       if is_prop_key(key)}
     for qual_prop, qual_value in qual_prop_data.items():
-        if common.is_str(qual_value) or isinstance(qual_value, dict):
-            qual_claim = pywikibot.Claim(claim.repo, qual_prop)
-            qual_claim.setTarget(
-                format_claim_value(qual_claim, qual_value, target_site))
-            claim.addQualifier(qual_claim)
-        elif isinstance(qual_value, list):
+        if isinstance(qual_value, list):
             for q_v in qual_value:
-                q_c = pywikibot.Claim(claim.repo, qual_prop)
-                if common.is_str(q_v) or isinstance(q_v, dict):
-                    q_c.setTarget(
-                        format_claim_value(q_c, q_v, target_site))
-                else:
-                    raise ValueError(
-                        'Incorrectly formatted qualifier: {}'.format(q_v))
-                claim.addQualifier(q_c)
+                claim.addQualifier(
+                    format_qualifier_claim_value(
+                        q_v, qual_prop, claim, target_site))
         else:
-            raise ValueError(
-                'Incorrectly formatted qualifier: {}'.format(qual_value))
+            claim.addQualifier(
+                format_qualifier_claim_value(
+                    qual_value, qual_prop, claim, target_site))
     return claim
+
+
+def format_qualifier_claim_value(value, prop, claim, target_site):
+    """
+    Populate a more complex claim.
+
+    A complex claim is either one with a multi-part data type, or with the
+    prominent flag or with qualifiers.
+
+    @param value: str|dict The internally formatted qualifier value
+    @param prop: str Property of qualifier
+    @param claim: pywikibot.Claim to which qualifier is being added
+    @param target_site: pywikibot.Site to which SDC is uploaded
+    @return: pywikibot.Claim
+    """
+    if common.is_str(value) or isinstance(value, dict):
+        qual_claim = pywikibot.Claim(claim.repo, prop)
+        qual_claim.setTarget(
+            format_claim_value(qual_claim, value, target_site))
+        return qual_claim
+    else:
+        raise ValueError(
+            'Incorrectly formatted qualifier: {}'.format(value))
 
 
 def format_claim_value(claim, value, target_site):
