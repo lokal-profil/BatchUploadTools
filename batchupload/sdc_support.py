@@ -124,16 +124,16 @@ def make_claim(value, prop, target_site):
     repo = target_site.data_repository()
     claim = pywikibot.Claim(repo, prop)
     if common.is_str(value):
-        claim.setTarget(format_claim_value(claim, value, target_site))
+        claim.setTarget(format_claim_value(claim, value))
     elif isinstance(value, dict):
-        set_dict_claim_value(value, claim, target_site)
+        set_dict_claim_value(value, claim)
     else:
         raise ValueError(
             'Incorrectly formatted property value: {}'.format(value))
     return claim
 
 
-def set_dict_claim_value(value, claim, target_site):
+def set_dict_claim_value(value, claim):
     """
     Populate a more complex claim.
 
@@ -142,11 +142,10 @@ def set_dict_claim_value(value, claim, target_site):
 
     @param value: str|dict The internally formatted claim value
     @param claim: pywikibot.Claim for which value is being set
-    @param target_site: pywikibot.Site to which SDC is uploaded
     @return: pywikibot.Claim
     """
     # more complex data types or values with e.g. qualifiers
-    claim.setTarget(format_claim_value(claim, value['_'], target_site))
+    claim.setTarget(format_claim_value(claim, value['_']))
 
     # set prominent flag
     if value.get('prominent'):
@@ -160,15 +159,15 @@ def set_dict_claim_value(value, claim, target_site):
             for q_v in qual_value:
                 claim.addQualifier(
                     format_qualifier_claim_value(
-                        q_v, qual_prop, claim, target_site))
+                        q_v, qual_prop, claim))
         else:
             claim.addQualifier(
                 format_qualifier_claim_value(
-                    qual_value, qual_prop, claim, target_site))
+                    qual_value, qual_prop, claim))
     return claim
 
 
-def format_qualifier_claim_value(value, prop, claim, target_site):
+def format_qualifier_claim_value(value, prop, claim):
     """
     Populate a more complex claim.
 
@@ -178,29 +177,27 @@ def format_qualifier_claim_value(value, prop, claim, target_site):
     @param value: str|dict The internally formatted qualifier value
     @param prop: str Property of qualifier
     @param claim: pywikibot.Claim to which qualifier is being added
-    @param target_site: pywikibot.Site to which SDC is uploaded
     @return: pywikibot.Claim
     """
     if common.is_str(value) or isinstance(value, dict):
         qual_claim = pywikibot.Claim(claim.repo, prop)
         qual_claim.setTarget(
-            format_claim_value(qual_claim, value, target_site))
+            format_claim_value(qual_claim, value))
         return qual_claim
     else:
         raise ValueError(
             'Incorrectly formatted qualifier: {}'.format(value))
 
 
-def format_claim_value(claim, value, target_site):
+def format_claim_value(claim, value):
     """
     Reformat the internal claim as the relevant pywikibot object.
 
     @param claim: pywikibot.Claim to which value should be added
-    @param value: str och dict encoding the value to be added
-    @param target_site: pywikibot.Site to which sdc data is being added
+    @param value: str|dict encoding the value to be added
     @return pywikibot representation of the claim value
     """
-    repo = target_site.data_repository()
+    repo = claim.repo
     if claim.type == 'wikibase-item':
         return pywikibot.ItemPage(repo, value)
     elif claim.type == 'commonsMedia':
