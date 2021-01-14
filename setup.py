@@ -11,7 +11,7 @@ setup(
         'future',
         'mwparserfromhell',
         'setuptools>50.0.0; python_version >= "3.6"',
-        'pywikibot==5.4.0; python_version >= "3.6"',
+        'pywikibot==5.5.0; python_version >= "3.6"',
         'pywikibot==3.0.20200703; python_version < "3.6"'
     ],
     version=version,

@@ -18,7 +18,7 @@
     "Commons File page": "Foo.jpg",
     "External identifier": "123-345",
     "Math": "E = m c^2",
-    "Musical notation (Requires pywikibot > 5.4.0)": "\relative c' { c d e f | g2 g | a4 a a a | g1 |}",
+    "Musical notation (Requires pywikibot >= 5.5.0)": "\relative c' { c d e f | g2 g | a4 a a a | g1 |}",
     "Url": "https://commons.wikimedia.org",
     "Tabular data": "Data:Foo.tab",
     "Geo shapes": "Data:Foo.map",
