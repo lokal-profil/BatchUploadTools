@@ -15,8 +15,8 @@ import json
 import pywikibot
 import batchupload.common as common
 
-# Note that Wikibase has hardcoded Commons as being the site where media files
-# live. Pywikibot gets cranky if it's initialised straight away though.
+# Wikibase has hardcoded Commons as the only allowed site for media files
+# T90492. Pywikibot gets cranky if it's initialised straight away though.
 _COMMONS_MEDIA_FILE_SITE = None  # pywikibot.Site('commons', 'commons')
 
 
