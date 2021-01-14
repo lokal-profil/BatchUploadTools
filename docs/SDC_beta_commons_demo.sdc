@@ -1,5 +1,5 @@
 {
-    "edit_summary": "Trying out SDC integration with BatchUploadTools  on Beta Commons ",
+    "edit_summary": "Trying out SDC integration with BatchUploadTools on Beta Commons. Adding {count} statements.",
     "caption": {
         "en": "\"Electrical Energy\", caricature by HCO in Vanity Fair, 1910.",
         "sv": "En annan beskrivning. Hallå!"

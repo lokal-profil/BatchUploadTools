@@ -55,15 +55,18 @@ def upload_single_sdc_data(target_site, file_page, sdc_data):
         }
 
     # upload sdc data
-    summary = sdc_data.get('edit_summary',
-                           'upload SDC data corresponding to recent upload')
+    summary = sdc_data.get(
+        'edit_summary',
+        'Add {count} structured data statement(s) to recent upload')
+    num_statements = (len(sdc_payload.get('labels', []))
+                      + len(sdc_payload.get('claims', [])))
     payload = {
         'action': 'wbeditentity',
         'format': u'json',
         'id': media_identifier,
         'data': json.dumps(sdc_payload, separators=(',', ':')),
         'token': target_site.tokens['csrf'],
-        'summary': summary,
+        'summary': summary.format(count=num_statements),
         'bot': target_site.has_right('bot')
     }
 

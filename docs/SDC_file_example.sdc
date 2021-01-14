@@ -1,5 +1,5 @@
 {
-    "edit_summary": "Use to override the default edit summary",
+    "edit_summary": "Use to override the default edit summary. Use {count} to include the number of statements added.",
     "caption": {
         "en": "<plain text>",
         "sv": "<plain text>"
