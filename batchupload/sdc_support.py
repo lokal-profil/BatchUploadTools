@@ -19,7 +19,7 @@ import batchupload.common as common
 # T90492. Pywikibot gets cranky if it's initialised straight away though.
 _COMMONS_MEDIA_FILE_SITE = None  # pywikibot.Site('commons', 'commons')
 DEFAULT_EDIT_SUMMARY = \
-    'Add {count} structured data statement(s) to recent upload'
+    'Added {count} structured data statement(s) to recent upload'
 
 
 def upload_single_sdc_data(target_site, file_page, sdc_data, summary=None):
@@ -185,6 +185,10 @@ def format_qualifier_claim_value(value, prop, claim):
     @return: pywikibot.Claim
     """
     if common.is_str(value) or isinstance(value, dict):
+        # support using exactly the same format as for complex claims
+        if isinstance(value, dict) and '_' in value:
+            value = value.get('_')
+
         qual_claim = pywikibot.Claim(claim.repo, prop)
         qual_claim.setTarget(
             format_claim_value(qual_claim, value))
