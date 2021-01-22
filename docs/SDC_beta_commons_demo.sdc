@@ -72,7 +72,7 @@
     "P766": "1910-11-09",
     "P761": "2021-01-10T00:41:01Z",
     "P164098": "Data:DateI18n.tab",
-    "P164097": "Data:NewYork.map",
+    "P164097": "Data:Sweden.map",
     "P253105": "E = m c^2",
     "P246642": "\relative c' { c d e f | g2 g | a4 a a a | g1 |}"
 }
