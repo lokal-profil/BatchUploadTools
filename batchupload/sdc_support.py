@@ -18,9 +18,11 @@ import batchupload.common as common
 # Wikibase has hardcoded Commons as the only allowed site for media files
 # T90492. Pywikibot gets cranky if it's initialised straight away though.
 _COMMONS_MEDIA_FILE_SITE = None  # pywikibot.Site('commons', 'commons')
+DEFAULT_EDIT_SUMMARY = \
+    'Add {count} structured data statement(s) to recent upload'
 
 
-def upload_single_sdc_data(target_site, file_page, sdc_data):
+def upload_single_sdc_data(target_site, file_page, sdc_data, summary=None):
     """
     Upload the Structured Data corresponding to the recently uploaded file.
 
@@ -28,6 +30,8 @@ def upload_single_sdc_data(target_site, file_page, sdc_data):
     @param file_page: pywikibot.FilePage object corresponding to the
         recently uploaded file
     @param sdc_data: internally formatted Structured data in json format
+    @param sdc_data: edit summary If not provided one is looked for in the
+        sdc_data, if none is found there then a default summary is used.
     @return: dict of potential issues
     """
     media_identifier = 'M{}'.format(file_page.pageid)
@@ -55,9 +59,7 @@ def upload_single_sdc_data(target_site, file_page, sdc_data):
         }
 
     # upload sdc data
-    summary = sdc_data.get(
-        'edit_summary',
-        'Add {count} structured data statement(s) to recent upload')
+    summary = summary or sdc_data.get('edit_summary', DEFAULT_EDIT_SUMMARY)
     num_statements = (len(sdc_payload.get('labels', []))
                       + len(sdc_payload.get('claims', [])))
     payload = {
