@@ -131,16 +131,16 @@ def make_claim(value, prop, target_site):
     if common.is_str(value):
         claim.setTarget(format_claim_value(claim, value))
     elif isinstance(value, dict):
-        set_dict_claim_value(value, claim)
+        set_complex_claim_value(value, claim)
     else:
         raise ValueError(
             'Incorrectly formatted property value: {}'.format(value))
     return claim
 
 
-def set_dict_claim_value(value, claim):
+def set_complex_claim_value(value, claim):
     """
-    Populate a more complex claim.
+    Populate a claim provided in the complex claim format.
 
     A complex claim is either one with a multi-part data type, or with the
     prominent flag or with qualifiers.
