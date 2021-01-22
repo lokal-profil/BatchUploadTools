@@ -74,5 +74,5 @@
     "P164098": "Data:DateI18n.tab",
     "P164097": "Data:Sweden.map",
     "P253105": "E = m c^2",
-    "P246642": "\relative c' { c d e f | g2 g | a4 a a a | g1 |}"
+    "P246642": "\drums {cb hh hh cb cb hh hh cb cb hc hc sn sn hh hh cb}"
 }

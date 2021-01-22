@@ -106,7 +106,7 @@ Examples:
 *   String: `"Some text"`
 *   Url: `"https://commons.wikimedia.org"`
 *   Math: `"E = m c^2"`
-*   Musical notation: `"\relative c' { c d e f | g2 g | a4 a a a | g1 |}"`
+*   Musical notation: `"\drums {cb hh hh hc sn sn hh hh cb}"`
 *   External identifier: `"123-345"`
 
 Additionally [items](#items), [Commons media](#commons-media), unitless [quantities](#quantity),
