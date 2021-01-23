@@ -292,6 +292,7 @@ def is_prop_key(key):
     """
     return (
         common.is_str(key)
+        and len(key) > 1
         and key[0] == 'P'
         and common.is_pos_int(key[1:]))
 
@@ -357,6 +358,9 @@ def coord_precision(digits):
     @return: error
     @rtype: int
     """
+    # @todo consider adding a is_number check
+    if not common.is_str(digits):
+        raise ValueError('coordinate must be provided as a string')
     integral, _, fractional = digits.partition(".")
     if fractional:
         return pow(10, -len(fractional))
