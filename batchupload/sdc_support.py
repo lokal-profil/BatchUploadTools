@@ -30,7 +30,7 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, summary=None):
     @param file_page: pywikibot.FilePage object corresponding to the
         recently uploaded file
     @param sdc_data: internally formatted Structured data in json format
-    @param sdc_data: edit summary If not provided one is looked for in the
+    @param summary: edit summary If not provided one is looked for in the
         sdc_data, if none is found there then a default summary is used.
     @return: dict of potential issues
     """
