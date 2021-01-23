@@ -3,7 +3,7 @@
 """
 Support functionality to allow upload of Structured Data to new uploads.
 
-Internally used format briefly described in docs/SDC_file_example.json
+Internally used format described in docs/SDC_README.md
 
 Stopgap until proper support is implemented in Pywikibot T223820.
 Heavily inspired by hack by Abbe98:
