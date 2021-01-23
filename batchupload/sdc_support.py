@@ -22,14 +22,27 @@ DEFAULT_EDIT_SUMMARY = \
     'Added {count} structured data statement(s) to recent upload'
 
 
-def upload_single_sdc_data(target_site, file_page, sdc_data, summary=None):
+def upload_single_sdc_data(target_site, file_page, sdc_data, strategy=None,
+                           summary=None):
     """
     Upload the Structured Data corresponding to the recently uploaded file.
+
+    There are three allowed strategies for merging the provided data with any
+    pre-existing data.
+    * None (default): Only upload the data if no prior data exists
+    * New: Only upload the data if there is no prior data for that claim. I.e.
+      no prior statements for a particular Pid or no caption for a particular
+      language.
+    * Blind (not generally recommended): Upload the data without regards to
+      what is already there. May overwrite pre-existing captions and add
+      duplicate statements.
 
     @param target_site: pywikibot.Site object to which file should be uploaded
     @param file_page: pywikibot.FilePage object corresponding to the
         recently uploaded file
     @param sdc_data: internally formatted Structured data in json format
+    @param strategy: Strategy used for merging uploaded data with pre-existing
+        data. Allowed values are None (default), "New" and "Blind".
     @param summary: edit summary If not provided one is looked for in the
         sdc_data, if none is found there then a default summary is used.
     @return: dict of potential issues
@@ -41,22 +54,42 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, summary=None):
         return {
             'type': 'error',
             'data': error,
-            'log': '{0} Error uploading SDC data: {1}'.format(
+            'log': '{0} Error formatting SDC data: {1}'.format(
                 file_page.title(), error)
         }
 
-    # verify that there is no data yet
+    # check if there is any data there already
+    # @todo: Consider two more strategies: nuke (delete all pre-existing data),
+    #        squeeze (drop conflicting, but upload non-conflicting, properties)
     request = target_site._simple_request(
         action='wbgetentities', ids=media_identifier)
     raw = request.submit()
     if raw.get('entities').get(media_identifier).get('pageid'):
-        return {
-            'type': 'warning',
-            'data': 'pre-existing sdc-data',
-            'log': 'Warning: Found pre-existing SDC data, no new '
-                   'data will be added. Found data: {}'.format(
-                    raw.get('entities').get(media_identifier))
-        }
+        if not strategy:
+            return {
+                'type': 'warning',
+                'data': 'pre-existing sdc-data',
+                'log': 'Warning: Found pre-existing SDC data, no new '
+                       'data will be added. Found data: {}'.format(
+                        raw.get('entities').get(media_identifier))
+            }
+        elif strategy.lower() == 'new':
+            pre_pids = raw['entities'][media_identifier]['statements'].keys()
+            pre_langs = raw['entities'][media_identifier]['labels'].keys()
+            new_langs = sdc_data.get('caption', {}).keys()
+            if (not set(pre_pids).isdisjoint(sdc_data.keys())
+                    or not set(pre_langs).isdisjoint(new_langs)):
+                return {
+                    'type': 'warning',
+                    'data': 'conflicting pre-existing sdc-data',
+                    'log': 'Warning: Found pre-existing SDC data, no new '
+                           'data will be added. Found data: {}'.format(
+                            raw.get('entities').get(media_identifier))
+                }
+        elif not strategy.lower() == 'blind':
+            raise ValueError(
+                'The `strategy` parameter must be None, "New" or "Blind" '
+                'but "{}" was provided'.format(strategy))
 
     # upload sdc data
     summary = summary or sdc_data.get('edit_summary', DEFAULT_EDIT_SUMMARY)
