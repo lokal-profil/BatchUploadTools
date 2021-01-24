@@ -1,9 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """
-Support functionality to allow upload of Structured Data to new uploads.
+Support functionality to allow upload of Structured Data.
 
 Internally used format described in docs/SDC_README.md
+
+There are three allowed strategies for merging the provided data with any
+pre-existing data.
+* None (default): Only upload the data if no prior data exists
+* New: Only upload the data if there is no prior data for that claim. I.e.
+  no prior statements for a particular Pid or no caption for a particular
+  language.
+* Blind (not generally recommended): Upload the data without regards to
+  what is already there. May overwrite pre-existing captions and add
+  duplicate statements.
 
 Stopgap until proper support is implemented in Pywikibot T223820.
 Heavily inspired by hack by Abbe98:
@@ -27,16 +37,6 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, strategy=None,
     """
     Upload the Structured Data corresponding to the recently uploaded file.
 
-    There are three allowed strategies for merging the provided data with any
-    pre-existing data.
-    * None (default): Only upload the data if no prior data exists
-    * New: Only upload the data if there is no prior data for that claim. I.e.
-      no prior statements for a particular Pid or no caption for a particular
-      language.
-    * Blind (not generally recommended): Upload the data without regards to
-      what is already there. May overwrite pre-existing captions and add
-      duplicate statements.
-
     @param target_site: pywikibot.Site object to which file should be uploaded
     @param file_page: pywikibot.FilePage object corresponding to the
         recently uploaded file
@@ -48,6 +48,14 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, strategy=None,
     @return: dict of potential issues
     """
     media_identifier = 'M{}'.format(file_page.pageid)
+
+    # check if there is structured data already and resolve what to do
+    objections = merge_strategy(
+        media_identifier, target_site, sdc_data, strategy)
+    if objections:
+        return objections
+
+    # Translate from internal sdc data format to that expected by MediaWiki.
     try:
         sdc_payload = format_sdc_payload(target_site, sdc_data)
     except Exception as error:
@@ -58,7 +66,45 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, strategy=None,
                 file_page.title(), error)
         }
 
-    # check if there is any data there already
+    # upload sdc data
+    summary = summary or sdc_data.get('edit_summary', DEFAULT_EDIT_SUMMARY)
+    num_statements = (len(sdc_payload.get('labels', []))
+                      + len(sdc_payload.get('claims', [])))
+    payload = {
+        'action': 'wbeditentity',
+        'format': u'json',
+        'id': media_identifier,
+        'data': json.dumps(sdc_payload, separators=(',', ':')),
+        'token': target_site.tokens['csrf'],
+        'summary': summary.format(count=num_statements),
+        'bot': target_site.has_right('bot')
+    }
+
+    request = target_site._simple_request(**payload)
+    try:
+        request.submit()
+    except pywikibot.data.api.APIError as error:
+        return {
+            'type': 'error',
+            'data': error,
+            'log': '{0} Error uploading SDC data: {1}'.format(
+                file_page.title(), error)
+        }
+
+
+def merge_strategy(media_identifier, target_site, sdc_data, strategy):
+    """
+    Check if the file already holds structured data, if so resolve what to do.
+
+    @param media_identifier: Mid of the file
+    @param target_site: pywikibot.Site object to which file should be uploaded
+    @param sdc_data: internally formatted Structured data in json format
+    @param strategy: Strategy used for merging uploaded data with pre-existing
+        data. Allowed values are None, "New" and "Blind".
+    @return None if no objections to uploading the data else a dict specifying
+        the issues preventing upload.
+    @raises ValueError
+    """
     # @todo: Consider two more strategies: nuke (delete all pre-existing data),
     #        squeeze (drop conflicting, but upload non-conflicting, properties)
     request = target_site._simple_request(
@@ -90,31 +136,6 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, strategy=None,
             raise ValueError(
                 'The `strategy` parameter must be None, "New" or "Blind" '
                 'but "{}" was provided'.format(strategy))
-
-    # upload sdc data
-    summary = summary or sdc_data.get('edit_summary', DEFAULT_EDIT_SUMMARY)
-    num_statements = (len(sdc_payload.get('labels', []))
-                      + len(sdc_payload.get('claims', [])))
-    payload = {
-        'action': 'wbeditentity',
-        'format': u'json',
-        'id': media_identifier,
-        'data': json.dumps(sdc_payload, separators=(',', ':')),
-        'token': target_site.tokens['csrf'],
-        'summary': summary.format(count=num_statements),
-        'bot': target_site.has_right('bot')
-    }
-
-    request = target_site._simple_request(**payload)
-    try:
-        request.submit()
-    except pywikibot.data.api.APIError as error:
-        return {
-            'type': 'error',
-            'data': error,
-            'log': '{0} Error uploading SDC data: {1}'.format(
-                file_page.title(), error)
-        }
 
 
 def format_sdc_payload(target_site, data):
