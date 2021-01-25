@@ -32,6 +32,14 @@ DEFAULT_EDIT_SUMMARY = \
     'Added {count} structured data statement(s) to recent upload'
 
 
+def _get_commons():
+    """Return cached pywikibot.Site('commons', 'commons')."""
+    if not _COMMONS_MEDIA_FILE_SITE:
+        global _COMMONS_MEDIA_FILE_SITE
+        _COMMONS_MEDIA_FILE_SITE = pywikibot.Site('commons', 'commons')
+    return _COMMONS_MEDIA_FILE_SITE
+
+
 def upload_single_sdc_data(target_site, file_page, sdc_data, strategy=None,
                            summary=None):
     """
@@ -264,10 +272,7 @@ def format_claim_value(claim, value):
     if claim.type == 'wikibase-item':
         return pywikibot.ItemPage(repo, value)
     elif claim.type == 'commonsMedia':
-        global _COMMONS_MEDIA_FILE_SITE
-        if not _COMMONS_MEDIA_FILE_SITE:
-            _COMMONS_MEDIA_FILE_SITE = pywikibot.Site('commons', 'commons')
-        return pywikibot.FilePage(_COMMONS_MEDIA_FILE_SITE, value)
+        return pywikibot.FilePage(_get_commons(), value)
     elif claim.type == 'geo-shape':
         return pywikibot.WbGeoShape(
             pywikibot.Page(repo.geo_shape_repository(), value))
