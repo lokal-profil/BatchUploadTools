@@ -40,24 +40,38 @@ def _get_commons():
     return _COMMONS_MEDIA_FILE_SITE
 
 
-def upload_single_sdc_data(target_site, file_page, sdc_data, strategy=None,
-                           summary=None):
+def upload_single_sdc_data(file_page, sdc_data, target_site=None,
+                           strategy=None, summary=None):
     """
     Upload the Structured Data corresponding to the recently uploaded file.
 
-    @param target_site: pywikibot.Site object to which file should be uploaded
-    @param file_page: pywikibot.FilePage object corresponding to the
-        recently uploaded file
+    @param file_page: pywikibot.FilePage object (or the file name as a string)
+        corresponding to the media file to which Structured data should be
+        attached. If a file name is provided the target_site parameter must
+        also be supplied unless the file lives on Wikimedia Commons).
     @param sdc_data: internally formatted Structured data in json format
+    @param target_site: pywikibot.Site where the file_page is found (if only a
+        file name was supplied). Defaults to Wikimedia Commons.
     @param strategy: Strategy used for merging uploaded data with pre-existing
         data. Allowed values are None (default), "New" and "Blind".
     @param summary: edit summary If not provided one is looked for in the
         sdc_data, if none is found there then a default summary is used.
     @return: dict of potential issues
+    @raises: ValueError
     """
+    if isinstance(file_page, pywikibot.FilePage):
+        if target_site and target_site != file_page.site:
+            raise ValueError(
+                'target_site should not be provided when file_page is a '
+                'FilePage object.')
+        target_site = file_page.site
+    else:
+        target_site = target_site or _get_commons()
+        file_page = pywikibot.FilePage(target_site, file_page)
+
     media_identifier = 'M{}'.format(file_page.pageid)
 
-    # check if there is structured data already and resolve what to do
+    # check if there is Structured data already and resolve what to do
     objections = merge_strategy(
         media_identifier, target_site, sdc_data, strategy)
     if objections:
@@ -102,16 +116,16 @@ def upload_single_sdc_data(target_site, file_page, sdc_data, strategy=None,
 
 def merge_strategy(media_identifier, target_site, sdc_data, strategy):
     """
-    Check if the file already holds structured data, if so resolve what to do.
+    Check if the file already holds Structured data, if so resolve what to do.
 
     @param media_identifier: Mid of the file
     @param target_site: pywikibot.Site object to which file should be uploaded
     @param sdc_data: internally formatted Structured data in json format
     @param strategy: Strategy used for merging uploaded data with pre-existing
         data. Allowed values are None, "New" and "Blind".
-    @return None if no objections to uploading the data else a dict specifying
+    @return: None if no objections to uploading the data else a dict specifying
         the issues preventing upload.
-    @raises ValueError
+    @raises: ValueError
     """
     # @todo: Consider two more strategies: nuke (delete all pre-existing data),
     #        squeeze (drop conflicting, but upload non-conflicting, properties)
@@ -154,7 +168,7 @@ def format_sdc_payload(target_site, data):
 
     @param target_site: pywikibot.Site object to which file was uploaded
     @param data: internally formatted sdc data.
-    @return dict formated sdc data payload
+    @return: dict formated sdc data payload
     """
     allowed_non_property_keys = ('caption', 'summary')
     payload = dict()
@@ -185,8 +199,9 @@ def make_claim(value, prop, target_site):
 
     @param value: str|dict The internally formatted claim value
     @param prop: str Property of the claim
-    @param target_site: pywikibot.Site to which SDC is uploaded
+    @param target_site: pywikibot.Site to which Structured data is uploaded
     @return: pywikibot.Claim
+    @raises: ValueError
     """
     repo = target_site.data_repository()
     claim = pywikibot.Claim(repo, prop)
@@ -245,6 +260,7 @@ def format_qualifier_claim_value(value, prop, claim):
     @param prop: str Property of qualifier
     @param claim: pywikibot.Claim to which qualifier is being added
     @return: pywikibot.Claim
+    @raises: ValueError
     """
     if common.is_str(value) or isinstance(value, dict):
         # support using exactly the same format as for complex claims
@@ -266,7 +282,7 @@ def format_claim_value(claim, value):
 
     @param claim: pywikibot.Claim to which value should be added
     @param value: str|dict encoding the value to be added
-    @return pywikibot representation of the claim value
+    @return: pywikibot representation of the claim value
     """
     repo = claim.repo
     if claim.type == 'wikibase-item':
@@ -314,7 +330,7 @@ def is_prop_key(key):
     Check that a key is a valid property reference.
 
     @param key: key to test
-    @return if key is a valid property reference
+    @return: if key is a valid property reference
     """
     return (
         common.is_str(key)
@@ -380,8 +396,8 @@ def coord_precision(digits):
     otherwise have been removed.)
 
     @param digits: the number to guestimate the precision from
-    @type unit: str
-    @return: error
+    @type digits: str
+    @return: precision
     @rtype: int
     """
     # @todo consider adding a is_number check

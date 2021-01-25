@@ -189,7 +189,7 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
         if expect_sdc and result['file_page']:
             sdc_data = common.open_and_read_file(sdc_file, as_json=True)
             issues = sdc_support.upload_single_sdc_data(
-                target_site, result['file_page'], sdc_data)
+                result['file_page'], sdc_data)
             if issues:
                 result[issues.get('type')] = issues.get('data')
                 result['log'] += '\n\t{}'.format(issues.get('log'))
@@ -316,7 +316,7 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
             filename, url, txt, target_site, upload_if_badprefix=True)
         if expect_sdc and result['file_page']:
             issues = sdc_support.upload_single_sdc_data(
-                target_site, result['file_page'], data['sdc'])
+                result['file_page'], data['sdc'])
             if issues:
                 result[issues.get('type')] = issues.get('data')
                 result['log'] += '\n\t{}'.format(issues.get('log'))
