@@ -315,8 +315,11 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
         result = upload_single_file(
             filename, url, txt, target_site, upload_if_badprefix=True)
         if expect_sdc and result['file_page']:
-            sdc_support.upload_single_sdc_data(
-                target_site, result['file_page'], data['sdc'], result)
+            issues = sdc_support.upload_single_sdc_data(
+                target_site, result['file_page'], data['sdc'])
+            if issues:
+                result[issues.get('type')] = issues.get('data')
+                result['log'] += '\n\t{}'.format(issues.get('log'))
         if result.get('error'):
             logs['error'].write(url)
         elif result.get('warning'):
