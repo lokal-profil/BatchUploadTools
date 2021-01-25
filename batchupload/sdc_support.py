@@ -34,8 +34,8 @@ DEFAULT_EDIT_SUMMARY = \
 
 def _get_commons():
     """Return cached pywikibot.Site('commons', 'commons')."""
+    global _COMMONS_MEDIA_FILE_SITE
     if not _COMMONS_MEDIA_FILE_SITE:
-        global _COMMONS_MEDIA_FILE_SITE
         _COMMONS_MEDIA_FILE_SITE = pywikibot.Site('commons', 'commons')
     return _COMMONS_MEDIA_FILE_SITE
 
