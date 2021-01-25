@@ -106,13 +106,15 @@ Examples:
 *   String: `"Some text"`
 *   Url: `"https://commons.wikimedia.org"`
 *   Math: `"E = m c^2"`
-*   Musical notation: `"\drums {cb hh hh hc sn sn hh hh cb}"`
 *   External identifier: `"123-345"`
+*   Musical notation: `"\drums {cb hh hh hc sn sn hh hh cb}"`
 
 Additionally [items](#items), [Commons media](#commons-media), unitless [quantities](#quantity),
 [tabular data](#tabular-data-geo-shapes) and [geo shapes](#tabular-data-geo-shapes)
 can be supplied as simple strings here. The assumptions made for this convenience
 are described in the relevant sections below.
+
+Note that *Musical notation* requires `pywikibot >= 5.5.0` and thus `python >= 3.5`.
 
 ### Items
 
