@@ -98,3 +98,11 @@ Below follows a list of of common errors and what to do about them (when known).
    Smaller files can often be uploaded unchunked (slow).
 3. `stashfailed: Cannot upload this file because Internet Explorer would detect it as "$1", which is a disallowed and potentially dangerous file type`
    No clue yet. See [T147720](https://phabricator.wikimedia.org/T147720)
+
+## Something on SDC
+
+...
+
+## Something on runnign as stand-alone
+
+...
