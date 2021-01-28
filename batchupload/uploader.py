@@ -2,12 +2,15 @@
 # -*- coding: utf-8  -*-
 """Tool for uploading a single or multiple files from disc or url."""
 from __future__ import unicode_literals
-import batchupload.common as common
-import batchupload.prepUpload as prepUpload
-import pywikibotsdc.sdc_support as sdc_support
-from batchupload.make_info import make_info_page
+
 import os
 import pywikibot
+import pywikibotsdc.sdc_support as sdc_support
+from pywikibotsdc.sdc_exception import SdcException
+
+import batchupload.common as common
+import batchupload.prepUpload as prepUpload
+from batchupload.make_info import make_info_page
 
 FILE_EXTS = ('.tif', '.jpg', '.tiff', '.jpeg', '.wav', '.svg', '.png')
 URL_PROTOCOLS = ('http', 'https')  # @todo: extend with supported protocols
@@ -188,11 +191,12 @@ def up_all(in_path, cutoff=None, target='Uploaded', file_exts=None,
                                     upload_if_badprefix=True, chunked=chunked)
         if expect_sdc and result['file_page']:
             sdc_data = common.open_and_read_file(sdc_file, as_json=True)
-            issues = sdc_support.upload_single_sdc_data(
-                result['file_page'], sdc_data)
-            if issues:
-                result[issues.get('type')] = issues.get('data')
-                result['log'] += '\n\t{}'.format(issues.get('log'))
+            try:
+                sdc_support.upload_single_sdc_data(
+                    result['file_page'], sdc_data)
+            except SdcException as e:
+                result[e.level] = e.data
+                result['log'] += '\n\t{}'.format(e.log)
 
         target_dir = None
         if result.get('error'):
@@ -315,11 +319,12 @@ def up_all_from_url(info_path, cutoff=None, target='upload_logs',
         result = upload_single_file(
             filename, url, txt, target_site, upload_if_badprefix=True)
         if expect_sdc and result['file_page']:
-            issues = sdc_support.upload_single_sdc_data(
-                result['file_page'], data['sdc'])
-            if issues:
-                result[issues.get('type')] = issues.get('data')
-                result['log'] += '\n\t{}'.format(issues.get('log'))
+            try:
+                sdc_support.upload_single_sdc_data(
+                    result['file_page'], data['sdc'])
+            except SdcException as e:
+                result[e.level] = e.data
+                result['log'] += '\n\t{}'.format(e.log)
         if result.get('error'):
             logs['error'].write(url)
         elif result.get('warning'):
