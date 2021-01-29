@@ -12,7 +12,8 @@ setup(
         'mwparserfromhell',
         'setuptools>50.0.0; python_version >= "3.6"',
         'pywikibot==5.5.0; python_version >= "3.6"',
-        'pywikibot==3.0.20200703; python_version < "3.6"'
+        'pywikibot==3.0.20200703; python_version < "3.6"',
+        'pywikibot-sdc @ https://api.github.com/repos/lokal-profil/pywikibot-sdc/tarball/0.0.1'
     ],
     version=version,
     description='Framework for mass-importing images to Wikimedia Commons.',
